@@ -1,0 +1,30 @@
+{
+  "acId": "AC-101-2",
+  "usId": "US-101",
+  "prdId": "PRD-100",
+  "version": "1.0.0",
+  "title": "Reconnect triggers automatic sync of pending edits",
+  "testCases": [
+    {
+      "id": "TC-100",
+      "given": "the client is offline with 3 pending edits queued",
+      "when": "connectivity is restored",
+      "then": "all 3 edits are uploaded within 30 seconds and the queue is empty",
+      "notes": "Use the Cloudflare emulator with a forced offline window."
+    },
+    {
+      "id": "TC-101",
+      "given": "the client is online with no pending edits",
+      "when": "the sync timer fires",
+      "then": "no network traffic is generated"
+    },
+    {
+      "id": "TC-102",
+      "given": "the client is offline and the user creates a new note",
+      "when": "the user closes the tab without reconnecting",
+      "then": "the pending edit survives the next session and uploads on reconnect"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-05-01T12:00:00Z"
+}

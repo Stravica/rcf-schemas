@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Use IndexedDB for local note storage",
+  "context": "We need a browser-resident store that survives reloads and supports structured queries.",
+  "decision": "Adopt IndexedDB via a thin Promise wrapper.",
+  "consequences": "Adds a build-time dependency on the wrapper; cheaper than rolling our own.",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/tac.schema.json",
+  "title": "RCF Technical Architecture Component",
+  "description": "One per architectural component. Verbose per-component descriptions are fine; the schema does not constrain length.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tacId",
+    "prdId",
+    "tadId",
+    "version",
+    "status",
+    "name",
+    "purpose",
+    "responsibilities",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tacId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tadId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/authoringStatus" },
+
+    "name": { "type": "string", "minLength": 1 },
+    "purpose": { "type": "string", "minLength": 1 },
+    "responsibilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "type": "string", "minLength": 1 }
+    },
+
+    "internalStructure": { "type": "string" },
+    "interfaces": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/interfaceDef" }
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/dependencyRef" }
+    },
+    "tradeoffs": { "type": "string" },
+    "notes": { "type": "string" },
+
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+  },
+  "$defs": {
+    "interfaceDef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "kind"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "type": "string", "minLength": 1 },
+        "description": { "type": "string" }
+      }
+    },
+    "dependencyRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "kind"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "kind": { "enum": ["tac", "external"] },
+        "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tacId" },
+        "description": { "type": "string" }
+      }
+    }
+  }
+}

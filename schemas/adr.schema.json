@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/adr.schema.json",
+  "title": "RCF Architectural Decision Record",
+  "description": "Architectural Decision Record. One per decision, one file each. Nygard / MADR convention.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "adrId",
+    "prdId",
+    "tadId",
+    "version",
+    "status",
+    "title",
+    "context",
+    "decision",
+    "consequences",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "adrId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/adrId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tadId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/adrStatus" },
+
+    "title": { "type": "string", "minLength": 1 },
+    "context": { "type": "string", "minLength": 1 },
+    "decision": { "type": "string", "minLength": 1 },
+    "consequences": { "type": "string", "minLength": 1 },
+    "alternativesConsidered": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/alternative" }
+    },
+
+    "supersededBy": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/adrId" },
+    "relatedAdrs": {
+      "type": "array",
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/adrId" }
+    },
+
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+  },
+  "$defs": {
+    "alternative": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "summary"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "summary": { "type": "string", "minLength": 1 },
+        "reasonNotChosen": { "type": "string" }
+      }
+    }
+  }
+}

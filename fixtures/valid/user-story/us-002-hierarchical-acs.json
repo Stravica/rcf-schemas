@@ -1,0 +1,40 @@
+{
+  "usId": "US-101",
+  "prdId": "PRD-100",
+  "reqId": "REQ-101",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Edit a note while offline",
+  "description": "Cover the offline-edit + reconnect path end to end, including conflict surfacing.",
+  "asA": "user with intermittent connectivity",
+  "iWant": "to edit my notes while offline and have changes sync when I reconnect",
+  "soThat": "I can keep working on trains, planes, and behind firewalls",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-101-1",
+      "description": "Editing a note while offline persists locally",
+      "given": "the device is offline and a note is loaded",
+      "when": "the user edits and saves the note",
+      "then": "the change is stored locally and visible in the note list",
+      "testable": true
+    },
+    {
+      "id": "AC-101-2",
+      "description": "Reconnect triggers automatic sync of pending edits",
+      "given": "pending offline edits exist",
+      "when": "connectivity is restored",
+      "then": "edits are uploaded within 30 seconds and remote reflects the new state",
+      "testable": true
+    },
+    {
+      "id": "AC-101-3",
+      "description": "Conflict surfaced when remote diverges from local",
+      "given": "the same note was edited locally offline and on another device",
+      "when": "sync runs after reconnect",
+      "then": "the conflict is surfaced in the UI with both versions visible",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-04-10T08:00:00Z"
+}

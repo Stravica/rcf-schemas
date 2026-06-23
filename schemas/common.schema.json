@@ -1,0 +1,98 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json",
+  "title": "RCF Shared Definitions",
+  "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 10 doc-type schemas at validator init.",
+  "$defs": {
+    "prdId": {
+      "type": "string",
+      "pattern": "^PRD-\\d{3,}$",
+      "description": "PRD identifier. Three-digit minimum, unbounded above."
+    },
+    "reqId": {
+      "type": "string",
+      "pattern": "^REQ-\\d{3,}$",
+      "description": "Requirement identifier."
+    },
+    "usId": {
+      "type": "string",
+      "pattern": "^US-\\d{3,}$",
+      "description": "User Story identifier."
+    },
+    "acId": {
+      "type": "string",
+      "pattern": "^AC-\\d{3,}(-\\d+)?$",
+      "description": "Acceptance Criterion identifier. Supports hierarchical form (AC-101-1) and flat form (AC-201). Authors pick per project."
+    },
+    "tadId": {
+      "type": "string",
+      "pattern": "^TAD-\\d{3,}$",
+      "description": "Technical Architecture Document identifier."
+    },
+    "tacId": {
+      "type": "string",
+      "pattern": "^TAC-\\d{3,}$",
+      "description": "Technical Architecture Component identifier."
+    },
+    "adrId": {
+      "type": "string",
+      "pattern": "^ADR-\\d{3,}$",
+      "description": "Architectural Decision Record identifier."
+    },
+    "bsId": {
+      "type": "string",
+      "pattern": "^BS-\\d{3,}$",
+      "description": "Build Sequence identifier."
+    },
+    "fbsId": {
+      "type": "string",
+      "pattern": "^FBS-\\d{3,}$",
+      "description": "Functional Build Specification identifier."
+    },
+    "tcId": {
+      "type": "string",
+      "pattern": "^TC-\\d{3,}$",
+      "description": "Test Case identifier."
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Semantic version string for individual RCF documents."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 / RFC 3339 date-time."
+    },
+    "authoringStatus": {
+      "enum": ["draft", "review", "needsRevision", "approved", "superseded"],
+      "description": "Authoring lifecycle status for PRD, REQ, US, TAD, TAC, BS."
+    },
+    "adrStatus": {
+      "enum": ["proposed", "accepted", "superseded", "deprecated"],
+      "description": "Nygard / MADR convention status for ADRs."
+    },
+    "executionStatus": {
+      "enum": ["notStarted", "inProgress", "complete", "verified"],
+      "description": "Execution-state status for FBS documents and FBS slots within a Build Sequence."
+    },
+    "docRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Document id (matches the doc-type-specific id pattern)."
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Relative path to the document file."
+        }
+      },
+      "description": "Reference to a root document by id and file path. Used by the manifest."
+    }
+  }
+}

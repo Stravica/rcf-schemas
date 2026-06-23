@@ -1,0 +1,27 @@
+{
+  "adrId": "ADR-100",
+  "prdId": "PRD-100",
+  "tadId": "TAD-100",
+  "version": "2.0.0",
+  "status": "superseded",
+  "title": "CRDT library choice for conflict resolution",
+  "context": "Multiple devices may edit the same note offline; we need a deterministic merge.",
+  "decision": "Adopt Yjs for CRDT primitives, wrapped in a thin domain layer.",
+  "consequences": "Adds ~50 KB to the bundle. Removes the bulk of custom conflict-handling code. Locks us to a Yjs-compatible wire format.",
+  "alternativesConsidered": [
+    {
+      "name": "Automerge",
+      "summary": "Comparable CRDT library with a different runtime profile.",
+      "reasonNotChosen": "Bundle size larger; ecosystem smaller at evaluation time."
+    },
+    {
+      "name": "Hand-rolled three-way merge",
+      "summary": "Custom merge per field.",
+      "reasonNotChosen": "Too much edge-case complexity for a small team."
+    }
+  ],
+  "supersededBy": "ADR-101",
+  "relatedAdrs": ["ADR-050", "ADR-099"],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-05-01T12:00:00Z"
+}

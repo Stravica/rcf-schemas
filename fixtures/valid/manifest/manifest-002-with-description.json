@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "projectName": "Stravica Notebook",
+  "description": "Markdown-first notebook with offline-first sync. RCF v2 project.",
+  "prd": { "id": "PRD-100", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-100", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-100",  "path": "rcf/build-sequence.json" }
+}
