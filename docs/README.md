@@ -6,22 +6,22 @@ Per-schema reference + cross-cutting conventions for `@stravica/rcf-schemas`.
 
 One page per schema file under `schemas/`.
 
-- [common](./common.md) — shared `$defs` referenced from every other schema.
-- [prd](./prd.md) — Product Requirements Document (shell).
-- [req](./req.md) — individual Requirement.
-- [user-story](./user-story.md) — User Story with inline Acceptance Criteria.
-- [tad](./tad.md) — master Technical Architecture Document.
-- [tac](./tac.md) — Technical Architecture Component.
-- [adr](./adr.md) — Architectural Decision Record.
-- [build-sequence](./build-sequence.md) — ordered FBS plan.
-- [fbs](./fbs.md) — Functional Build Specification.
-- [test-suite](./test-suite.md) — Test Suite for a single AC.
-- [manifest](./manifest.md) — project roots-only manifest.
+- [common](./common.md) - shared `$defs` referenced from every other schema.
+- [prd](./prd.md) - Product Requirements Document (shell).
+- [req](./req.md) - individual Requirement.
+- [user-story](./user-story.md) - User Story with inline Acceptance Criteria.
+- [tad](./tad.md) - master Technical Architecture Document.
+- [tac](./tac.md) - Technical Architecture Component.
+- [adr](./adr.md) - Architectural Decision Record.
+- [build-sequence](./build-sequence.md) - ordered FBS plan.
+- [fbs](./fbs.md) - Functional Build Specification.
+- [test-suite](./test-suite.md) - Test Suite for a single AC.
+- [manifest](./manifest.md) - project roots-only manifest.
 
 ## Cross-cutting
 
-- [id-conventions](./id-conventions.md) — the `^<PREFIX>-\d{3,}$` pattern, prefix table, hierarchical AC ids, and the file/nested asymmetry.
-- [file-layout](./file-layout.md) — recommended `rcf/` tree, with TS files outside it (code-adjacent).
+- [id-conventions](./id-conventions.md) - the `^<PREFIX>-\d{3,}$` pattern, prefix table, hierarchical AC ids, and the file/nested asymmetry.
+- [file-layout](./file-layout.md) - recommended `rcf/` tree, with TS files outside it (code-adjacent).
 
 ## Out of scope (deliberately)
 
