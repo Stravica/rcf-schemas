@@ -4,12 +4,12 @@ JSON Schemas for the [Requirements Confidence Framework (RCF)](https://stravica.
 
 **Language-neutral. No code in this package, only schema files, docs, and fixtures.** Every consumer language is first-class: Node, Python, Java, or anything else with a JSON Schema 2020-12 validator.
 
-> **Status:** v0.1.0 — initial private release.
+> **Status:** v0.1.0 - initial private release.
 
 ## What's here
 
 - **11 schema files** in `schemas/`:
-  - `common.schema.json` — shared `$defs` (id patterns, status enums, version, timestamp, `docRef`). Referenced via `$ref` from every other schema.
+  - `common.schema.json` - shared `$defs` (id patterns, status enums, version, timestamp, `docRef`). Referenced via `$ref` from every other schema.
   - `prd`, `req`, `user-story`, `tad`, `tac`, `adr`, `build-sequence`, `fbs`, `test-suite`, `manifest`.
 - **Per-schema docs** in `docs/` (one page per schema) plus cross-cutting `id-conventions.md` and `file-layout.md`.
 - **JSON test fixtures** in `fixtures/valid/` and `fixtures/invalid/` (every schema covered).
@@ -126,8 +126,8 @@ Per-schema docs in [`docs/`](./docs/README.md):
 
 Cross-cutting:
 
-- [id-conventions](./docs/id-conventions.md) — the `^<PREFIX>-\d{3,}$` pattern, prefix table, hierarchical AC ids.
-- [file-layout](./docs/file-layout.md) — recommended `rcf/` tree (not enforced).
+- [id-conventions](./docs/id-conventions.md) - the `^<PREFIX>-\d{3,}$` pattern, prefix table, hierarchical AC ids.
+- [file-layout](./docs/file-layout.md) - recommended `rcf/` tree (not enforced).
 
 ## What's deliberately NOT shipped
 
