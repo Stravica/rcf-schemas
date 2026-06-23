@@ -1,0 +1,17 @@
+{
+  "bsId": "BS-100",
+  "prdId": "PRD-100",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Stravica Notebook initial delivery",
+  "buildPhilosophy": "Vertical slice first; ship a thin end-to-end note creation path before broadening.",
+  "generationStrategy": "verticalSlice",
+  "fbs": [
+    { "fbsId": "FBS-100", "order": 1, "status": "verified", "notes": "Local IndexedDB store + create/read." },
+    { "fbsId": "FBS-101", "order": 2, "status": "complete" },
+    { "fbsId": "FBS-102", "order": 3, "status": "inProgress" },
+    { "fbsId": "FBS-103", "order": 4, "status": "notStarted", "notes": "Blocked on ADR-100 finalisation." }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-05-01T12:00:00Z"
+}

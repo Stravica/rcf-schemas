@@ -1,0 +1,73 @@
+{
+  "tadId": "TAD-100",
+  "prdId": "PRD-100",
+  "version": "1.0.0",
+  "status": "approved",
+  "systemOverview": {
+    "executiveSummary": "Markdown-first notebook with a thin sync layer over object storage, browser-resident editor, and a small set of edge-cached read APIs.",
+    "systemPurpose": "Capture and retrieve personal notes across devices with offline-first behaviour.",
+    "architecturalApproach": "Local-first PWA with CRDT-based sync to a serverless backend.",
+    "keyCapabilities": [
+      "Offline editing",
+      "Conflict resolution",
+      "Wiki-style linking",
+      "Full-text search"
+    ]
+  },
+  "componentIds": ["TAC-001", "TAC-002", "TAC-003"],
+  "architecturalDecisionIds": ["ADR-001", "ADR-002", "ADR-003"],
+  "architecturePrinciples": [
+    {
+      "name": "Local-first",
+      "description": "Every read and write succeeds offline; sync is a background concern.",
+      "rationale": "Users expect zero-latency local operation; network is unreliable."
+    },
+    {
+      "name": "Small surface",
+      "description": "Public APIs are small, versioned, and stable.",
+      "rationale": "Long-lived clients cannot churn on every backend change."
+    }
+  ],
+  "dataArchitecture": {
+    "dataStores": [
+      { "name": "IndexedDB (browser)", "kind": "embedded kv", "purpose": "Local note store and pending-sync queue" },
+      { "name": "Object storage (R2)", "kind": "blob store", "purpose": "Authoritative remote storage" }
+    ],
+    "coreEntities": [
+      { "name": "Note", "description": "Markdown document with id, title, body, timestamps." },
+      { "name": "Link", "description": "Directed edge between two notes." }
+    ],
+    "dataFlow": "Edits land in IndexedDB; background worker pushes deltas to R2 when online.",
+    "retention": "Indefinite; user-initiated delete only."
+  },
+  "integrationArchitecture": {
+    "apiDesign": "REST + JSON over HTTPS; idempotent writes keyed by client-generated UUID.",
+    "externalSystems": [
+      { "name": "Cloudflare R2", "purpose": "Authoritative blob store", "protocol": "HTTPS S3-compatible" }
+    ],
+    "eventModel": "Push notifications via WebPush for cross-device change signalling."
+  },
+  "securityArchitecture": {
+    "authenticationPattern": "Passwordless email magic link with rotating signed token.",
+    "authorizationModel": "User-scoped; all data is private to the authenticated user.",
+    "secretsManagement": "Cloudflare Workers Secrets; no plaintext in code.",
+    "threatModel": "STRIDE; primary concerns are token theft and replay.",
+    "complianceRequirements": ["GDPR data export and delete"]
+  },
+  "deploymentArchitecture": {
+    "targetEnvironment": "Cloudflare Pages + Workers + R2.",
+    "topology": "Edge-distributed; no origin region.",
+    "scaling": "Automatic per Cloudflare runtime.",
+    "cicd": "GitHub Actions; preview deploys per PR."
+  },
+  "operationalConcerns": {
+    "healthChecks": "Synthetic edge probe per region every 60 seconds.",
+    "logging": "Structured JSON logs shipped to Logflare.",
+    "metrics": "p50/p95 latency per Worker route; cache hit ratio per edge POP.",
+    "alerting": "PagerDuty on probe failure or error rate > 1%.",
+    "backup": "R2 versioning enabled with 30-day retention.",
+    "disasterRecovery": "Restore from R2 versioning; RPO 1 hour, RTO 4 hours."
+  },
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-05-01T12:00:00Z"
+}

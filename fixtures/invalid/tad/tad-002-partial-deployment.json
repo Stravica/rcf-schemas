@@ -1,0 +1,19 @@
+{
+  "tadId": "TAD-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "systemOverview": {
+    "executiveSummary": "x",
+    "systemPurpose": "y",
+    "architecturalApproach": "z",
+    "keyCapabilities": ["w"]
+  },
+  "componentIds": ["TAC-001"],
+  "architecturalDecisionIds": ["ADR-001"],
+  "deploymentArchitecture": {
+    "topology": "edge"
+  },
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

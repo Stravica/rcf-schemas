@@ -1,0 +1,20 @@
+{
+  "usId": "US-001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Save a note",
+  "asA": "user",
+  "iWant": "to save a note I just wrote",
+  "soThat": "I can come back to it later",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Note persists after closing the app",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

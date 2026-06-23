@@ -1,0 +1,174 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/tad.schema.json",
+  "title": "RCF Technical Architecture Document",
+  "description": "Master Technical Architecture Document. One per project. Declares its TACs via componentIds[] and its ADRs via architecturalDecisionIds[]. The schema defines the FULL set of possible sections; what's required for a given project is a tooling decision.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "tadId",
+    "prdId",
+    "version",
+    "status",
+    "systemOverview",
+    "componentIds",
+    "architecturalDecisionIds",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tadId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/authoringStatus" },
+
+    "systemOverview": { "$ref": "#/$defs/systemOverview" },
+    "componentIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tacId" }
+    },
+    "architecturalDecisionIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/adrId" }
+    },
+
+    "architecturePrinciples": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/principle" }
+    },
+    "dataArchitecture": { "$ref": "#/$defs/dataArchitecture" },
+    "integrationArchitecture": { "$ref": "#/$defs/integrationArchitecture" },
+    "securityArchitecture": { "$ref": "#/$defs/securityArchitecture" },
+    "deploymentArchitecture": { "$ref": "#/$defs/deploymentArchitecture" },
+    "operationalConcerns": { "$ref": "#/$defs/operationalConcerns" },
+
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+  },
+  "$defs": {
+    "systemOverview": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["executiveSummary", "systemPurpose", "architecturalApproach", "keyCapabilities"],
+      "properties": {
+        "executiveSummary": { "type": "string", "minLength": 1 },
+        "systemPurpose": { "type": "string", "minLength": 1 },
+        "architecturalApproach": { "type": "string", "minLength": 1 },
+        "keyCapabilities": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "principle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "description", "rationale"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "description": { "type": "string", "minLength": 1 },
+        "rationale": { "type": "string", "minLength": 1 }
+      }
+    },
+    "dataArchitecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dataStores", "coreEntities"],
+      "properties": {
+        "dataStores": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name", "kind"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "kind": { "type": "string", "minLength": 1 },
+              "purpose": { "type": "string" }
+            }
+          }
+        },
+        "coreEntities": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "description": { "type": "string" }
+            }
+          }
+        },
+        "dataFlow": { "type": "string" },
+        "retention": { "type": "string" }
+      }
+    },
+    "integrationArchitecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["apiDesign"],
+      "properties": {
+        "apiDesign": { "type": "string", "minLength": 1 },
+        "externalSystems": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["name"],
+            "properties": {
+              "name": { "type": "string", "minLength": 1 },
+              "purpose": { "type": "string" },
+              "protocol": { "type": "string" }
+            }
+          }
+        },
+        "eventModel": { "type": "string" }
+      }
+    },
+    "securityArchitecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authenticationPattern", "authorizationModel"],
+      "properties": {
+        "authenticationPattern": { "type": "string", "minLength": 1 },
+        "authorizationModel": { "type": "string", "minLength": 1 },
+        "secretsManagement": { "type": "string" },
+        "threatModel": { "type": "string" },
+        "complianceRequirements": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "deploymentArchitecture": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["targetEnvironment"],
+      "properties": {
+        "targetEnvironment": { "type": "string", "minLength": 1 },
+        "topology": { "type": "string" },
+        "scaling": { "type": "string" },
+        "cicd": { "type": "string" }
+      }
+    },
+    "operationalConcerns": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["healthChecks", "logging"],
+      "properties": {
+        "healthChecks": { "type": "string", "minLength": 1 },
+        "logging": { "type": "string", "minLength": 1 },
+        "metrics": { "type": "string" },
+        "alerting": { "type": "string" },
+        "backup": { "type": "string" },
+        "disasterRecovery": { "type": "string" }
+      }
+    }
+  }
+}

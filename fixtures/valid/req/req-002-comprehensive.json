@@ -1,0 +1,15 @@
+{
+  "reqId": "REQ-101",
+  "prdId": "PRD-100",
+  "title": "Offline-first sync",
+  "description": "The system must let users continue capturing and editing notes while offline; sync happens opportunistically when connectivity returns. Conflicts are resolved with a last-writer-wins policy and surfaced for manual review when content diverges.",
+  "category": "nonFunctional",
+  "domain": "sync",
+  "priority": "must",
+  "rationale": "Users in transit and in poor-connectivity environments must not lose work.",
+  "tags": ["sync", "offline", "conflict-resolution"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-04-10T08:00:00Z"
+}

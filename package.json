@@ -1,18 +1,41 @@
 {
   "name": "@stravica/rcf-schemas",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "JSON Schema contract for the RCF method (Requirements Confidence Framework). The standard. Other RCF tools consume this.",
+  "description": "JSON Schemas for the Requirements Confidence Framework (RCF). Language-neutral. The contract every RCF tool keys to.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.0.0"
   },
+  "files": [
+    "schemas",
+    "docs",
+    "fixtures",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
   "scripts": {
     "test": "node --test test/*.test.js"
+  },
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
   },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/Stravica/rcf-schemas.git"
-  }
+  },
+  "homepage": "https://github.com/Stravica/rcf-schemas",
+  "bugs": {
+    "url": "https://github.com/Stravica/rcf-schemas/issues"
+  },
+  "keywords": [
+    "rcf",
+    "requirements-confidence-framework",
+    "json-schema",
+    "specifications",
+    "traceability"
+  ]
 }

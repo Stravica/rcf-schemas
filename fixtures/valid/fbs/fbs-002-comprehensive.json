@@ -1,0 +1,33 @@
+{
+  "fbsId": "FBS-100",
+  "prdId": "PRD-100",
+  "bsId": "BS-100",
+  "title": "Sync Worker push endpoint",
+  "summary": "Build the Cloudflare Worker /sync/push endpoint that accepts a batch of client deltas and writes them to R2.",
+  "approach": "Stateless Worker; deltas are appended as versioned objects in R2 keyed by user id and timestamp. Concurrency handled by R2's strong consistency on PUT-if-match.",
+  "acIds": ["AC-101-1", "AC-101-2"],
+  "status": "inProgress",
+  "contextRequirements": {
+    "prdSections": ["sync", "offline"],
+    "tadSections": ["integrationArchitecture", "operationalConcerns"],
+    "tacIds": ["TAC-100", "TAC-101"],
+    "adrIds": ["ADR-100"],
+    "existingModules": ["src/sync/r2Adapter.js"],
+    "schemas": ["schemas/sync-delta.schema.json"],
+    "externalDocs": ["https://developers.cloudflare.com/r2/"],
+    "other": ["See FBS-099 for the prior local-store work."]
+  },
+  "dependencies": ["FBS-099"],
+  "estimatedSize": "medium",
+  "estimatedHours": 6,
+  "deliverables": [
+    "POST /sync/push handler",
+    "Unit tests for delta validation",
+    "Integration test against local R2 emulator"
+  ],
+  "riskLevel": "medium",
+  "domain": "sync",
+  "notes": "Watch the 50 ms CPU budget; large delta batches may need chunking.",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-05-01T12:00:00Z"
+}

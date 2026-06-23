@@ -1,0 +1,35 @@
+{
+  "prdId": "PRD-100",
+  "productName": "Stravica Notebook",
+  "version": "1.2.3",
+  "status": "approved",
+  "executiveSummary": "A markdown-first notebook that syncs across devices and supports first-class linking between notes.",
+  "problemStatement": "Knowledge workers maintain notes across many tools; cross-tool linking, search, and offline access are unsolved.",
+  "targetUsers": [
+    "Knowledge workers",
+    "Researchers",
+    "Software engineers"
+  ],
+  "inScope": [
+    "Markdown editing",
+    "Wiki-style linking",
+    "Multi-device sync",
+    "Full-text search"
+  ],
+  "outOfScope": [
+    "Real-time collaborative editing",
+    "Mobile-native clients in v1"
+  ],
+  "objectives": [
+    "Capture is friction-free",
+    "Retrieval beats ten-second target",
+    "Offline-first behaviour by default"
+  ],
+  "constraints": [
+    "Single-developer maintenance budget",
+    "Apache 2.0 license"
+  ],
+  "requirementIds": ["REQ-100", "REQ-101", "REQ-102"],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-03-15T10:30:00Z"
+}

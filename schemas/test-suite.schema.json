@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/test-suite.schema.json",
+  "title": "RCF Test Suite",
+  "description": "One file per AC. The JSON specification of what Test Cases must exist for an AC. Code-adjacent, not doc-adjacent; lives with the implementation. The executable test (Jest/pytest/JUnit/etc.) is a separate artefact that implements this spec.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "acId",
+    "usId",
+    "prdId",
+    "version",
+    "testCases",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/acId" },
+    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/usId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
+    "title": { "type": "string" },
+    "testCases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "given", "when", "then"],
+        "properties": {
+          "id": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tcId" },
+          "given": { "type": "string", "minLength": 1 },
+          "when": { "type": "string", "minLength": 1 },
+          "then": { "type": "string", "minLength": 1 },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+  }
+}

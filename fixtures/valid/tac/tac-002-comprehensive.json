@@ -1,0 +1,49 @@
+{
+  "tacId": "TAC-100",
+  "prdId": "PRD-100",
+  "tadId": "TAD-100",
+  "version": "1.0.0",
+  "status": "approved",
+  "name": "Sync Worker",
+  "purpose": "Cloudflare Worker that mediates between IndexedDB and R2 for note synchronisation.",
+  "responsibilities": [
+    "Accept pending deltas from clients",
+    "Reconcile against the authoritative version in R2",
+    "Surface conflicts back to the client"
+  ],
+  "internalStructure": "Single Worker entrypoint dispatching to /push, /pull, /conflict handlers. Internal modules: deltaParser, conflictDetector, r2Adapter.",
+  "interfaces": [
+    {
+      "name": "POST /sync/push",
+      "kind": "http-json",
+      "description": "Accepts a batch of pending deltas."
+    },
+    {
+      "name": "GET /sync/pull",
+      "kind": "http-json",
+      "description": "Returns deltas the client has not yet seen."
+    },
+    {
+      "name": "syncMetrics",
+      "kind": "internal-event-stream",
+      "description": "Per-batch latency and conflict count published to the metrics sink."
+    }
+  ],
+  "dependencies": [
+    {
+      "name": "Object store",
+      "kind": "tac",
+      "tacId": "TAC-101",
+      "description": "Persists note bodies."
+    },
+    {
+      "name": "Cloudflare R2",
+      "kind": "external",
+      "description": "Underlying blob backend."
+    }
+  ],
+  "tradeoffs": "Stateless Worker design simplifies failover but rules out long-lived in-memory caches; we accept the extra cold-start cost.",
+  "notes": "Watch the 50 ms CPU budget per request on the free tier.",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-05-01T12:00:00Z"
+}

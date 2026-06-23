@@ -1,0 +1,14 @@
+{
+  "prdId": "PRD-001",
+  "productName": "Acme Notes",
+  "version": "0.1.0",
+  "status": "draft",
+  "problemStatement": "x",
+  "objectives": ["y"],
+  "requirementIds": ["REQ-001"],
+  "requirements": [
+    { "reqId": "REQ-001", "title": "Inline body that should not be here" }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

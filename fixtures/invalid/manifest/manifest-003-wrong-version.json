@@ -1,0 +1,7 @@
+{
+  "version": "1.0.0",
+  "projectName": "Acme Notes",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" }
+}

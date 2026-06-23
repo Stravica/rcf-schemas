@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/build-sequence.schema.json",
+  "title": "RCF Build Sequence",
+  "description": "One per project. Pure ordering plan; references FBS items by id. FBS dependencies live on the FBS file, not on the slot (SSoT).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["bsId", "prdId", "version", "status", "fbs", "createdAt", "updatedAt"],
+  "properties": {
+    "bsId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/bsId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/authoringStatus" },
+    "title": { "type": "string" },
+    "buildPhilosophy": { "type": "string" },
+    "generationStrategy": {
+      "enum": ["verticalSlice", "dependencyFirst", "domainGrouped", "riskFrontLoaded"]
+    },
+    "fbs": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["fbsId", "order"],
+        "properties": {
+          "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/fbsId" },
+          "order": { "type": "integer", "minimum": 1 },
+          "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/executionStatus" },
+          "notes": { "type": "string" }
+        }
+      }
+    },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+  }
+}

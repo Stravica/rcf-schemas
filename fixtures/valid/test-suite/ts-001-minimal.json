@@ -1,0 +1,16 @@
+{
+  "acId": "AC-001",
+  "usId": "US-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "testCases": [
+    {
+      "id": "TC-001",
+      "given": "a new note is opened",
+      "when": "the user types and saves",
+      "then": "the note is persisted to local storage"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

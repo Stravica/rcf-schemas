@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.1.0/req.schema.json",
+  "title": "RCF Requirement",
+  "description": "Individual requirement within a PRD. One file per requirement. Recommended path: rcf/requirements/REQ-001.json.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "reqId",
+    "prdId",
+    "title",
+    "description",
+    "category",
+    "domain",
+    "priority",
+    "version",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/reqId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string", "minLength": 1 },
+    "category": { "enum": ["functional", "nonFunctional", "technical", "security"] },
+    "domain": { "type": "string", "minLength": 1 },
+    "priority": { "enum": ["must", "should", "could", "wont"] },
+    "rationale": { "type": "string" },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/authoringStatus" },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+  }
+}

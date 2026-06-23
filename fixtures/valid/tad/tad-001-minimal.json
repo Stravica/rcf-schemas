@@ -1,0 +1,16 @@
+{
+  "tadId": "TAD-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "systemOverview": {
+    "executiveSummary": "Single-tenant note-taking web app, local-first.",
+    "systemPurpose": "Capture and retrieve personal notes.",
+    "architecturalApproach": "Monolithic frontend with a thin sync service.",
+    "keyCapabilities": ["Markdown editing", "Sync"]
+  },
+  "componentIds": ["TAC-001"],
+  "architecturalDecisionIds": ["ADR-001"],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

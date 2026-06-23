@@ -1,0 +1,19 @@
+{
+  "usId": "US-001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "x",
+  "asA": "y",
+  "iWant": "z",
+  "soThat": "w",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "missing testable boolean"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}
