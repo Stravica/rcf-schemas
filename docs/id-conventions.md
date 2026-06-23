@@ -32,8 +32,8 @@ All prefixes are defined exactly once in `common.schema.json#/$defs` and referen
 
 The `acId` pattern is `^AC-\d{3,}(-\d+)?$`. Two forms are accepted:
 
-- **Flat:** `AC-001`, `AC-201` — single numeric space, fine for small projects.
-- **Hierarchical:** `AC-101-1`, `AC-101-2` — encodes the parent US id (`US-101`) in the prefix. Useful for FBS scope queries and grep.
+- **Flat:** `AC-001`, `AC-201` - single numeric space, fine for small projects.
+- **Hierarchical:** `AC-101-1`, `AC-101-2` - encodes the parent US id (`US-101`) in the prefix. Useful for FBS scope queries and grep.
 
 Pick per project; the schema does not enforce either form. The published `Stravica/rcf-examples` `comprehensive-product` tree uses the hierarchical form for clarity.
 
