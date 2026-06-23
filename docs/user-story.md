@@ -55,7 +55,7 @@ See `fixtures/valid/user-story/us-002-hierarchical-acs.json` for a US with three
 
 The pattern `^AC-\d{3,}(-\d+)?$` accepts both:
 
-- **Flat** (`AC-001`, `AC-201`) — fine for projects with a single numeric space.
-- **Hierarchical** (`AC-101-1`, `AC-101-2`) — encodes the parent US id, useful for FBS scope queries and grep.
+- **Flat** (`AC-001`, `AC-201`) - fine for projects with a single numeric space.
+- **Hierarchical** (`AC-101-1`, `AC-101-2`) - encodes the parent US id, useful for FBS scope queries and grep.
 
 Pick per project; the schema does not enforce either.
