@@ -66,9 +66,9 @@ Required: `healthChecks`, `logging`. Optional: `metrics`, `alerting`, `backup`, 
 
 TAD + TAC + ADR is intentional. The v1 monolithic TAD ran to thousands of lines and produced useless git history. Decomposition gives:
 
-- **TAD** — project-wide architecture (overview + cross-cutting concerns).
-- **TAC** (`tac.schema.json`) — one per architectural component, verbose descriptions OK.
-- **ADR** (`adr.schema.json`) — one per architectural decision, one file each (Nygard convention).
+- **TAD** - project-wide architecture (overview + cross-cutting concerns).
+- **TAC** (`tac.schema.json`) - one per architectural component, verbose descriptions OK.
+- **ADR** (`adr.schema.json`) - one per architectural decision, one file each (Nygard convention).
 
 The TAD owns the membership lists; TAC and ADR bodies live in their own files.
 
