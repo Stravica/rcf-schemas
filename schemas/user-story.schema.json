@@ -35,6 +35,11 @@
       "minItems": 1,
       "items": { "$ref": "#/$defs/acceptanceCriterion" }
     },
+    "tacIds": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tacId" }
+    },
     "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
     "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
   },
