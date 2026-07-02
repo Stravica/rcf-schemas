@@ -4,7 +4,7 @@ Architectural Decision Record. One per decision, one file each. Follows the Nyga
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/adr.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/adr.schema.json`
 
 ## Required fields
 
@@ -14,7 +14,7 @@ Architectural Decision Record. One per decision, one file each. Follows the Nyga
 | `prdId` | `^PRD-\d{3,}$` | Root PRD. |
 | `tadId` | `^TAD-\d{3,}$` | Parent TAD. |
 | `version` | semver | Per-document version. |
-| `status` | `adrStatus` enum: `proposed`, `accepted`, `superseded`, `deprecated` | ADR-specific lifecycle. |
+| `status` | `adrStatus` enum: `draft`, `proposed`, `accepted`, `superseded`, `deprecated` | ADR-specific lifecycle. `draft` prepended in 0.2.0 for pre-proposal work-in-progress. |
 | `title` | string, min 1 | One-line decision title. |
 | `context` | string, min 1 | The situation that forced the decision. |
 | `decision` | string, min 1 | The decision itself. |
@@ -31,7 +31,7 @@ Architectural Decision Record. One per decision, one file each. Follows the Nyga
 
 ## Status enum (different from the authoring-status used by other docs)
 
-ADRs don't go through `draft -> review -> needsRevision -> approved`. They're `proposed`, then `accepted`, then potentially `superseded` (by a later decision) or `deprecated` (the area itself went away). This is intentional: the Nygard / MADR convention is widely understood and worth following.
+ADRs don't go through `draft -> review -> needsRevision -> approved`. They're optionally `draft` (pre-proposal notes), then `proposed`, then `accepted`, then potentially `superseded` (by a later decision) or `deprecated` (the area itself went away). This is intentional: the Nygard / MADR convention is widely understood and worth following.
 
 ## Why ADRs are one file each
 

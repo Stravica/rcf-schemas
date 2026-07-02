@@ -1,0 +1,12 @@
+{
+  "reqId": "REQ-001",
+  "title": "x",
+  "description": "y",
+  "category": "functional",
+  "domain": "z",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

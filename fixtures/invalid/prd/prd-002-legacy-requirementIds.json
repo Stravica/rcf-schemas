@@ -2,9 +2,10 @@
   "prdId": "PRD-001",
   "productName": "Acme Notes",
   "version": "0.1.0",
-  "status": "Draft",
+  "status": "draft",
   "problemStatement": "x",
   "objectives": ["y"],
+  "requirementIds": ["REQ-001"],
   "createdAt": "2026-01-01T00:00:00Z",
   "updatedAt": "2026-01-01T00:00:00Z"
 }

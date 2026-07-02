@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-050",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Choose data-serialisation format for note bodies",
+  "context": "We need a stable on-disk format for note bodies that supports rich text and citations.",
+  "decision": "Draft: proposing markdown-plus-frontmatter with a small custom directive vocabulary.",
+  "consequences": "Straightforward to author; tooling ecosystem broad. Requires a directive parser step at render time.",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

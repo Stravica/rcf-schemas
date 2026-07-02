@@ -1,34 +1,42 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.1.0/fbs.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.2.0/fbs.schema.json",
   "title": "RCF Functional Build Spec",
-  "description": "Functional Build Specification. One per build session. Outside the traceability chain. Owns its acIds[] scope and its dependencies[] graph edge.",
+  "description": "Functional Build Specification. One per build session. Carries the mandatory bsId parent reference plus buildOrder and executionStatus. Owns its acIds[] scope (Acceptance Criteria delivered by this FBS) and its dependsOnFbsIds[] graph edge (other FBSs this one depends on).",
   "type": "object",
   "additionalProperties": false,
   "required": [
     "fbsId",
     "prdId",
     "bsId",
+    "buildOrder",
+    "executionStatus",
     "title",
     "summary",
     "acIds",
-    "status",
+    "dependsOnFbsIds",
     "createdAt",
     "updatedAt"
   ],
   "properties": {
-    "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/fbsId" },
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
-    "bsId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/bsId" },
+    "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/fbsId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/prdId" },
+    "bsId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/bsId" },
+    "buildOrder": { "type": "integer", "minimum": 1 },
+    "executionStatus": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/executionStatus" },
     "title": { "type": "string", "minLength": 1 },
     "summary": { "type": "string", "minLength": 1 },
     "approach": { "type": "string" },
     "acIds": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/acId" }
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/acId" }
     },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/executionStatus" },
+    "dependsOnFbsIds": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/fbsId" }
+    },
     "contextRequirements": {
       "type": "object",
       "additionalProperties": false,
@@ -43,11 +51,11 @@
         },
         "tacIds": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/tacId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tacId" }
         },
         "adrIds": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/adrId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/adrId" }
         },
         "existingModules": {
           "type": "array",
@@ -67,10 +75,6 @@
         }
       }
     },
-    "dependencies": {
-      "type": "array",
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/fbsId" }
-    },
     "estimatedSize": { "enum": ["small", "medium", "large"] },
     "estimatedHours": { "type": "number", "minimum": 0.5, "maximum": 16 },
     "deliverables": {
@@ -80,7 +84,7 @@
     "riskLevel": { "enum": ["low", "medium", "high"] },
     "domain": { "type": "string" },
     "notes": { "type": "string" },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
   }
 }

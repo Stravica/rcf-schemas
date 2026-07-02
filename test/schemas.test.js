@@ -45,7 +45,7 @@ test('every schema declares $schema = JSON Schema 2020-12', async () => {
 test('every schema declares canonical $id', async () => {
   const schemas = await loadSchemas();
   for (const [name, schema] of Object.entries(schemas)) {
-    const expected = `https://schemas.stravica.io/rcf/v0.1.0/${name}`;
+    const expected = `https://schemas.stravica.io/rcf/v0.2.0/${name}`;
     assert.equal(schema.$id, expected, `${name} $id mismatch`);
   }
 });

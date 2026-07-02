@@ -1,12 +1,12 @@
 {
-  "name": "@stravica/rcf-schemas",
-  "version": "0.1.0",
+  "name": "@stravica-ai/rcf-schemas",
+  "version": "0.2.0",
   "type": "module",
   "description": "JSON Schemas for the Requirements Confidence Framework (RCF). Language-neutral. The contract every RCF tool keys to.",
   "license": "Apache-2.0",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com",
-    "access": "restricted"
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
   },
   "engines": {
     "node": ">=24.0.0"

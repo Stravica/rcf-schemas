@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.1.0/prd.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.2.0/prd.schema.json",
   "title": "RCF PRD",
-  "description": "Product Requirements Document. One per project. Shell document carrying requirementIds[]; REQ bodies live in req.schema.json files.",
+  "description": "Product Requirements Document. One per project. The PRD is a pure shell document; requirement bodies live in individual req.schema.json files and each REQ carries the mandatory prdId back-reference. The walker computes the PRD's requirement list by inverting REQ.prdId at load time.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -12,15 +12,14 @@
     "status",
     "problemStatement",
     "objectives",
-    "requirementIds",
     "createdAt",
     "updatedAt"
   ],
   "properties": {
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/prdId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/prdId" },
     "productName": { "type": "string", "minLength": 1 },
-    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/version" },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/authoringStatus" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/authoringStatus" },
     "executiveSummary": { "type": "string" },
     "problemStatement": { "type": "string", "minLength": 1 },
     "targetUsers": {
@@ -44,12 +43,7 @@
       "type": "array",
       "items": { "type": "string", "minLength": 1 }
     },
-    "requirementIds": {
-      "type": "array",
-      "minItems": 1,
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/reqId" }
-    },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json#/$defs/timestamp" }
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
   }
 }

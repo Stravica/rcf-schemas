@@ -4,7 +4,7 @@ User Story document. One file per US. Contains Acceptance Criteria inline as `ac
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/user-story.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/user-story.schema.json`
 
 ## Required fields
 

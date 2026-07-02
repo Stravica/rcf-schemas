@@ -4,7 +4,7 @@ Project manifest. Roots-only shape: declares `prd`, `tad`, `bs`. Children are ow
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/manifest.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/manifest.schema.json`
 
 ## Required fields
 
@@ -46,15 +46,16 @@ Singular by design; no child arrays:
 
 ## Why roots-only
 
-SSoT discipline. Children are owned by their parents:
+SSoT discipline. Every parent-child edge is encoded exactly once, on the child, as a mandatory `<parent>Id` field:
 
-- The **PRD** declares `requirementIds[]`.
-- The **TAD** declares `componentIds[]` and `architecturalDecisionIds[]`.
-- The **BS** declares its `fbs[]` slots.
-- Each **US** declares its parent `reqId`; the set of USs under a REQ is discoverable by scan.
-- Each **TS** file is co-located with its implementation (outside `rcf/`); its `acId` links it back.
+- Each **REQ** carries `prdId`; the walker inverts these to produce the PRD's requirement list.
+- Each **TAC** carries `tadId`; likewise for the TAD's component list.
+- Each **ADR** carries `tadId`; likewise for the TAD's decision list.
+- Each **FBS** carries `bsId` (plus `buildOrder` and `executionStatus`); the walker computes the ordered per-BS FBS list by filter + sort.
+- Each **US** carries `reqId`; the set of USs under a REQ is `childrenByParent.get(reqId)`.
+- Each **TS** carries `usId` and the `acIds[]` it verifies; the walker inverts these into cross-link maps.
 
-Enumerating children in the manifest as well would create two sources of truth; pick one. The parent owns the list. The manifest stays small (~8 properties) and a new US / TAC / ADR / FBS / REQ never requires a manifest edit.
+Enumerating children in the manifest as well would create two sources of truth; pick one. The child owns the reference. The manifest stays small (~8 properties) and a new US / TAC / ADR / FBS / REQ / TS never requires a manifest edit.
 
 ## Example
 

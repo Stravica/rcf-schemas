@@ -9,8 +9,6 @@
     "architecturalApproach": "Monolithic frontend with a thin sync service.",
     "keyCapabilities": ["Markdown editing", "Sync"]
   },
-  "componentIds": ["TAC-001"],
-  "architecturalDecisionIds": ["ADR-001"],
   "createdAt": "2026-01-01T00:00:00Z",
   "updatedAt": "2026-01-01T00:00:00Z"
 }

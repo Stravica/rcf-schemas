@@ -1,15 +1,15 @@
 {
   "id": "TS-001",
   "usId": "US-001",
-  "title": "Note persistence smoke",
-  "purpose": "Cover the create-and-reopen round trip for a single note.",
+  "title": "x",
+  "purpose": "y",
   "testLevel": "unit",
   "acIds": ["AC-001"],
   "testCases": [
     {
-      "id": "TC-001-happy-path",
+      "id": "TC-1-slug",
       "acId": "AC-001",
-      "description": "Note survives close-and-reopen when saved in the default workspace.",
+      "description": "TC id has fewer than three digits in the TS suffix, which the pattern forbids.",
       "status": "pending"
     }
   ],

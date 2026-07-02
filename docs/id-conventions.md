@@ -10,6 +10,8 @@ The pattern, the prefix table, the AC sub-id form, and the file/nested asymmetry
 
 Three-digit minimum, unbounded above. `PRD-001` through `PRD-999` use the clean visual; `PRD-1000+` works without a schema migration. A single digit (`PRD-1`) is rejected.
 
+Two families deviate from the family default and are documented alongside their prefix below: `TS-\d{3}` (exactly three digits) and `TC-\d{3}-<slug>` (three-digit TS suffix plus a lowercase alphanumeric slug).
+
 ## Prefix table
 
 | Prefix | Document | File? | Where defined |
@@ -23,8 +25,8 @@ Three-digit minimum, unbounded above. `PRD-001` through `PRD-999` use the clean 
 | `ADR` | Architectural Decision Record | yes | `adr.schema.json` |
 | `BS`  | Build Sequence | yes | `build-sequence.schema.json` |
 | `FBS` | Functional Build Specification | yes | `fbs.schema.json` |
-| `TS`  | Test Suite | yes (one file per AC; identified by parent `acId`, no prefix of its own) | `test-suite.schema.json` |
-| `TC`  | Test Case | no (nested in TS) | `test-suite.schema.json` |
+| `TS`  | Test Suite | yes (one file per suite, sequential id `TS-\d{3}`) | `test-suite.schema.json` |
+| `TC`  | Test Case | no (nested in TS, id `TC-<TS-suffix>-<slug>`) | `test-suite.schema.json` |
 
 All prefixes are defined exactly once in `common.schema.json#/$defs` and referenced via `$ref` everywhere.
 
@@ -37,13 +39,15 @@ The `acId` pattern is `^AC-\d{3,}(-\d+)?$`. Two forms are accepted:
 
 Pick per project; the schema does not enforce either form. The published `Stravica/rcf-examples` `comprehensive-product` tree uses the hierarchical form for clarity.
 
-## TS files: identified by `acId`, no prefix of their own
+## TS ids
 
-A Test Suite covers exactly one AC. The TS file's `acId` field is its primary identifier. Recommended filename: `<AC-id>.test.json` (e.g. `AC-101-2.test.json`).
+`^TS-\d{3}$`. Sequential, not parent-grouped: a US may have multiple TSs across levels (unit, integration, e2e, ...) and a parent-grouped id would collide. Recommended path: `rcf/test-suites/ts-001.json`.
 
 ## TC ids
 
-`^TC-\d{3,}$`. TCs are nested in their parent TS's `testCases[]`. The TC id is unique within the TS but not necessarily globally (different projects pick different conventions).
+`^TC-\d{3}-[a-z0-9-]+$`. TCs are nested in their parent TS's `testCases[]`. The pattern is `TC-<TS-suffix>-<slug>` where slug is a lowercase alphanumeric identifier chosen by the author (hyphens allowed). Examples: `TC-001-happy-path`, `TC-001-rejects-empty`, `TC-042-integration-boundary`. Slug uniqueness is within-TS, not global.
+
+Rationale: sequential numbering for TCs is brittle if you renumber; slug-based ids give readable pointers in test-suite bodies and traceability queries.
 
 ## File-level vs nested-level: the asymmetry
 

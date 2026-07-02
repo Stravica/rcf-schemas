@@ -9,8 +9,6 @@
     "architecturalApproach": "z",
     "keyCapabilities": ["w"]
   },
-  "componentIds": ["TAC-001"],
-  "architecturalDecisionIds": ["ADR-001"],
   "deploymentArchitecture": {
     "topology": "edge"
   },

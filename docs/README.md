@@ -1,6 +1,6 @@
 # RCF Schemas docs
 
-Per-schema reference + cross-cutting conventions for `@stravica/rcf-schemas`.
+Per-schema reference + cross-cutting conventions for `@stravica-ai/rcf-schemas`.
 
 ## Per-schema pages
 

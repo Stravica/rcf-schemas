@@ -2,11 +2,11 @@
   "fbsId": "FBS-001",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 1,
+  "buildOrder": 0,
   "executionStatus": "notStarted",
   "title": "x",
   "summary": "y",
-  "acIds": [],
+  "acIds": ["AC-001"],
   "dependsOnFbsIds": [],
   "createdAt": "2026-01-01T00:00:00Z",
   "updatedAt": "2026-01-01T00:00:00Z"
