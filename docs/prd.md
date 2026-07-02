@@ -1,10 +1,10 @@
 # prd.schema.json
 
-Product Requirements Document. One per project. Shell document carrying `requirementIds[]`; REQ bodies live in [req.schema.json](./req.md) files.
+Product Requirements Document. One per project. Pure shell document; REQ bodies live in [req.schema.json](./req.md) files and each REQ carries the mandatory `prdId` back-reference. The walker computes the PRD's requirement list by inverting `REQ.prdId` at load time.
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/prd.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/prd.schema.json`
 
 ## Required fields
 
@@ -16,7 +16,6 @@ Product Requirements Document. One per project. Shell document carrying `require
 | `status` | `authoringStatus` enum | `draft`, `review`, `needsRevision`, `approved`, `superseded`. |
 | `problemStatement` | string, min 1 | One-paragraph framing of the problem the product solves. |
 | `objectives` | array, min 1 | Outcomes the product is judged on. |
-| `requirementIds` | array of `reqId`, min 1 | The REQs that belong to this PRD. Each REQ lives in its own file. |
 | `createdAt` | ISO 8601 date-time | First creation. |
 | `updatedAt` | ISO 8601 date-time | Last update. |
 
@@ -32,9 +31,10 @@ Product Requirements Document. One per project. Shell document carrying `require
 
 ## What's NOT here
 
-- **REQ bodies.** The PRD is a shell. REQ content lives in [req.schema.json](./req.md) files referenced via `requirementIds[]`.
+- **REQ bodies.** The PRD is a shell. REQ content lives in [req.schema.json](./req.md) files; each REQ carries the mandatory `prdId` back-reference. The walker inverts these to produce the PRD's requirement list.
+- **`requirementIds[]`.** Removed in 0.2.0; parents no longer store child lists.
 - **Architecture.** That belongs in [tad.schema.json](./tad.md).
-- **Test suites.** Those live with the implementation per AC, see [test-suite.schema.json](./test-suite.md).
+- **Test suites.** Those live per US, see [test-suite.schema.json](./test-suite.md).
 
 ## Example
 
@@ -46,7 +46,6 @@ Product Requirements Document. One per project. Shell document carrying `require
   "status": "draft",
   "problemStatement": "Users keep losing track of meeting notes scattered across tools.",
   "objectives": ["Single home for personal notes across devices."],
-  "requirementIds": ["REQ-001"],
   "createdAt": "2026-01-01T00:00:00Z",
   "updatedAt": "2026-01-01T00:00:00Z"
 }
@@ -62,4 +61,4 @@ A PRD is the root of the requirements chain.
 PRD -> REQ -> US -> AC -> TS -> TC
 ```
 
-`requirementIds[]` is how children are discovered from the PRD root. Each REQ in turn carries its own US discoverability via convention (USs reference their parent REQ).
+Each REQ carries `prdId`; the walker inverts these into a `childrenByParent` map to walk PRD -> REQ. Each US in turn carries `reqId` for the next hop.

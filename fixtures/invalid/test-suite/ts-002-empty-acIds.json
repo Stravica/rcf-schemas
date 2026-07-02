@@ -1,0 +1,19 @@
+{
+  "id": "TS-001",
+  "usId": "US-001",
+  "title": "x",
+  "purpose": "y",
+  "testLevel": "unit",
+  "acIds": [],
+  "testCases": [
+    {
+      "id": "TC-001-a",
+      "acId": "AC-001",
+      "description": "z",
+      "status": "pending"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

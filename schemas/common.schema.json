@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.1.0/common.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json",
   "title": "RCF Shared Definitions",
   "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 10 doc-type schemas at validator init.",
   "$defs": {
@@ -49,10 +49,15 @@
       "pattern": "^FBS-\\d{3,}$",
       "description": "Functional Build Specification identifier."
     },
+    "tsId": {
+      "type": "string",
+      "pattern": "^TS-\\d{3}$",
+      "description": "Test Suite identifier."
+    },
     "tcId": {
       "type": "string",
-      "pattern": "^TC-\\d{3,}$",
-      "description": "Test Case identifier."
+      "pattern": "^TC-\\d{3}-[a-z0-9-]+$",
+      "description": "Test Case identifier. TS suffix (three digits) joined to a lowercase alphanumeric slug."
     },
     "version": {
       "type": "string",
@@ -69,8 +74,8 @@
       "description": "Authoring lifecycle status for PRD, REQ, US, TAD, TAC, BS."
     },
     "adrStatus": {
-      "enum": ["proposed", "accepted", "superseded", "deprecated"],
-      "description": "Nygard / MADR convention status for ADRs."
+      "enum": ["draft", "proposed", "accepted", "superseded", "deprecated"],
+      "description": "Nygard / MADR convention status for ADRs. Draft state prepended in 0.2.0."
     },
     "executionStatus": {
       "enum": ["notStarted", "inProgress", "complete", "verified"],

@@ -4,11 +4,7 @@
   "version": "0.1.0",
   "status": "draft",
   "fbs": [
-    {
-      "fbsId": "FBS-001",
-      "order": 1,
-      "dependencies": ["FBS-002"]
-    }
+    { "fbsId": "FBS-001", "order": 1 }
   ],
   "createdAt": "2026-01-01T00:00:00Z",
   "updatedAt": "2026-01-01T00:00:00Z"

@@ -1,10 +1,10 @@
 # build-sequence.schema.json
 
-Build Sequence. One per project. Pure ordering plan: references FBS items by id. FBS dependencies live on the FBS file, not on the BS slot, single source of truth.
+Build Sequence. One per project. Pure planning shell. FBS files each carry the mandatory `bsId` back-reference plus `buildOrder` and `executionStatus`. The walker computes the ordered FBS list by loading every FBS under `rcf/fbs/`, filtering by `bsId`, and sorting by `buildOrder`. Duplicate `buildOrder` values within one BS are a validation error at walker load time.
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/build-sequence.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/build-sequence.schema.json`
 
 ## Required fields
 
@@ -14,7 +14,6 @@ Build Sequence. One per project. Pure ordering plan: references FBS items by id.
 | `prdId` | `^PRD-\d{3,}$` | Root PRD. |
 | `version` | semver | Per-document version. |
 | `status` | `authoringStatus` enum | Lifecycle status of the sequence itself. |
-| `fbs` | array, min 1 | Ordered FBS slots. |
 | `createdAt` / `updatedAt` | ISO 8601 date-time | Lifecycle timestamps. |
 
 ## Optional top-level fields
@@ -25,23 +24,21 @@ Build Sequence. One per project. Pure ordering plan: references FBS items by id.
 | `buildPhilosophy` | string | One-paragraph "how we're going to attack this". |
 | `generationStrategy` | enum: `verticalSlice`, `dependencyFirst`, `domainGrouped`, `riskFrontLoaded` | The strategy used to order FBS items. |
 
-## FBS slot shape
+## Ordering and execution status
 
-Each entry in `fbs[]`:
+Live on the FBS file, not on the BS. Each FBS carries:
 
-| Field | Type | Required | Purpose |
-|---|---|---|---|
-| `fbsId` | `fbsId` | yes | The FBS this slot refers to. |
-| `order` | integer >= 1 | yes | The order in the sequence. |
-| `status` | `executionStatus` enum | no | `notStarted`, `inProgress`, `complete`, `verified`. Optional convenience for tooling that wants a per-slot status; the FBS file's `status` is the source of truth. |
-| `notes` | string | no | Slot-specific notes (e.g. "blocked on ADR-100"). |
+- `bsId` - parent BS.
+- `buildOrder` (integer >= 1) - position in the ordered sequence. Duplicates within one BS are a walker-time validation error.
+- `executionStatus` - `notStarted`, `inProgress`, `complete`, `verified`.
+- `dependsOnFbsIds[]` - other FBS ids this one depends on. Present on the derived (FBS) side; the walker inverts these into a dependents map at load time.
 
-**No `dependencies` field on the slot.** Dependencies live on the FBS file itself (`fbs.schema.json`). The build tool reconstructs the DAG by reading each FBS once and computing parallel-safe execution groups (Kahn's algorithm). One source of truth, no drift risk.
+**No `fbs[]` array on the BS.** Removed in 0.2.0. This eliminates the sync burden between the BS slot and the FBS file and makes drift impossible by construction.
 
 ## Why this minimum-viable shape
 
-The BS exists to encode ordering and high-level execution metadata. Everything else, what an FBS contains, what it depends on, what ACs it covers, lives on the FBS file. Keeping BS tight makes it easy to reorder slots and reason about strategy without churn on per-FBS detail.
+The BS exists to encode strategy and high-level context. Ordering, execution status, and dependencies live on the FBS file so that inserting, reordering, or deleting an FBS is a single-file edit. One source of truth, no drift risk.
 
 ## Example
 
-See `fixtures/valid/build-sequence/bs-002-comprehensive.json` for a four-slot BS with mixed execution statuses and a `verticalSlice` strategy.
+See `fixtures/valid/build-sequence/bs-002-comprehensive.json` for a BS with a `verticalSlice` strategy. FBS ordering examples: `fixtures/valid/fbs/`.

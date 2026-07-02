@@ -1,39 +1,34 @@
 # test-suite.schema.json
 
-Test Suite. One file per AC. The JSON specification of what Test Cases must exist for an AC. **Code-adjacent, not doc-adjacent**: lives with the implementation, not under `rcf/`.
+Test Suite. One file per Test Suite. The JSON specification of what Test Cases exist for one or more Acceptance Criteria on a single User Story.
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/test-suite.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/test-suite.schema.json`
 
 ## TS-as-JSON: what this schema is for
 
-The TS schema validates the *specification* of test cases (id, Given/When/Then for each TC). It is the **contract for the test-writer** (human or AI). The executable test (Jest, pytest, JUnit, ...) is the *implementation* of that spec.
+The TS schema validates the *specification* of the test cases (id, description, AC covered, authored status). It is the **contract for the test-writer** (human or AI). The executable test (Jest, pytest, JUnit, ...) is the *implementation* of that spec; the optional `testCase.testPointer` field points to the executable location.
 
-The JSON form is what lets Phase 5 traceability tooling walk `AC -> TS -> TC` programmatically, without parsing source-language test code. Whether the executable test file matches its TS spec is a separate concern (a test-of-the-test, owned by Phase 5 or by the test-writer's own discipline).
+The JSON form is what lets Phase 5 traceability tooling walk `AC -> TS -> TC` programmatically, without parsing source-language test code. Whether the executable test file matches its TS spec is a separate concern (a test-of-the-test, owned by Phase 5 or the test-writer's own discipline).
 
 ## TS file location
 
-TS files live with the implementation (e.g. `test/auth/AC-201.test.json`), **not** under `rcf/`. Recommended filename: `<AC-id>.test.json`. The schema validates the JSON shape; location is an implementation choice and is not enforced by schema or enumerated by manifest.
-
-TSs are discovered by walking ACs (each TS carries `acId`) or by convention scan of the test tree.
+Recommended path under the RCF tree: `rcf/test-suites/ts-001.json`. The schema validates the JSON shape; location is an implementation choice and is not enforced by schema or enumerated by manifest.
 
 ## Required fields
 
 | Field | Type | Notes |
 |---|---|---|
-| `acId` | `^AC-\d{3,}(-\d+)?$` | The AC this suite covers. |
-| `usId` | `^US-\d{3,}$` | Parent US (denormalised for fast lookup). |
-| `prdId` | `^PRD-\d{3,}$` | Root PRD (denormalised). |
-| `version` | semver | Per-document version. |
-| `testCases` | array, min 1 | The TCs that implement the AC. |
+| `id` | `^TS-\d{3}$` | Test Suite identifier. Sequential, not parent-grouped (a US can have multiple TSs across levels). |
+| `usId` | `^US-\d{3,}$` | Parent User Story. Mandatory back-reference. |
+| `title` | string, min 1 | Human-readable suite title. |
+| `purpose` | string, min 1 | One-paragraph "what this suite is testing and why". |
+| `testLevel` | enum | `unit`, `integration`, `e2e`, `contract`, `manual`. |
+| `acIds` | array of `acId`, min 1 | The ACs this suite verifies. TS holds the reference; ACs stay clean of downstream references. |
+| `testCases` | array of `testCase`, min 0 | Inline TCs. Empty array allowed (a suite may be a purpose-only skeleton pre-authoring). |
+| `status` | `authoringStatus` enum | Lifecycle status of the suite itself. |
 | `createdAt` / `updatedAt` | ISO 8601 date-time | Lifecycle timestamps. |
-
-## Optional fields
-
-| Field | Type | Purpose |
-|---|---|---|
-| `title` | string | Human-readable suite title. |
 
 ## Test case shape
 
@@ -41,21 +36,21 @@ Each entry in `testCases[]`:
 
 | Field | Type | Required | Purpose |
 |---|---|---|---|
-| `id` | `^TC-\d{3,}$` | yes | TC identifier. |
-| `given` | string, min 1 | yes | Preconditions. |
-| `when` | string, min 1 | yes | Trigger. |
-| `then` | string, min 1 | yes | Observable outcome. |
-| `notes` | string | no | Implementation hints, references to fixtures, etc. |
+| `id` | `^TC-\d{3}-[a-z0-9-]+$` | yes | TC identifier. `TC-<TS-suffix>-<slug>`; slug is a lowercase alphanumeric identifier (hyphens allowed). Slug uniqueness is within-TS, not global. |
+| `acId` | `^AC-\d{3,}(-\d+)?$` | yes | Which AC on the parent US this TC verifies. |
+| `description` | string, min 1 | yes | What the TC covers. |
+| `testPointer` | string | no | Pointer to the executable test, `filePath::testName` format. |
+| `status` | enum | yes | `pending`, `passing`, `failing`, `skipped`. Authored in 0.2.0; derived from real test runs in Phase 6+. |
+
+## What changed in 0.2.0
+
+The 0.1.0 shape was per-AC (`acId` + `prdId` + `version` + `testCases[given/when/then]`). 0.2.0 makes the suite per-US-and-across-ACs, keeps the TS id in `common.schema.json` (`tsId`), and moves the Given/When/Then verbiage into the TC's `description` (specialised BDD-style step language belongs in the executable test, not the JSON spec).
 
 ## What's NOT here
 
-- **`status` on TS or TC.** Pass/fail is runtime state derived by Phase 5 traceability tooling from observed test runs. The schema describes the test definitions, not their last run.
-- **`lastRun` timestamps.** Same reason.
+- **`given/when/then` on the TC.** The `description` field carries the intent; the executable test carries the BDD step language.
+- **`prdId` on the TS.** Removed in 0.2.0. Walk `usId` -> `US.reqId` -> `REQ.prdId` if you need the PRD.
 
 ## Why TCs stay nested
 
-A TC outside its TS (and its AC) is meaningless. TCs are small (Given/When/Then triples); inline is the natural shape. One TS file per AC keeps the TC count per file bounded.
-
-## Why denormalise `usId` and `prdId` at root
-
-Fast lookup without walking the manifest. Cross-ref validation (that these match the AC's actual parent) is a tooling concern, not a schema one.
+A TC outside its TS (and its AC) is meaningless. TCs are small; inline is the natural shape. `testPointer` links out to the executable location without hoisting the TC into a separate file.

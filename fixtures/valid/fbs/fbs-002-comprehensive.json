@@ -2,11 +2,13 @@
   "fbsId": "FBS-100",
   "prdId": "PRD-100",
   "bsId": "BS-100",
+  "buildOrder": 4,
+  "executionStatus": "inProgress",
   "title": "Sync Worker push endpoint",
   "summary": "Build the Cloudflare Worker /sync/push endpoint that accepts a batch of client deltas and writes them to R2.",
   "approach": "Stateless Worker; deltas are appended as versioned objects in R2 keyed by user id and timestamp. Concurrency handled by R2's strong consistency on PUT-if-match.",
   "acIds": ["AC-101-1", "AC-101-2"],
-  "status": "inProgress",
+  "dependsOnFbsIds": ["FBS-099"],
   "contextRequirements": {
     "prdSections": ["sync", "offline"],
     "tadSections": ["integrationArchitecture", "operationalConcerns"],
@@ -17,7 +19,6 @@
     "externalDocs": ["https://developers.cloudflare.com/r2/"],
     "other": ["See FBS-099 for the prior local-store work."]
   },
-  "dependencies": ["FBS-099"],
   "estimatedSize": "medium",
   "estimatedHours": 6,
   "deliverables": [

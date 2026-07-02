@@ -4,7 +4,7 @@ Individual Requirement within a PRD. One file per REQ. Recommended path: `rcf/re
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/req.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/req.schema.json`
 
 ## Required fields
 
@@ -34,7 +34,7 @@ REQs grow over time, and a single PRD can carry hundreds. Inline REQ bodies on t
 
 ## Cross-doc consistency
 
-The schema validates each REQ in isolation. Whether the parent PRD's `requirementIds[]` actually contains this REQ's id is a tooling concern (Phase 5 traceability in `rcf-build-lite`), not a schema one.
+The schema validates each REQ in isolation. Whether the `prdId` back-reference resolves to a loaded PRD is a walker-time referential-integrity check (Phase 5 traceability in `rcf-build-lite`), not a schema one.
 
 ## Example
 

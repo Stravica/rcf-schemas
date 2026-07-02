@@ -1,10 +1,12 @@
-# @stravica/rcf-schemas
+# @stravica-ai/rcf-schemas
 
 JSON Schemas for the [Requirements Confidence Framework (RCF)](https://stravica.ai/rcf-methodology/).
 
 **Language-neutral. No code in this package, only schema files, docs, and fixtures.** Every consumer language is first-class: Node, Python, Java, or anything else with a JSON Schema 2020-12 validator.
 
-> **Status:** v0.1.0 - initial private release.
+> **Status:** v0.2.0 - public preview.
+>
+> This package is available on the public npm registry as a preview. Ship-quality contract, small consumer surface. The methodology's reference implementation (`Stravica/rcf-build-lite`) is being migrated to consume 0.2.0 during Phase 3.7 of the RCF build and stays private until Phase 9; expect the public consumer path to sharpen up as that lands. If you want to experiment, `npm install @stravica-ai/rcf-schemas` is stable; docs at `https://schemas.stravica.io/` land at Phase 9.
 
 ## What's here
 
@@ -17,13 +19,13 @@ JSON Schemas for the [Requirements Confidence Framework (RCF)](https://stravica.
 
 ## Install
 
-### Node consumers (Phase 1 onwards)
+### Node consumers
 
 ```sh
-npm install @stravica/rcf-schemas
+npm install @stravica-ai/rcf-schemas
 ```
 
-(Phase 1 ships scoped + access-restricted on npm; you need an authenticated client with access to the `@stravica` scope.)
+The package is on the public npm registry. No scope-registry configuration is needed for installation.
 
 ### Python consumers (Phase 9 onwards)
 
@@ -36,7 +38,7 @@ pip install stravica-rcf-schemas
 Maven coordinate:
 
 ```
-io.stravica.rcf:rcf-schemas:0.1.0
+io.stravica.rcf:rcf-schemas:0.2.0
 ```
 
 ### Direct fetch (Phase 9 onwards)
@@ -44,7 +46,7 @@ io.stravica.rcf:rcf-schemas:0.1.0
 Each schema is fetchable by its canonical `$id`:
 
 ```
-https://schemas.stravica.io/rcf/v0.1.0/<name>.schema.json
+https://schemas.stravica.io/rcf/v0.2.0/<name>.schema.json
 ```
 
 ## Use
@@ -60,7 +62,7 @@ import { readFile } from 'node:fs/promises';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
-const pkgRoot = require.resolve('@stravica/rcf-schemas/package.json').replace(/\/package\.json$/, '');
+const pkgRoot = require.resolve('@stravica-ai/rcf-schemas/package.json').replace(/\/package\.json$/, '');
 
 const names = [
   'common', 'prd', 'req', 'user-story', 'tad', 'tac', 'adr',
@@ -75,7 +77,7 @@ for (const name of names) {
   ajv.addSchema(schema);
 }
 
-const validatePrd = ajv.getSchema('https://schemas.stravica.io/rcf/v0.1.0/prd.schema.json');
+const validatePrd = ajv.getSchema('https://schemas.stravica.io/rcf/v0.2.0/prd.schema.json');
 const ok = validatePrd(myPrdDoc);
 if (!ok) console.error(validatePrd.errors);
 ```
@@ -114,6 +116,16 @@ Configure a `SchemaClient` (everit) or `SchemaLoader` (networknt) that resolves 
 ### Any other language
 
 The schemas use JSON Schema Draft 2020-12. Any validator that supports 2020-12 + multi-file `$ref` will work. Register the 11 schemas (with `common.schema.json` first) and resolve by `$id`.
+
+## Chain shape (0.2.0)
+
+Every parent-child edge in the RCF chain is encoded exactly once, on the child, as a mandatory `<parent>Id` field. Parents never store child lists; walkers invert the child references at load time to build the `childrenByParent` map. This makes tree drift structurally impossible.
+
+- PRD is the root of the requirements chain. REQ carries `prdId`.
+- US carries `reqId` (unchanged from 0.1.0). AC lives inline in US as `acceptanceCriteria[]`.
+- TAD is the root of the architecture chain. TAC and ADR each carry `tadId`.
+- BS is the root of the build-sequence chain. FBS carries `bsId`, `buildOrder`, `executionStatus`, and `dependsOnFbsIds[]`.
+- TS carries `usId` and `acIds[]` (the ACs verified). TC lives inline in TS with per-TC `acId`.
 
 ## Schema reference
 

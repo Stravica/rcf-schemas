@@ -2,9 +2,11 @@
 
 Functional Build Specification. One per build session. **Outside the traceability chain**: FBS owns `acIds[]` for build-time work assignment but is not load-bearing for "did REQ-001 get tested?" queries. See `id-conventions.md` for the chain detail.
 
+Structurally, each FBS carries the mandatory `bsId` back-reference plus `buildOrder` and `executionStatus`. The walker computes the ordered per-BS FBS list by loading every FBS under `rcf/fbs/`, filtering by `bsId`, and sorting by `buildOrder`.
+
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.1.0/fbs.schema.json`
+`https://schemas.stravica.io/rcf/v0.2.0/fbs.schema.json`
 
 ## Required fields
 
@@ -13,10 +15,12 @@ Functional Build Specification. One per build session. **Outside the traceabilit
 | `fbsId` | `^FBS-\d{3,}$` | This FBS's identifier. |
 | `prdId` | `^PRD-\d{3,}$` | Root PRD. |
 | `bsId` | `^BS-\d{3,}$` | Parent Build Sequence. |
+| `buildOrder` | integer >= 1 | Position in the ordered sequence for this BS. Duplicates within one BS are a walker-time validation error. |
+| `executionStatus` | `executionStatus` enum | `notStarted`, `inProgress`, `complete`, `verified`. |
 | `title` | string, min 1 | One-line title. |
 | `summary` | string, min 1 | One-paragraph "what is this build doing". |
 | `acIds` | array of `acId`, min 1 | The ACs this build session delivers. Flat top-level array. |
-| `status` | `executionStatus` enum | `notStarted`, `inProgress`, `complete`, `verified`. |
+| `dependsOnFbsIds` | array of `fbsId`, min 0 | Other FBS items this one depends on. The build tool builds a DAG from these. Empty array is allowed. |
 | `createdAt` / `updatedAt` | ISO 8601 date-time | Lifecycle timestamps. |
 
 ## Optional fields
@@ -25,7 +29,6 @@ Functional Build Specification. One per build session. **Outside the traceabilit
 |---|---|---|
 | `approach` | string | "How to think about this build" narrative, distinct from `summary` (what) and `notes` (gotchas). |
 | `contextRequirements` | object | What the SDD adapter needs to walk for the BUILD prompt. See below. |
-| `dependencies` | array of `fbsId` | Other FBS items this one depends on. The build tool builds a DAG from these. |
 | `estimatedSize` | enum: `small`, `medium`, `large` | Rough sizing. |
 | `estimatedHours` | number, 0.5..16 | Tighter estimate. |
 | `deliverables` | array of strings | Concrete artefacts expected from the build session. |
@@ -47,6 +50,11 @@ Tells the SDD adapter (Phase 6 of `rcf-build-lite`) what to walk when assembling
 | `schemas` | array of strings | Schema files relevant to this build. |
 | `externalDocs` | array of strings | Third-party docs (URLs or paths). |
 | `other` | array of strings | Anything else. |
+
+## Renamed fields in 0.2.0
+
+- `status` -> `executionStatus`. Same enum, more explicit name (disambiguates from authoring status used elsewhere).
+- `dependencies` -> `dependsOnFbsIds`. Same shape, mandatory with `minItems: 0`.
 
 ## Why flat `acIds[]`
 
