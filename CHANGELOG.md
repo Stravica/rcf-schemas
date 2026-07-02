@@ -4,6 +4,10 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.2.1 - 2026-07-02
+
+Added optional `tacIds[]` cross-link field on `user-story.schema.json` to close a Phase 3.7 §D2/OQ-P37-1 silent miss. Forward-compatible; no consumer populates the field until Phase 4 CRUD. Backward-compatible - existing US docs without `tacIds` remain valid.
+
 ## 0.2.0 (2026-07-02)
 
 Structural rework of every parent-child relationship in the RCF chain: each edge is now encoded exactly once, on the child, as a mandatory `<parent>Id` field. Parents no longer store child lists; walkers invert the child references at load time to build the `childrenByParent` map. This makes tree drift structurally impossible.
