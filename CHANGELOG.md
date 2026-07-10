@@ -4,6 +4,10 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.3.1 - 2026-07-10
+
+Added optional `noCodeNodes` boolean to `fbs.schema.json`. It declares that a build spec produces no traceable code (docs-only or config-only): `rcf build --mark complete` records it via `--no-code-nodes` and the CodeNode gate skips the spec. Additive and backward-compatible - existing FBS documents without the field remain valid. Canonical `$id` URLs stay at `v0.3.0`, following the patch-release precedent set at 0.2.1.
+
 ## 0.3.0 - 2026-07-10
 
 Adds the Code Node (`CN`) document kind, the eleventh in the family, bridging the requirements graph to source code.

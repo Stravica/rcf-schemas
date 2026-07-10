@@ -84,6 +84,10 @@
     "riskLevel": { "enum": ["low", "medium", "high"] },
     "domain": { "type": "string" },
     "notes": { "type": "string" },
+    "noCodeNodes": {
+      "type": "boolean",
+      "description": "Declares this build spec produces no traceable code (docs-only or config-only). rcf build --mark complete records it via --no-code-nodes and the CodeNode gate skips the spec."
+    },
     "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
     "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
   }
