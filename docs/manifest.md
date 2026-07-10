@@ -4,7 +4,7 @@ Project manifest. Roots-only shape: declares `prd`, `tad`, `bs`. Children are ow
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/manifest.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/manifest.schema.json`
 
 ## Required fields
 
@@ -39,10 +39,12 @@ Both fields are required.
 
 Singular by design; no child arrays:
 
-- No `userStories[]`, `tacs[]`, `adrs[]`, `fbs[]`, `testSuites[]`, `requirements[]`.
+- No `userStories[]`, `tacs[]`, `adrs[]`, `fbs[]`, `testSuites[]`, `requirements[]`, `codeNodes[]`.
 - No `prds: [...]` array (single-PRD per project).
 - No `activePrdId` (multi-PRD assumption retired).
 - No `buildSequence` (renamed to `bs` for abbreviation consistency with `prd`, `tad`, `fbs`, `tac`, `adr`).
+
+CN (added 0.3.0) follows the same rule as every other non-root kind: no manifest field. Discovery is by the convention-derived path (see [file-layout](./file-layout.md)), same as TAC, ADR, FBS and TS.
 
 ## Why roots-only
 

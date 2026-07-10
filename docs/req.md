@@ -4,7 +4,7 @@ Individual Requirement within a PRD. One file per REQ. Recommended path: `rcf/re
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/req.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/req.schema.json`
 
 ## Required fields
 

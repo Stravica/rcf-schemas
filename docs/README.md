@@ -17,6 +17,7 @@ One page per schema file under `schemas/`.
 - [fbs](./fbs.md) - Functional Build Specification.
 - [test-suite](./test-suite.md) - Test Suite for a single AC.
 - [manifest](./manifest.md) - project roots-only manifest.
+- [cn](./cn.md) - Code Node, bridging the spec graph to source.
 
 ## Cross-cutting
 

@@ -4,7 +4,7 @@ Build Sequence. One per project. Pure planning shell. FBS files each carry the m
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/build-sequence.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/build-sequence.schema.json`
 
 ## Required fields
 

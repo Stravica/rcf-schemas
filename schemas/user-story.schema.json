@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.2.0/user-story.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.3.0/user-story.schema.json",
   "title": "RCF User Story",
   "description": "User Story document. One file per US. Contains its Acceptance Criteria inline as acceptanceCriteria[].",
   "type": "object",
@@ -20,11 +20,11 @@
     "updatedAt"
   ],
   "properties": {
-    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/usId" },
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/prdId" },
-    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/reqId" },
-    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/version" },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/authoringStatus" },
+    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/usId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/prdId" },
+    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/reqId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
     "title": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
     "asA": { "type": "string", "minLength": 1 },
@@ -38,10 +38,10 @@
     "tacIds": {
       "type": "array",
       "minItems": 0,
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tacId" }
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tacId" }
     },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
   },
   "$defs": {
     "acceptanceCriterion": {
@@ -49,7 +49,7 @@
       "additionalProperties": false,
       "required": ["id", "description", "testable"],
       "properties": {
-        "id": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/acId" },
+        "id": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" },
         "description": { "type": "string", "minLength": 1 },
         "given": { "type": "string" },
         "when": { "type": "string" },

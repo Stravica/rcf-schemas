@@ -4,7 +4,7 @@ Product Requirements Document. One per project. Pure shell document; REQ bodies 
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/prd.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/prd.schema.json`
 
 ## Required fields
 

@@ -4,7 +4,7 @@ Technical Architecture Component. One file per architectural component. Verbose 
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/tac.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/tac.schema.json`
 
 ## Required fields
 

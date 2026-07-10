@@ -1,10 +1,10 @@
 # common.schema.json
 
-Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the `docRef` shape live here. This file is not itself a document schema; consumers register it alongside the other 10 schemas at validator init.
+Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the `docRef` shape live here. This file is not itself a document schema; consumers register it alongside the other 11 schemas at validator init.
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/common.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/common.schema.json`
 
 ## What's in `$defs`
 
@@ -21,11 +21,13 @@ Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, s
 | `fbsId` | string, `^FBS-\d{3,}$` | `fbs.fbsId`, `fbs.dependsOnFbsIds[]` |
 | `tsId` | string, `^TS-\d{3}$` | `test-suite.id` |
 | `tcId` | string, `^TC-\d{3}-[a-z0-9-]+$` | `test-suite.testCases[].id` |
+| `cnId` | string, `^CN-\d{3,}$` | `cn.cnId`, `cn.dependencies[]` |
 | `version` | string, `^\d+\.\d+\.\d+$` | every doc-type schema |
 | `timestamp` | string, format `date-time` | every doc-type schema |
 | `authoringStatus` | enum: `draft`, `review`, `needsRevision`, `approved`, `superseded` | PRD, REQ, US, TAD, TAC, BS |
 | `adrStatus` | enum: `draft`, `proposed`, `accepted`, `superseded`, `deprecated` | ADR |
 | `executionStatus` | enum: `notStarted`, `inProgress`, `complete`, `verified` | FBS doc + BS slot |
+| `cnStatus` | enum: `draft`, `approved`, `deprecated` | CN |
 | `docRef` | object `{ id, path }` | manifest `prd`, `tad`, `bs` |
 
 ## Why these are shared
@@ -40,4 +42,4 @@ Per-doc-type enums (REQ `category`, REQ `priority`, FBS `riskLevel`, BS `generat
 
 ## Version
 
-Carried on the `$id` URL path segment (`/v0.2.0/`). Bumps in lock-step with the bundle.
+Carried on the `$id` URL path segment (`/v0.3.0/`). Bumps in lock-step with the bundle.

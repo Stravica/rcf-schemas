@@ -4,7 +4,7 @@ Test Suite. One file per Test Suite. The JSON specification of what Test Cases e
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/test-suite.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/test-suite.schema.json`
 
 ## TS-as-JSON: what this schema is for
 

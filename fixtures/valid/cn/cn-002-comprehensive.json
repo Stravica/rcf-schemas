@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-042",
+  "path": "src/store/validator.js#getAjv",
+  "title": "getAjv",
+  "description": "Builds and caches the configured ajv instance used across the validate pipeline.",
+  "implementsAcIds": ["AC-101-1", "AC-101-2"],
+  "dependencies": ["CN-006", "CN-011"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-07-09T12:00:00Z"
+}

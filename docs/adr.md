@@ -4,7 +4,7 @@ Architectural Decision Record. One per decision, one file each. Follows the Nyga
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/adr.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/adr.schema.json`
 
 ## Required fields
 

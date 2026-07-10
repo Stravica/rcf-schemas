@@ -4,6 +4,25 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.3.0 - 2026-07-10
+
+Adds the Code Node (`CN`) document kind, the eleventh in the family, bridging the requirements graph to source code.
+
+### Added
+
+- **`cn.schema.json`**: new schema. One file per Code Node. Identity is `path`, a repo-relative source location, optionally `#symbol`-suffixed (for example `src/store/validator.js` or `src/store/validator.js#getAjv`); granularity (file vs symbol) is derived from the presence of `#` and is never stored as its own field. Required: `cnId`, `path`, `implementsAcIds` (may be empty; an orphan CN is a legitimate state), `version`, `status`, `createdAt`, `updatedAt`. Optional: `title`, `description`, `dependencies[]` (CN-to-CN edges, hand-declared).
+- **`common.schema.json`**: new `$defs.cnId` (`^CN-\d{3,}$`) and `$defs.cnStatus` (`draft` | `approved` | `deprecated`).
+- Fixtures under `fixtures/valid/cn/` and `fixtures/invalid/cn/`; targeted tests in `test/cn.test.js`.
+- Recommended file layout: `rcf/code-nodes/`, file naming `cn-NNN.json` (see `docs/file-layout.md`).
+
+### Changed
+
+- **Canonical `$id`** URLs bumped from `https://schemas.stravica.io/rcf/v0.2.0/...` to `https://schemas.stravica.io/rcf/v0.3.0/...` on every schema, in lock-step with the bundle version (unchanged content for the 10 pre-existing document schemas; only `common.schema.json` gains new `$defs` and `cn.schema.json` is new).
+
+### Notes
+
+- The project manifest (`manifest.schema.json`) is intentionally unchanged: it is roots-only (`prd`, `tad`, `bs`) and no document kind, including CN, is enumerated there. CN discovery follows the same convention-derived-path pattern as every other kind (see `docs/file-layout.md`), not a manifest field.
+
 ## 0.2.1 - 2026-07-02
 
 Added optional `tacIds[]` cross-link field on `user-story.schema.json` to close a Phase 3.7 §D2/OQ-P37-1 silent miss. Forward-compatible; no consumer populates the field until Phase 4 CRUD. Backward-compatible - existing US docs without `tacIds` remain valid.
