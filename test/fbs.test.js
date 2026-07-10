@@ -69,3 +69,17 @@ test('fbs: dependsOnFbsIds populated with FBS ids validates', () => {
   const doc = { ...base, dependsOnFbsIds: ['FBS-002', 'FBS-003'] };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+test('fbs: noCodeNodes true validates (0.3.1, optional)', () => {
+  const doc = { ...base, noCodeNodes: true };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: FBS without noCodeNodes remains valid (field is optional)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: non-boolean noCodeNodes rejected', () => {
+  const doc = { ...base, noCodeNodes: 'yes' };
+  assert.equal(validate(doc), false);
+});

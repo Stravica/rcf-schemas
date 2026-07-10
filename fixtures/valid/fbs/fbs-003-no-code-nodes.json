@@ -1,0 +1,14 @@
+{
+  "fbsId": "FBS-003",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 3,
+  "executionStatus": "complete",
+  "title": "Write the getting-started guide",
+  "summary": "Docs-only build spec: authors the getting-started guide under docs/. Produces no traceable code.",
+  "acIds": ["AC-003"],
+  "dependsOnFbsIds": [],
+  "noCodeNodes": true,
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-07-10T00:00:00Z"
+}

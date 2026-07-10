@@ -35,6 +35,7 @@ Structurally, each FBS carries the mandatory `bsId` back-reference plus `buildOr
 | `riskLevel` | enum: `low`, `medium`, `high` | Risk classification. |
 | `domain` | string | Free-form domain label. |
 | `notes` | string | FBS-specific gotchas. |
+| `noCodeNodes` | boolean | Declares this build spec produces no traceable code (docs-only or config-only). `rcf build --mark complete` records it via `--no-code-nodes` and the CodeNode gate skips the spec. Added in 0.3.1. |
 
 ## `contextRequirements` shape
 
