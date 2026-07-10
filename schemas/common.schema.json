@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json",
   "title": "RCF Shared Definitions",
-  "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 10 doc-type schemas at validator init.",
+  "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 11 doc-type schemas at validator init.",
   "$defs": {
     "prdId": {
       "type": "string",
@@ -59,6 +59,11 @@
       "pattern": "^TC-\\d{3}-[a-z0-9-]+$",
       "description": "Test Case identifier. TS suffix (three digits) joined to a lowercase alphanumeric slug."
     },
+    "cnId": {
+      "type": "string",
+      "pattern": "^CN-\\d{3,}$",
+      "description": "Code Node identifier. Three-digit minimum, unbounded above."
+    },
     "version": {
       "type": "string",
       "pattern": "^\\d+\\.\\d+\\.\\d+$",
@@ -80,6 +85,10 @@
     "executionStatus": {
       "enum": ["notStarted", "inProgress", "complete", "verified"],
       "description": "Execution-state status for FBS documents and FBS slots within a Build Sequence."
+    },
+    "cnStatus": {
+      "enum": ["draft", "approved", "deprecated"],
+      "description": "Lifecycle status for Code Node documents."
     },
     "docRef": {
       "type": "object",

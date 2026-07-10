@@ -28,9 +28,12 @@ project-root/
 |   |-- fbs/
 |   |   |-- FBS-001.json
 |   |   `-- FBS-002.json
-|   `-- test-suites/
-|       |-- ts-001.json
-|       `-- ts-002.json
+|   |-- test-suites/
+|   |   |-- ts-001.json
+|   |   `-- ts-002.json
+|   `-- code-nodes/
+|       |-- cn-001.json
+|       `-- cn-002.json
 ```
 
 ## Why everything lives under `rcf/`
@@ -58,5 +61,6 @@ Tools that walk from the manifest roots can resolve child paths by convention:
 - ADR-001 -> `rcf/adrs/ADR-001.json`
 - FBS-001 -> `rcf/fbs/FBS-001.json`
 - TS-001 -> `rcf/test-suites/ts-001.json`
+- CN-001 -> `rcf/code-nodes/cn-001.json`
 
 A future minor bump may introduce an optional `paths` override block on the manifest for adopters who deviate from the recommendation; 0.2.0 ships convention-only.

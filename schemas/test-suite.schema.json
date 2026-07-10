@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.2.0/test-suite.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.3.0/test-suite.schema.json",
   "title": "RCF Test Suite",
   "description": "One file per Test Suite. Verifies one or more Acceptance Criteria (on the User Story identified by usId) via inline Test Cases. Test Suites hold the AC references; ACs stay clean of downstream references. Test-run status per TC is authored (Phase 3.7) and later derived from real test runs (Phase 6+).",
   "type": "object",
@@ -18,24 +18,24 @@
     "updatedAt"
   ],
   "properties": {
-    "id": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tsId" },
-    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/usId" },
+    "id": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tsId" },
+    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/usId" },
     "title": { "type": "string", "minLength": 1 },
     "purpose": { "type": "string", "minLength": 1 },
     "testLevel": { "enum": ["unit", "integration", "e2e", "contract", "manual"] },
     "acIds": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/acId" }
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" }
     },
     "testCases": {
       "type": "array",
       "minItems": 0,
       "items": { "$ref": "#/$defs/testCase" }
     },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/authoringStatus" },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
   },
   "$defs": {
     "testCase": {
@@ -48,7 +48,7 @@
           "pattern": "^TC-\\d{3}-[a-z0-9-]+$",
           "description": "Test Case identifier. TS suffix (three digits) joined to a lowercase alphanumeric slug (hyphens allowed)."
         },
-        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/acId" },
+        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" },
         "description": { "type": "string", "minLength": 1 },
         "testPointer": {
           "type": "string",

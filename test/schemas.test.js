@@ -1,5 +1,5 @@
 // Meta-tests over the schema files themselves.
-// Verifies coverage (11 files), strict-by-default (additionalProperties: false
+// Verifies coverage (12 files), strict-by-default (additionalProperties: false
 // on every object schema), $id stability, and JSON Schema 2020-12 declaration.
 
 import { test } from 'node:test';
@@ -24,7 +24,7 @@ function walkForObjects(node, path, hits) {
   }
 }
 
-test('schema set has the 11 expected files', async () => {
+test('schema set has the 12 expected files', async () => {
   const schemas = await loadSchemas();
   const got = Object.keys(schemas).sort();
   const want = SCHEMA_NAMES.map((n) => `${n}.schema.json`).sort();
@@ -45,7 +45,7 @@ test('every schema declares $schema = JSON Schema 2020-12', async () => {
 test('every schema declares canonical $id', async () => {
   const schemas = await loadSchemas();
   for (const [name, schema] of Object.entries(schemas)) {
-    const expected = `https://schemas.stravica.io/rcf/v0.2.0/${name}`;
+    const expected = `https://schemas.stravica.io/rcf/v0.3.0/${name}`;
     assert.equal(schema.$id, expected, `${name} $id mismatch`);
   }
 });

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.2.0/tac.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.3.0/tac.schema.json",
   "title": "RCF Technical Architecture Component",
   "description": "One per architectural component. Verbose per-component descriptions are fine; the schema does not constrain length.",
   "type": "object",
@@ -18,11 +18,11 @@
     "updatedAt"
   ],
   "properties": {
-    "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tacId" },
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/prdId" },
-    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tadId" },
-    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/version" },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/authoringStatus" },
+    "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tacId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/prdId" },
+    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tadId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
 
     "name": { "type": "string", "minLength": 1 },
     "purpose": { "type": "string", "minLength": 1 },
@@ -44,8 +44,8 @@
     "tradeoffs": { "type": "string" },
     "notes": { "type": "string" },
 
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
   },
   "$defs": {
     "interfaceDef": {
@@ -65,7 +65,7 @@
       "properties": {
         "name": { "type": "string", "minLength": 1 },
         "kind": { "enum": ["tac", "external"] },
-        "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tacId" },
+        "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tacId" },
         "description": { "type": "string" }
       }
     }

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.2.0/tad.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.3.0/tad.schema.json",
   "title": "RCF Technical Architecture Document",
   "description": "Master Technical Architecture Document. One per project. TACs and ADRs each carry the mandatory tadId parent reference; the TAD does not list them. The walker computes both children lists by inverting TAC.tadId and ADR.tadId at load time. The schema defines the FULL set of possible sections; what's required for a given project is a tooling decision.",
   "type": "object",
@@ -15,10 +15,10 @@
     "updatedAt"
   ],
   "properties": {
-    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/tadId" },
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/prdId" },
-    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/version" },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/authoringStatus" },
+    "tadId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tadId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/prdId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
 
     "systemOverview": { "$ref": "#/$defs/systemOverview" },
 
@@ -32,8 +32,8 @@
     "deploymentArchitecture": { "$ref": "#/$defs/deploymentArchitecture" },
     "operationalConcerns": { "$ref": "#/$defs/operationalConcerns" },
 
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.2.0/common.schema.json#/$defs/timestamp" }
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
   },
   "$defs": {
     "systemOverview": {

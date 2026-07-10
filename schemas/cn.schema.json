@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.3.0/cn.schema.json",
+  "title": "RCF Code Node",
+  "description": "Code Node document. One file per node. Identity is a working-tree path, optionally #symbol-suffixed; granularity (file vs symbol) is derived from the presence of '#', never stored. Bridges the spec graph to source: implementsAcIds anchors the node into the AC layer, dependencies declares CN-to-CN edges.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["cnId", "path", "implementsAcIds", "version", "status", "createdAt", "updatedAt"],
+  "properties": {
+    "cnId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/cnId" },
+    "path": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[^#]+(#[A-Za-z_$][A-Za-z0-9_$]*)?$",
+      "description": "Repo-relative source path, optionally #symbol-suffixed (e.g. \"src/store/validator.js\" or \"src/store/validator.js#getAjv\")."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "description": { "type": "string" },
+    "implementsAcIds": {
+      "type": "array",
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" },
+      "minItems": 0,
+      "description": "Acceptance criteria this code node satisfies. May be empty: an orphan CN (utilities, glue, wiring) is a legitimate state."
+    },
+    "dependencies": {
+      "type": "array",
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/cnId" },
+      "minItems": 0,
+      "description": "Code nodes this node depends on (CN-to-CN edges). Hand-declared in v1."
+    },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/cnStatus" },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
+  }
+}

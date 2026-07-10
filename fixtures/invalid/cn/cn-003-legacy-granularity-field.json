@@ -1,0 +1,10 @@
+{
+  "cnId": "CN-001",
+  "path": "src/store/validator.js",
+  "granularity": "file",
+  "implementsAcIds": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

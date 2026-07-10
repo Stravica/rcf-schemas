@@ -27,6 +27,7 @@ Two families deviate from the family default and are documented alongside their 
 | `FBS` | Functional Build Specification | yes | `fbs.schema.json` |
 | `TS`  | Test Suite | yes (one file per suite, sequential id `TS-\d{3}`) | `test-suite.schema.json` |
 | `TC`  | Test Case | no (nested in TS, id `TC-<TS-suffix>-<slug>`) | `test-suite.schema.json` |
+| `CN`  | Code Node | yes | `cn.schema.json` |
 
 All prefixes are defined exactly once in `common.schema.json#/$defs` and referenced via `$ref` everywhere.
 
@@ -49,11 +50,15 @@ Pick per project; the schema does not enforce either form. The published `Stravi
 
 Rationale: sequential numbering for TCs is brittle if you renumber; slug-based ids give readable pointers in test-suite bodies and traceability queries.
 
+## CN ids
+
+`^CN-\d{3,}$`, same shape as the family default. A CN's *identity within the working tree* is a separate field, `path` (optionally `#symbol`-suffixed) - see [cn](./cn.md). The `cnId` is the document id used for cross-references (`dependencies[]`, and inbound from any future kind that anchors to a CN); `path` is what the CN actually points at.
+
 ## File-level vs nested-level: the asymmetry
 
 | Lives in its own file | Lives nested inside a parent |
 |---|---|
-| PRD, REQ, US, TAD, TAC, ADR, BS, FBS, TS | AC (inside US), TC (inside TS) |
+| PRD, REQ, US, TAD, TAC, ADR, BS, FBS, TS, CN | AC (inside US), TC (inside TS) |
 
 **The rule:** narrative-heavy structured documents that grow over time live in their own files (per-doc git history, parallel-safe authoring, no merge conflict on append). Tightly-coupled child structures (AC inside US, TC inside TS) stay nested, splitting them multiplies file counts without benefit.
 

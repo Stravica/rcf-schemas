@@ -1,6 +1,6 @@
 // Shared helper for the schemas repo's internal test runner.
 // Reads every schema file under schemas/, returns a configured ajv instance
-// with all 11 schemas registered, plus the parsed schema bundle keyed by name.
+// with all 12 schemas registered, plus the parsed schema bundle keyed by name.
 //
 // This helper exists for the schemas repo's own CI quality gate. It is NOT
 // shipped to consumers (excluded from package.json:files[]).
@@ -48,17 +48,18 @@ export async function buildAjv() {
 
 export function getSchemaByName(ajv, name) {
   const idMap = {
-    'common.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/common.schema.json',
-    'prd.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/prd.schema.json',
-    'req.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/req.schema.json',
-    'user-story.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/user-story.schema.json',
-    'tad.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/tad.schema.json',
-    'tac.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/tac.schema.json',
-    'adr.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/adr.schema.json',
-    'build-sequence.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/build-sequence.schema.json',
-    'fbs.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/fbs.schema.json',
-    'test-suite.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/test-suite.schema.json',
-    'manifest.schema.json': 'https://schemas.stravica.io/rcf/v0.2.0/manifest.schema.json'
+    'common.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/common.schema.json',
+    'prd.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/prd.schema.json',
+    'req.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/req.schema.json',
+    'user-story.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/user-story.schema.json',
+    'tad.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/tad.schema.json',
+    'tac.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/tac.schema.json',
+    'adr.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/adr.schema.json',
+    'build-sequence.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/build-sequence.schema.json',
+    'fbs.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/fbs.schema.json',
+    'test-suite.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/test-suite.schema.json',
+    'manifest.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/manifest.schema.json',
+    'cn.schema.json': 'https://schemas.stravica.io/rcf/v0.3.0/cn.schema.json'
   };
   const id = idMap[name];
   if (!id) throw new Error(`Unknown schema file: ${name}`);
@@ -78,7 +79,8 @@ export const SCHEMA_NAMES = [
   'build-sequence',
   'fbs',
   'test-suite',
-  'manifest'
+  'manifest',
+  'cn'
 ];
 
 export const DOC_TYPE_SCHEMAS = SCHEMA_NAMES.filter((n) => n !== 'common');

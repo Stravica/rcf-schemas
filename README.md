@@ -4,15 +4,15 @@ JSON Schemas for the [Requirements Confidence Framework (RCF)](https://stravica.
 
 **Language-neutral. No code in this package, only schema files, docs, and fixtures.** Every consumer language is first-class: Node, Python, Java, or anything else with a JSON Schema 2020-12 validator.
 
-> **Status:** v0.2.0 - public preview.
+> **Status:** v0.3.0 - public preview.
 >
 > This package is available on the public npm registry as a preview. Ship-quality contract, small consumer surface. The methodology's reference implementation (`Stravica/rcf-build-lite`) is being migrated to consume 0.2.0 during Phase 3.7 of the RCF build and stays private until Phase 9; expect the public consumer path to sharpen up as that lands. If you want to experiment, `npm install @stravica-ai/rcf-schemas` is stable; docs at `https://schemas.stravica.io/` land at Phase 9.
 
 ## What's here
 
-- **11 schema files** in `schemas/`:
+- **12 schema files** in `schemas/`:
   - `common.schema.json` - shared `$defs` (id patterns, status enums, version, timestamp, `docRef`). Referenced via `$ref` from every other schema.
-  - `prd`, `req`, `user-story`, `tad`, `tac`, `adr`, `build-sequence`, `fbs`, `test-suite`, `manifest`.
+  - `prd`, `req`, `user-story`, `tad`, `tac`, `adr`, `build-sequence`, `fbs`, `test-suite`, `manifest`, `cn`.
 - **Per-schema docs** in `docs/` (one page per schema) plus cross-cutting `id-conventions.md` and `file-layout.md`.
 - **JSON test fixtures** in `fixtures/valid/` and `fixtures/invalid/` (every schema covered).
 - **CHANGELOG** in `CHANGELOG.md`.
@@ -38,7 +38,7 @@ pip install stravica-rcf-schemas
 Maven coordinate:
 
 ```
-io.stravica.rcf:rcf-schemas:0.2.0
+io.stravica.rcf:rcf-schemas:0.3.0
 ```
 
 ### Direct fetch (Phase 9 onwards)
@@ -46,7 +46,7 @@ io.stravica.rcf:rcf-schemas:0.2.0
 Each schema is fetchable by its canonical `$id`:
 
 ```
-https://schemas.stravica.io/rcf/v0.2.0/<name>.schema.json
+https://schemas.stravica.io/rcf/v0.3.0/<name>.schema.json
 ```
 
 ## Use
@@ -66,7 +66,7 @@ const pkgRoot = require.resolve('@stravica-ai/rcf-schemas/package.json').replace
 
 const names = [
   'common', 'prd', 'req', 'user-story', 'tad', 'tac', 'adr',
-  'build-sequence', 'fbs', 'test-suite', 'manifest'
+  'build-sequence', 'fbs', 'test-suite', 'manifest', 'cn'
 ];
 
 const ajv = new Ajv({ strict: true, allErrors: true });
@@ -77,7 +77,7 @@ for (const name of names) {
   ajv.addSchema(schema);
 }
 
-const validatePrd = ajv.getSchema('https://schemas.stravica.io/rcf/v0.2.0/prd.schema.json');
+const validatePrd = ajv.getSchema('https://schemas.stravica.io/rcf/v0.3.0/prd.schema.json');
 const ok = validatePrd(myPrdDoc);
 if (!ok) console.error(validatePrd.errors);
 ```
@@ -95,7 +95,7 @@ pkg = files('stravica_rcf_schemas') / 'schemas'
 
 names = [
     'common', 'prd', 'req', 'user-story', 'tad', 'tac', 'adr',
-    'build-sequence', 'fbs', 'test-suite', 'manifest'
+    'build-sequence', 'fbs', 'test-suite', 'manifest', 'cn'
 ]
 
 resources = []
@@ -115,9 +115,9 @@ Configure a `SchemaClient` (everit) or `SchemaLoader` (networknt) that resolves 
 
 ### Any other language
 
-The schemas use JSON Schema Draft 2020-12. Any validator that supports 2020-12 + multi-file `$ref` will work. Register the 11 schemas (with `common.schema.json` first) and resolve by `$id`.
+The schemas use JSON Schema Draft 2020-12. Any validator that supports 2020-12 + multi-file `$ref` will work. Register the 12 schemas (with `common.schema.json` first) and resolve by `$id`.
 
-## Chain shape (0.2.0)
+## Chain shape (0.3.0)
 
 Every parent-child edge in the RCF chain is encoded exactly once, on the child, as a mandatory `<parent>Id` field. Parents never store child lists; walkers invert the child references at load time to build the `childrenByParent` map. This makes tree drift structurally impossible.
 
@@ -126,6 +126,7 @@ Every parent-child edge in the RCF chain is encoded exactly once, on the child, 
 - TAD is the root of the architecture chain. TAC and ADR each carry `tadId`.
 - BS is the root of the build-sequence chain. FBS carries `bsId`, `buildOrder`, `executionStatus`, and `dependsOnFbsIds[]`.
 - TS carries `usId` and `acIds[]` (the ACs verified). TC lives inline in TS with per-TC `acId`.
+- CN (added 0.3.0) bridges the chain to source code: `implementsAcIds[]` anchors a node to the ACs it satisfies, `dependencies[]` declares CN-to-CN edges. Identity is `path` (optionally `#symbol`-suffixed), not a parent reference - CN sits alongside the chain rather than inside it.
 
 ## Schema reference
 
@@ -134,7 +135,7 @@ Per-schema docs in [`docs/`](./docs/README.md):
 - [common](./docs/common.md) | [prd](./docs/prd.md) | [req](./docs/req.md) | [user-story](./docs/user-story.md)
 - [tad](./docs/tad.md) | [tac](./docs/tac.md) | [adr](./docs/adr.md)
 - [build-sequence](./docs/build-sequence.md) | [fbs](./docs/fbs.md) | [test-suite](./docs/test-suite.md)
-- [manifest](./docs/manifest.md)
+- [manifest](./docs/manifest.md) | [cn](./docs/cn.md)
 
 Cross-cutting:
 

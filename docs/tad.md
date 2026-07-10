@@ -4,7 +4,7 @@ Master Technical Architecture Document. One per project. Pure shell for cross-cu
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.2.0/tad.schema.json`
+`https://schemas.stravica.io/rcf/v0.3.0/tad.schema.json`
 
 ## Required fields
 
