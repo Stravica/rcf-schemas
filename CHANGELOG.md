@@ -29,6 +29,7 @@ Additive minor bump carrying the 0.7.0 release-train schema surface for `rcf-lit
 - Every addition is optional at schema level. The additive-only contract is proven by `fixtures/valid/manifest/manifest-004-pre-040-backcompat.json` (a bare 0.3.x-era manifest) validating cleanly, and by the `pre-0.4.0 ... still validates` tests in each per-schema test file.
 - `$defs` uniqueness was audited across all three tracks before authoring; no shape-disagreeing collisions. The one intentionally shared def (`common.$defs.attestationMode`) is the enum both FBS's `dependsOnServices[]` and manifest's `preFlightServiceEntry` need.
 - The 0.6.0 init-hygiene spec (`packages/{build,core}` in `rcf-lite`) confirmed schema-free and therefore not represented here.
+- Pre-merge constraint alignments in the same 0.4.0 release: `fbs.$defs.designJourney.steps` `minItems` raised from 1 to 2 to match Track B §3.1 ("2-8 short strings"); `manifest.$defs.preFlightServiceEntry.sourceRefs` `minItems` relaxed from 1 to 0 so operator-added service candidates with no PRD or TAD reference validate. Negative-fixture symmetry back-filled for the enum and id-pattern constraints that lacked a dedicated fixture.
 
 ## 0.3.1 - 2026-07-10
 

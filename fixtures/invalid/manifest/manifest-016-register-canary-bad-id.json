@@ -1,0 +1,24 @@
+{
+  "version": "2.0.0",
+  "projectName": "Register-canary id pattern breach",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "registerCanary": [
+    {
+      "id": "canary-001",
+      "createdAt": "2026-07-30T18:10:00Z",
+      "buildVersion": "0.7.0-rc.1",
+      "fixturePromptId": "canary-prompt-01",
+      "responseWordCount": 152,
+      "grades": {
+        "internalRuleCitation": { "verdict": "pass", "matches": [] },
+        "unglossedJargon": { "verdict": "pass", "matches": [] },
+        "redundantPermissionAsk": { "verdict": "pass", "matches": [] },
+        "bypassOffer": { "verdict": "pass", "matches": [] },
+        "wordCountBudget": { "verdict": "pass", "target": 200, "actual": 152 }
+      },
+      "verdict": "pass"
+    }
+  ]
+}

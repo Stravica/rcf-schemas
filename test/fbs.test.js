@@ -178,6 +178,24 @@ test('fbs: designStage journeys accepts a minimal valid entry', () => {
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
 
+test('fbs: designStage journey with a single step rejected (minItems 2 per Track B §3.1)', () => {
+  const doc = {
+    ...base,
+    uiBearing: true,
+    designStage: {
+      journeys: [
+        {
+          id: 'signed-in-owner-checks-status',
+          actor: 'signed-in owner',
+          goal: 'see status at a glance',
+          steps: ['lands on /']
+        }
+      ]
+    }
+  };
+  assert.equal(validate(doc), false);
+});
+
 test('fbs: uiClassification verdict enum enforced', () => {
   const doc = {
     ...base,

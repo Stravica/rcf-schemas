@@ -1,4 +1,4 @@
-// Targeted tests for manifest.schema.json — covers the 0.4.0 additions
+// Targeted tests for manifest.schema.json, covers the 0.4.0 additions
 // across Tracks A, B, and C+D (preFlightConfig, reviewAudit, uiBaseline,
 // browserVerification, baselineAcOptOuts, intakeClassification,
 // registerCanary, reviewSurface, testCommand), plus the back-compat
@@ -96,6 +96,32 @@ test('manifest: preFlightConfig designShapeAnswers optional field validates', ()
             answeredAt: '2026-07-30T14:24:00Z'
           }
         ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: preFlightServiceEntry with an empty sourceRefs array validates (operator-added candidate)', () => {
+  const doc = {
+    ...base,
+    preFlightConfig: [
+      {
+        id: 'pfc-2026-07-30-002',
+        createdAt: '2026-07-30T14:20:00Z',
+        prdId: 'PRD-001',
+        servicesInScope: [
+          {
+            id: 'sentry',
+            displayName: 'Sentry',
+            sourceRefs: [],
+            attestationMode: 'declaredMockOnly',
+            credentialSupplied: false,
+            sandboxProvisioned: false,
+            operatorReason: 'operator-added at pre-flight, no PRD or TAD reference'
+          }
+        ],
+        operatorAckAt: '2026-07-30T14:22:00Z'
       }
     ]
   };
@@ -524,6 +550,140 @@ test('manifest: reviewSurface viewServer mode enum enforced', () => {
         lastHeartbeatAt: '2026-07-30T09:40:00Z'
       }
     }
+  };
+  assert.equal(validate(doc), false);
+});
+
+// -- N4 fixture-symmetry back-fill: enums and id patterns ---------------
+
+test('manifest: intakeArtefact kind enum rejects unknown value', () => {
+  const doc = {
+    ...base,
+    intakeClassification: {
+      id: 'ic-2026-07-30-001',
+      createdAt: '2026-07-30T13:50:00Z',
+      fidelity: 'napkin',
+      artefacts: [ { path: 'docs/x.md', kind: 'wireframe' } ],
+      validationFindings: [],
+      elicitationScope: {},
+      operatorAckAt: '2026-07-30T13:55:00Z'
+    }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: intakeValidationFinding kind enum rejects unknown value', () => {
+  const doc = {
+    ...base,
+    intakeClassification: {
+      id: 'ic-2026-07-30-001',
+      createdAt: '2026-07-30T13:50:00Z',
+      fidelity: 'briefLight',
+      artefacts: [],
+      validationFindings: [
+        { kind: 'typoDetected', detail: 'x', raisedAt: '2026-07-30T13:52:00Z' }
+      ],
+      elicitationScope: {},
+      operatorAckAt: '2026-07-30T13:55:00Z'
+    }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: reviewAudit id pattern enforced (ra-<fbsId>-<n>)', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'audit-011-1',
+        fbsId: 'FBS-011',
+        createdAt: '2026-07-30T15:10:00Z',
+        testTheatreFindings: [],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: browserVerification id pattern enforced (bv-<fbsId>-<n>)', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'verify-016-1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-07-30T15:22:00Z',
+        mode: 'operatorSession',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: baselineAcOptOut id pattern enforced (boo-YYYY-MM-DD-NNN)', () => {
+  const doc = {
+    ...base,
+    baselineAcOptOuts: [
+      {
+        id: 'optout-001',
+        createdAt: '2026-07-30T14:30:00Z',
+        reqId: 'REQ-012',
+        baselineKey: 'auth.htmlLoginPage',
+        scope: 'req',
+        reason: 'operator ruling with sufficient length for the twenty-char floor',
+        operatorAckAt: '2026-07-30T14:30:00Z'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: intakeClassification id pattern enforced (ic-YYYY-MM-DD-NNN)', () => {
+  const doc = {
+    ...base,
+    intakeClassification: {
+      id: 'intake-001',
+      createdAt: '2026-07-30T13:50:00Z',
+      fidelity: 'napkin',
+      artefacts: [],
+      validationFindings: [],
+      elicitationScope: {},
+      operatorAckAt: '2026-07-30T13:55:00Z'
+    }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: registerCanary id pattern enforced (rc-YYYY-MM-DD-NNN)', () => {
+  const doc = {
+    ...base,
+    registerCanary: [
+      {
+        id: 'canary-001',
+        createdAt: '2026-07-30T18:10:00Z',
+        buildVersion: '0.7.0-rc.1',
+        fixturePromptId: 'canary-prompt-01',
+        responseWordCount: 152,
+        grades: {
+          internalRuleCitation: { verdict: 'pass', matches: [] },
+          unglossedJargon: { verdict: 'pass', matches: [] },
+          redundantPermissionAsk: { verdict: 'pass', matches: [] },
+          bypassOffer: { verdict: 'pass', matches: [] },
+          wordCountBudget: { verdict: 'pass', target: 200, actual: 152 }
+        },
+        verdict: 'pass'
+      }
+    ]
   };
   assert.equal(validate(doc), false);
 });

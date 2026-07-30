@@ -1,0 +1,14 @@
+{
+  "version": "2.0.0",
+  "projectName": "UI-baseline id pattern breach",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "uiBaseline": {
+    "id": "baseline-001",
+    "createdAt": "2026-07-30T14:15:00Z",
+    "prdId": "PRD-001",
+    "defaults": {},
+    "operatorAckAt": "2026-07-30T14:15:00Z"
+  }
+}
