@@ -48,3 +48,71 @@ test('user-story: US with a malformed tacId is rejected', () => {
   const doc = { ...base, tacIds: ['INVALID-ID'] };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.0 additions (Track C+D AC provenance) --------------------------
+
+test('user-story: AC with baseline provenance validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'shared nav renders on every authenticated route',
+        testable: true,
+        provenance: {
+          authoredBy: 'baseline',
+          baselineKey: 'webUi.sharedNav',
+          injectedAt: '2026-07-30T14:22:00Z',
+          sourceReqShape: 'webUi',
+          acceptedByOperatorAt: '2026-07-30T14:25:00Z'
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC provenance rejects unknown authoredBy', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        provenance: { authoredBy: 'guessed' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC provenance rejects unknown sourceReqShape', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        provenance: { authoredBy: 'baseline', sourceReqShape: 'chatbot' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC provenance authoredBy=operator alone validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        provenance: { authoredBy: 'operator' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

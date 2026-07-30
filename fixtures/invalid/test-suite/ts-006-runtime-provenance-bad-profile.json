@@ -1,0 +1,24 @@
+{
+  "id": "TS-015",
+  "usId": "US-1001",
+  "title": "Recovery email dispatch",
+  "purpose": "Cover the recovery-email flow.",
+  "testLevel": "integration",
+  "acIds": ["AC-1001-2"],
+  "testCases": [
+    {
+      "id": "TC-015-happy-path",
+      "acId": "AC-1001-2",
+      "description": "email dispatched on recovery event",
+      "status": "passing",
+      "runtimeProvenance": {
+        "profile": "somehow",
+        "envVarsRequired": [],
+        "externalHostsReached": []
+      }
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-07-30T14:20:00Z",
+  "updatedAt": "2026-07-30T14:20:00Z"
+}

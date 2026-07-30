@@ -1,0 +1,23 @@
+{
+  "reqId": "REQ-012",
+  "prdId": "PRD-001",
+  "title": "Signed-in owner dashboard",
+  "description": "The signed-in owner must land on a browser admin dashboard showing the status of every monitor.",
+  "rationale": "Operator needs one glance to see failures without walking the API.",
+  "category": "functional",
+  "domain": "webUi",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-30T14:20:00Z",
+  "updatedAt": "2026-07-30T14:20:00Z",
+  "shapeClassification": {
+    "shapes": ["webUi", "auth"],
+    "reason": "keyword-scan",
+    "signals": [
+      { "source": "description", "match": "browser admin", "shape": "webUi" },
+      { "source": "description", "match": "signed-in", "shape": "auth" }
+    ],
+    "classifiedAt": "2026-07-30T14:20:00Z"
+  }
+}

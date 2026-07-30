@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.3.0/req.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.4.0/req.schema.json",
   "title": "RCF Requirement",
   "description": "Individual requirement within a PRD. One file per requirement. Recommended path: rcf/requirements/REQ-001.json. Carries the mandatory prdId parent reference; the PRD does not list its requirements.",
   "type": "object",
@@ -19,8 +19,8 @@
     "updatedAt"
   ],
   "properties": {
-    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/reqId" },
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/prdId" },
+    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/reqId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/prdId" },
     "title": { "type": "string", "minLength": 1 },
     "description": { "type": "string", "minLength": 1 },
     "category": { "enum": ["functional", "nonFunctional", "technical", "security"] },
@@ -31,9 +31,80 @@
       "type": "array",
       "items": { "type": "string" }
     },
-    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/version" },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/authoringStatus" },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+    "shapeClassification": { "$ref": "#/$defs/reqShapeClassification" }
+  },
+  "$defs": {
+    "reqShapeClassification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["shapes", "reason", "classifiedAt"],
+      "properties": {
+        "shapes": {
+          "type": "array",
+          "items": {
+            "enum": ["webUi", "httpApi", "auth", "persistence", "notifications", "none"]
+          },
+          "description": "Detected shapes for this requirement. A requirement can carry multiple shapes. none is legitimate for pure business-rule requirements."
+        },
+        "reason": {
+          "enum": ["keyword-scan", "inheritedFromParent", "operatorOverride", "content-pending"],
+          "description": "How the classifier arrived at the shapes list. content-pending marks a requirement whose description was not yet authored at classification time."
+        },
+        "signals": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/reqShapeSignal" },
+          "description": "Matched patterns when reason is keyword-scan. Records source, matched substring, and which shape the signal fed into."
+        },
+        "classifiedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "operatorOverride": { "$ref": "#/$defs/reqShapeOperatorOverride" }
+      },
+      "description": "Classifier verdict for this requirement's shape. Written at requirement authoring or on rcf req-classify. Additive on the requirement schema; existing chains without the field remain valid."
+    },
+    "reqShapeSignal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "match", "shape"],
+      "properties": {
+        "source": {
+          "enum": ["title", "description", "rationale"],
+          "description": "Which requirement field the signal was matched in."
+        },
+        "match": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The matched substring from the source field."
+        },
+        "shape": {
+          "enum": ["webUi", "httpApi", "auth", "persistence", "notifications"],
+          "description": "The shape this signal fed into."
+        }
+      }
+    },
+    "reqShapeOperatorOverride": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["originalShapes", "newShapes", "reason", "ackAt"],
+      "properties": {
+        "originalShapes": {
+          "type": "array",
+          "items": {
+            "enum": ["webUi", "httpApi", "auth", "persistence", "notifications", "none"]
+          }
+        },
+        "newShapes": {
+          "type": "array",
+          "items": {
+            "enum": ["webUi", "httpApi", "auth", "persistence", "notifications", "none"]
+          }
+        },
+        "reason": { "type": "string", "minLength": 1 },
+        "ackAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      },
+      "description": "Operator ruling that overrode the classifier's shapes list. Layered on top of signal history; signals are never deleted."
+    }
   }
 }

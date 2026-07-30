@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "projectName": "Intake validation finding kind enum breach",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "intakeClassification": {
+    "id": "ic-2026-07-30-001",
+    "createdAt": "2026-07-30T13:50:00Z",
+    "fidelity": "briefLight",
+    "artefacts": [],
+    "validationFindings": [
+      {
+        "kind": "typoDetected",
+        "detail": "not in the schema enum",
+        "raisedAt": "2026-07-30T13:52:00Z"
+      }
+    ],
+    "elicitationScope": {},
+    "operatorAckAt": "2026-07-30T13:55:00Z"
+  }
+}

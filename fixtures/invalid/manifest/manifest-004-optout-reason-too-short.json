@@ -1,0 +1,18 @@
+{
+  "version": "2.0.0",
+  "projectName": "Reason floor breach",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "baselineAcOptOuts": [
+    {
+      "id": "boo-2026-07-30-002",
+      "createdAt": "2026-07-30T14:30:00Z",
+      "reqId": "REQ-012",
+      "baselineKey": "auth.htmlLoginPage",
+      "scope": "req",
+      "reason": "too short",
+      "operatorAckAt": "2026-07-30T14:30:00Z"
+    }
+  ]
+}

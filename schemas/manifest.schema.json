@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.3.0/manifest.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.4.0/manifest.schema.json",
   "title": "RCF Project Manifest",
-  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots.",
+  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "projectName", "prd", "tad", "bs"],
@@ -10,8 +10,696 @@
     "version": { "type": "string", "const": "2.0.0" },
     "projectName": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
-    "prd": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/docRef" },
-    "tad": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/docRef" },
-    "bs": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/docRef" }
+    "prd": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/docRef" },
+    "tad": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/docRef" },
+    "bs":  { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/docRef" },
+    "testCommand": {
+      "type": "string",
+      "minLength": 1,
+      "description": "The project's declared test command (for example, pnpm -r test). Read by the review-audit mutation sampler and by any other tool that needs to invoke the project's tests."
+    },
+    "preFlightConfig": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/preFlightConfigRecord" },
+      "description": "Pre-flight configuration records. One per rcf preflight invocation. Each entry captures the operator's attestation-mode ruling for every third-party service the scanner surfaced against the PRD or TAD, plus any design-shape answers the operator recorded in the same session."
+    },
+    "reviewAudit": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reviewAuditRecord" },
+      "description": "Review-stage audit records. One entry per Review pass, keyed by fbsId. Carries both test-theatre findings and mutation-sampling results."
+    },
+    "uiBaseline": { "$ref": "#/$defs/uiBaselineRecord" },
+    "uiBaselineHistory": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/uiBaselineRecord" },
+      "description": "Previous UI-baseline records, appended when rcf ui-baseline init --reset writes a fresh baseline. Observability record so an operator can answer why the theme default changed."
+    },
+    "browserVerification": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/browserVerificationRecord" },
+      "description": "Browser-verification gate records. One entry per UI-bearing FBS's Finalise pass."
+    },
+    "baselineAcOptOuts": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/baselineAcOptOutRecord" },
+      "description": "Persistent ledger of operator rulings that remove a baseline acceptance criterion. Later user stories under the same requirement inherit the rulings without re-prompting."
+    },
+    "intakeClassification": { "$ref": "#/$defs/intakeClassificationRecord" },
+    "registerCanary": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/registerCanaryRecord" },
+      "description": "Register-regression canary records. One entry per canary run at release preparation."
+    },
+    "reviewSurface": { "$ref": "#/$defs/reviewSurfaceRecord" }
+  },
+  "$defs": {
+    "preFlightConfigRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "createdAt", "prdId", "servicesInScope", "operatorAckAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^pfc-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+          "description": "Pre-flight config record id. Format: pfc-YYYY-MM-DD-NNN. Monotonic per project."
+        },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/prdId" },
+        "servicesInScope": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/preFlightServiceEntry" },
+          "description": "One entry per third-party service candidate the operator ruled on. Empty array is legitimate for projects that named no services."
+        },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "designShapeAnswers": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/designShapeAnswer" },
+          "description": "Design-shape questions the operator answered in the same session. Optional; existing records without the field remain valid."
+        }
+      }
+    },
+    "preFlightServiceEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "displayName", "sourceRefs", "attestationMode", "credentialSupplied", "sandboxProvisioned"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$",
+          "description": "Canonical service id in camelCase."
+        },
+        "displayName": { "type": "string", "minLength": 1 },
+        "sourceRefs": {
+          "type": "array",
+          "minItems": 0,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Where in the PRD or TAD the service was named (for example, PRD-001#external-integrations). Provenance so an operator can review the derivation. Operator-added candidates may carry an empty array when the operator introduced the service at pre-flight without a PRD or TAD reference."
+        },
+        "attestationMode": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/attestationMode" },
+        "credentialSupplied": {
+          "type": "boolean",
+          "description": "Whether the operator supplied a key or token at pre-flight."
+        },
+        "sandboxProvisioned": {
+          "type": "boolean",
+          "description": "Whether a sandbox account was stood up for this service."
+        },
+        "operatorReason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Plain-text reason. Required in practice when attestationMode is declaredMockOnly or notShipped."
+        },
+        "affectedFbsIds": {
+          "type": "array",
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
+          "description": "FBS ids in the build queue that will inherit this service. May be back-filled at plan time."
+        }
+      }
+    },
+    "designShapeAnswer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["questionId", "answer", "answeredAt"],
+      "properties": {
+        "questionId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Catalogue id of the design-shape question (for example, auth.htmlLoginPage)."
+        },
+        "reqId": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/reqId",
+          "description": "Requirement the question was posed against, when the question is REQ-scoped."
+        },
+        "answer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Operator's answer. Value vocabulary is per question (for example, htmlLoginPage or apiOnly for auth.htmlLoginPage)."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Plain-text reason. Required in practice when the answer triggers a downstream opt-out ledger write; the ledger entry then applies the 20-character floor at its own site."
+        },
+        "answeredAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    },
+    "reviewAuditRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fbsId", "createdAt", "testTheatreFindings", "verdict"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ra-FBS-\\d{3,}-\\d+$",
+          "description": "Review-audit record id. Format: ra-<fbsId>-<n>; the trailing integer increments per re-audit of the same FBS."
+        },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "testTheatreFindings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/testTheatreFinding" },
+          "description": "One entry per issue the audit found. Empty array is legitimate; a clean audit is itself a finding."
+        },
+        "mutationSampling": { "$ref": "#/$defs/mutationSamplingRecord" },
+        "verdict": {
+          "enum": ["pass", "warn", "block"],
+          "description": "Aggregated verdict for the audit. block if any finding severity is block; warn if any warn and no block; pass otherwise."
+        },
+        "operatorAckAt": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp",
+          "description": "Set when the operator has read a warn or block verdict."
+        }
+      }
+    },
+    "testTheatreFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tsId", "kind", "detail", "severity"],
+      "properties": {
+        "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tsId" },
+        "tcId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tcId" },
+        "kind": {
+          "enum": [
+            "mockOnlyIntegrationClaim",
+            "testPointerBroken",
+            "assertionStrengthWeak",
+            "acIdsCoverageDrift",
+            "uiBaselineDrift",
+            "otherDeclared"
+          ],
+          "description": "Category of the finding. uiBaselineDrift is added by the UI-design-gate track for FBS implementations that contradict a uiBaseline default. otherDeclared requires a kindDescription."
+        },
+        "kindDescription": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-text description; required in practice when kind is otherDeclared."
+        },
+        "detail": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Human-readable detail of the finding."
+        },
+        "severity": {
+          "enum": ["advisory", "warn", "block"],
+          "description": "Severity of the finding. Only block severities force a block verdict on the audit."
+        }
+      }
+    },
+    "mutationSamplingRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "mutantsGenerated", "mutantsRun", "killed", "survived"],
+      "properties": {
+        "mode": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Which mutation-sampling implementation ran (for example, agent-v1, native-stryker)."
+        },
+        "mutantsGenerated": { "type": "integer", "minimum": 0 },
+        "mutantsRun": { "type": "integer", "minimum": 0 },
+        "killed": { "type": "integer", "minimum": 0 },
+        "survived": { "type": "integer", "minimum": 0 },
+        "durationMs": { "type": "integer", "minimum": 0 },
+        "survivors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/mutationSurvivor" }
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free text; for example, no code changes when the FBS diff is config-only."
+        }
+      }
+    },
+    "mutationSurvivor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mutationId", "targetFile", "mutationSummary", "acIds"],
+      "properties": {
+        "mutationId": { "type": "string", "minLength": 1 },
+        "targetFile": { "type": "string", "minLength": 1 },
+        "targetSymbol": { "type": "string" },
+        "mutationSummary": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One-line semantic description of the mutation (for example, flip guard condition)."
+        },
+        "acIds": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/acId" }
+        },
+        "tsIdsShouldHaveCaught": {
+          "type": "array",
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tsId" }
+        },
+        "tcIdsShouldHaveCaught": {
+          "type": "array",
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tcId" }
+        }
+      }
+    },
+    "uiBaselineRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "createdAt", "prdId", "defaults", "operatorAckAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^uib-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+          "description": "UI-baseline record id. Format: uib-YYYY-MM-DD-NNN. Monotonic per project."
+        },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/prdId" },
+        "defaults": { "$ref": "#/$defs/uiBaselineDefaults" },
+        "operatorOptOuts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/uiBaselineOptOut" },
+          "description": "Explicit operator overrides to individual defaults. Silence is never an opt-out; every override lands here with a reason."
+        },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    },
+    "uiBaselineDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "themeMode": {
+          "enum": ["light-default-with-toggle", "dark-default-with-toggle", "single-theme-declared"],
+          "description": "Project-wide theme posture. Estate default is light-default-with-toggle."
+        },
+        "sharedLayoutModule": { "type": "string", "minLength": 1 },
+        "designTokensModule": { "type": "string", "minLength": 1 },
+        "noHexInViewFiles": { "type": "boolean" },
+        "contrastTarget": { "type": "string", "minLength": 1 },
+        "contrastTestBeforePalette": { "type": "boolean" },
+        "focusRingsRequired": { "type": "boolean" },
+        "hoverStatesRequired": { "type": "boolean" },
+        "viewFileGlobs": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Globs the hex-literal audit scopes to. Defaults to src/ui/** minus the design tokens module when omitted."
+        },
+        "componentVocabulary": { "$ref": "#/$defs/uiBaselineComponentVocabulary" },
+        "typography": { "$ref": "#/$defs/uiBaselineTypography" },
+        "interactionDefaults": { "$ref": "#/$defs/uiBaselineInteractionDefaults" },
+        "authFlow": { "$ref": "#/$defs/uiBaselineAuthFlow" }
+      },
+      "description": "Ruled UI defaults for the project. Every field is optional at schema so partial baselines validate; the interactive init verb visits every field before writing operatorAckAt."
+    },
+    "uiBaselineComponentVocabulary": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "declaredComponents": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "The vocabulary of components a UI-bearing FBS may use (for example, Button, Input, Card, Badge, Table, Notice)."
+        },
+        "singleBadgeShape": { "type": "boolean" }
+      }
+    },
+    "uiBaselineTypography": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "baseFontStack": { "type": "string", "minLength": 1 },
+        "bodyLineHeight": { "type": "number", "exclusiveMinimum": 0 },
+        "headingLineHeight": { "type": "number", "exclusiveMinimum": 0 },
+        "proseMaxWidth": { "type": "string", "minLength": 1 }
+      }
+    },
+    "uiBaselineInteractionDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "loadingIndicatorOnFetch": { "type": "boolean" },
+        "disabledStateVisuallyDistinct": { "type": "boolean" }
+      }
+    },
+    "uiBaselineAuthFlow": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "htmlLoginPageRequired": {
+          "type": "boolean",
+          "description": "True when the project ships an HTML login page. Written by the preflight design-shape answer for auth.htmlLoginPage and read by the browser-verify smoke pack."
+        },
+        "smokeChecksRequired": { "type": "boolean" }
+      }
+    },
+    "uiBaselineOptOut": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["field", "reason", "operatorAckAt"],
+      "properties": {
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "description": "JSON-path string into defaults naming the field the operator overrode (for example, componentVocabulary.declaredComponents)."
+        },
+        "reason": { "type": "string", "minLength": 1 },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    },
+    "browserVerificationRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fbsId", "createdAt", "mode", "runtimeProfile", "runtimeUrl", "routesChecked", "invariantChecks", "verdict"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^bv-FBS-\\d{3,}-\\d+$",
+          "description": "Browser-verification record id. Format: bv-<fbsId>-<n>."
+        },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "mode": {
+          "enum": ["operatorSession", "agentScreenshotCritique"],
+          "description": "Which path satisfied the gate. operatorSession: the operator loaded the app and cleared the pages themselves. agentScreenshotCritique: a subagent drove a browser and critiqued screenshots."
+        },
+        "runtimeProfile": {
+          "enum": ["deployed", "ci", "local-dev"],
+          "description": "Runtime profile the check drove against. Default is local-dev per the build-cycle playbook."
+        },
+        "runtimeUrl": {
+          "type": "string",
+          "minLength": 1,
+          "description": "URL the check drove against."
+        },
+        "routesChecked": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/browserVerificationRoute" }
+        },
+        "invariantChecks": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/browserVerificationInvariantCheck" },
+          "description": "One entry per invariant from the FBS's designStage.navModel and inherited uiBaseline.defaults."
+        },
+        "authSmokeChecks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/browserVerificationAuthSmokeCheck" },
+          "description": "Auth-REQ smoke pack results when the FBS binds an auth requirement. Empty when no auth requirement is bound."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free text carrying the agent's critique rubric findings (component consistency, typography, interaction affordances, modern-versus-dated feel)."
+        },
+        "verdict": {
+          "enum": ["pass", "warn", "block"],
+          "description": "Aggregated verdict for the browser-verification run."
+        },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "operatorShipDespiteBlockReason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Operator's reason for shipping despite a block verdict. Written by --accept-block on --mark complete."
+        }
+      }
+    },
+    "browserVerificationRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "screenshotPath", "themeApplied"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "screenshotPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Project-relative path to the screenshot artefact, typically under .rcf/artefacts/."
+        },
+        "themeApplied": {
+          "enum": ["light", "dark"],
+          "description": "Which theme was applied when the screenshot was taken."
+        }
+      }
+    },
+    "browserVerificationInvariantCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["invariant", "verdict"],
+      "properties": {
+        "invariant": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-string invariant name from the versioned UI_INVARIANTS module (for example, sharedNavPresent, themeToggleVisible). The set is module-encoded in v1; a v2 minor bump can schema-encode once it stabilises."
+        },
+        "verdict": { "enum": ["pass", "warn", "fail"] },
+        "detail": { "type": "string" }
+      }
+    },
+    "browserVerificationAuthSmokeCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["check", "verdict"],
+      "properties": {
+        "check": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Which smoke check ran (for example, GET /login or POST /logout)."
+        },
+        "status": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599,
+          "description": "HTTP status observed."
+        },
+        "contentType": { "type": "string" },
+        "verdict": { "enum": ["pass", "warn", "fail"] }
+      }
+    },
+    "baselineAcOptOutRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "createdAt", "baselineKey", "scope", "reason", "operatorAckAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^boo-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+          "description": "Opt-out record id. Format: boo-YYYY-MM-DD-NNN. Monotonic per project."
+        },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "reqId": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/reqId",
+          "description": "Requirement the opt-out applies to. Required in practice when scope is req."
+        },
+        "baselineKey": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Catalogue key the opt-out removes (for example, auth.htmlLoginPage)."
+        },
+        "scope": {
+          "enum": ["req", "project"],
+          "description": "Whether the opt-out applies to a single requirement or to the whole project."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 20,
+          "description": "Operator's plain-text ruling. Minimum 20 characters; a one-word answer reads as silence, which is exactly what this ledger exists to prevent."
+        },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "linkedPreFlightConfigRef": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Back-reference to a preFlightConfig record when the opt-out was recorded via preflight rather than the direct opt-out verb (for example, pfc-2026-07-30-001#designShapeAnswers.auth.htmlLoginPage)."
+        }
+      }
+    },
+    "intakeClassificationRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "createdAt", "fidelity", "artefacts", "validationFindings", "elicitationScope", "operatorAckAt"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^ic-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+          "description": "Intake classification record id. Format: ic-YYYY-MM-DD-NNN."
+        },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "fidelity": {
+          "enum": ["none", "napkin", "briefLight", "briefStrong", "prd", "prdPlusTad"],
+          "description": "Classifier verdict on what the operator supplied. none: nothing supplied. napkin: one paragraph or a sketch. briefLight: half-page brief. briefStrong: full product brief with NFRs and out-of-scope. prd: full PRD. prdPlusTad: PRD plus a technical architecture doc."
+        },
+        "artefacts": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/intakeArtefact" }
+        },
+        "validationFindings": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/intakeValidationFinding" },
+          "description": "Findings raised at phase 2. Empty array is legitimate; a clean artefact still records the empty result."
+        },
+        "elicitationScope": { "$ref": "#/$defs/intakeElicitationScope" },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    },
+    "intakeArtefact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "kind"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "kind": {
+          "enum": ["napkin", "productBrief", "prd", "tad", "other"]
+        },
+        "wordCount": { "type": "integer", "minimum": 0 },
+        "hash": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Content hash for later drift detection (for example, sha256:...)."
+        },
+        "operatorSourced": {
+          "type": "boolean",
+          "description": "True when the operator supplied the artefact; false when the agent drafted it earlier in the same session."
+        }
+      }
+    },
+    "intakeValidationFinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "detail", "raisedAt"],
+      "properties": {
+        "kind": {
+          "enum": [
+            "impliedButNotStated",
+            "contradiction",
+            "missingLoadBearingConstraint",
+            "otherDeclared"
+          ]
+        },
+        "kindDescription": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Required in practice when kind is otherDeclared."
+        },
+        "detail": { "type": "string", "minLength": 1 },
+        "raisedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "operatorResponse": { "type": "string" },
+        "resolvedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    },
+    "intakeElicitationScope": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "prdDrafted": {
+          "enum": ["supplied", "drafted", "gap"],
+          "description": "supplied: the artefact carried the PRD. drafted: derived from the artefact by intake. gap: needs elicitation."
+        },
+        "reqDraftedFromArtefact": {
+          "type": "array",
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/reqId" }
+        },
+        "reqRequiringElicitation": {
+          "type": "array",
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/reqId" }
+        },
+        "acsFromArtefact": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0 },
+            { "enum": ["all", "none"] }
+          ]
+        },
+        "acsFromElicitation": {
+          "oneOf": [
+            { "type": "integer", "minimum": 0 },
+            { "enum": ["all", "none"] }
+          ]
+        }
+      }
+    },
+    "registerCanaryRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "createdAt", "buildVersion", "fixturePromptId", "responseWordCount", "grades", "verdict"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^rc-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+          "description": "Register-canary record id. Format: rc-YYYY-MM-DD-NNN."
+        },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "buildVersion": { "type": "string", "minLength": 1 },
+        "fixturePromptId": { "type": "string", "minLength": 1 },
+        "responseWordCount": { "type": "integer", "minimum": 0 },
+        "grades": { "$ref": "#/$defs/registerCanaryGrades" },
+        "verdict": {
+          "enum": ["pass", "fail"],
+          "description": "pass when every graded dimension passed. Any dimension fail forces a top-level fail."
+        },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "shipDespiteFailReason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Operator's reason for shipping a fail verdict via --accept-fail."
+        }
+      }
+    },
+    "registerCanaryGrades": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "internalRuleCitation",
+        "unglossedJargon",
+        "redundantPermissionAsk",
+        "bypassOffer",
+        "wordCountBudget"
+      ],
+      "properties": {
+        "internalRuleCitation": { "$ref": "#/$defs/registerCanaryPatternGrade" },
+        "unglossedJargon": { "$ref": "#/$defs/registerCanaryPatternGrade" },
+        "redundantPermissionAsk": { "$ref": "#/$defs/registerCanaryPatternGrade" },
+        "bypassOffer": { "$ref": "#/$defs/registerCanaryPatternGrade" },
+        "wordCountBudget": { "$ref": "#/$defs/registerCanaryWordBudgetGrade" }
+      }
+    },
+    "registerCanaryPatternGrade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "matches"],
+      "properties": {
+        "verdict": { "enum": ["pass", "fail"] },
+        "matches": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Substrings the pattern set matched. Empty on pass."
+        }
+      }
+    },
+    "registerCanaryWordBudgetGrade": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["verdict", "target", "actual"],
+      "properties": {
+        "verdict": { "enum": ["pass", "fail"] },
+        "target": { "type": "integer", "minimum": 0 },
+        "actual": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "reviewSurfaceRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "viewServer": { "$ref": "#/$defs/reviewSurfaceViewServer" }
+      },
+      "description": "Persisted state of the interactive review surface. Currently carries viewServer; further review-surface state composes into the same record additively."
+    },
+    "reviewSurfaceViewServer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mode", "startedAt", "socketPath", "pid", "healthCheckPath", "lastHeartbeatAt"],
+      "properties": {
+        "mode": {
+          "enum": ["foreground", "detached"],
+          "description": "Server lifecycle mode. foreground matches the current pre-0.4.0 behaviour; detached is the default for interactive sessions."
+        },
+        "startedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "socketPath": { "type": "string", "minLength": 1 },
+        "pid": { "type": "integer", "minimum": 1 },
+        "healthCheckPath": { "type": "string", "minLength": 1 },
+        "lastHeartbeatAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "operatorRequestedPersistUntil": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    }
   }
 }

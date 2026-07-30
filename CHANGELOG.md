@@ -4,6 +4,33 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.4.0 - 2026-07-30
+
+Additive minor bump carrying the 0.7.0 release-train schema surface for `rcf-lite`: three ratified track specs (verification-integrity, UI-design-gate, elicitation-and-playbook-hardening) co-ship every new schema field in one release, resolved through a single `$defs`-uniqueness sweep. Every field is optional at schema level; pre-0.4.0 chains remain valid. The 0.6.0 init-hygiene spec is pure build-side and touches no schemas here.
+
+### Added
+
+- **`common.schema.json`**: new `$defs.attestationMode` enum (`live | sandboxed | mocked | declaredMockOnly | notShipped`), shared between `fbs.dependsOnServices[]` and `manifest.preFlightConfig.servicesInScope[]`.
+- **`test-suite.schema.json`**: optional `runtimeProvenance` on the `testCase` subschema, with `profile` enum (`mock | stub | fixture | live | mixed`), `envVarsRequired[]`, `externalHostsReached[]`, `notes`. `$defs.runtimeProvenance` defined locally.
+- **`fbs.schema.json`**: optional `dependsOnServices[]` (Track A service attestation), plus Track B's `uiBearing` (boolean), `uiClassification`, `designStage` (journeys, navigation model, theme-and-a11y), and `designStageComplete` (boolean gate at `--mark complete`). New `$defs`: `serviceDependency`, `uiClassification`, `uiClassificationSignal`, `designStage`, `designJourney`, `designNavModel`, `designNavRoute`, `designThemeAndA11y`.
+- **`req.schema.json`**: optional `shapeClassification` (Track C+D REQ-shape classifier verdict) with `shapes[]` enum (`webUi | httpApi | auth | persistence | notifications | none`), `reason`, `signals[]`, `classifiedAt`, and `operatorOverride`. New `$defs`: `reqShapeClassification`, `reqShapeSignal`, `reqShapeOperatorOverride`.
+- **`user-story.schema.json`**: optional `provenance` on the acceptance-criterion subschema (Track C+D) with `authoredBy` enum (`operator | baseline | operatorEdited`), `baselineKey`, `injectedAt`, `sourceReqShape`, `acceptedByOperatorAt`. New `$defs.acProvenance`.
+- **`manifest.schema.json`**: broad additive surface across the three tracks. New optional fields: `testCommand` (string), `preFlightConfig[]`, `reviewAudit[]`, `uiBaseline`, `uiBaselineHistory[]`, `browserVerification[]`, `baselineAcOptOuts[]`, `intakeClassification`, `registerCanary[]`, `reviewSurface`. New `$defs`: `preFlightConfigRecord`, `preFlightServiceEntry`, `designShapeAnswer`, `reviewAuditRecord`, `testTheatreFinding` (whose `kind` enum includes Track B's `uiBaselineDrift`), `mutationSamplingRecord`, `mutationSurvivor`, `uiBaselineRecord`, `uiBaselineDefaults`, `uiBaselineComponentVocabulary`, `uiBaselineTypography`, `uiBaselineInteractionDefaults`, `uiBaselineAuthFlow`, `uiBaselineOptOut`, `browserVerificationRecord`, `browserVerificationRoute`, `browserVerificationInvariantCheck`, `browserVerificationAuthSmokeCheck`, `baselineAcOptOutRecord`, `intakeClassificationRecord`, `intakeArtefact`, `intakeValidationFinding`, `intakeElicitationScope`, `registerCanaryRecord`, `registerCanaryGrades`, `registerCanaryPatternGrade`, `registerCanaryWordBudgetGrade`, `reviewSurfaceRecord`, `reviewSurfaceViewServer`. Load-bearing constraints: `baselineAcOptOutRecord.reason` carries `minLength: 20`; `browserVerificationRecord.routesChecked` and `invariantChecks` require `minItems: 1`; `preFlightConfigRecord.id`, `uiBaselineRecord.id`, `baselineAcOptOutRecord.id`, `intakeClassificationRecord.id`, and `registerCanaryRecord.id` carry monotonic id patterns.
+- Fixtures: valid coverage under `fixtures/valid/fbs/`, `test-suite/`, `req/`, `user-story/`, `manifest/`, including a dedicated back-compat manifest fixture (`manifest-004-pre-040-backcompat.json`) proving a pre-0.4.0 manifest still validates against 0.4.0 unchanged. Invalid coverage under `fixtures/invalid/` exercises the enum, minLength, and boolean-type constraints most likely to catch drift downstream.
+- Targeted per-schema tests extended for every new field: `fbs.test.js`, `test-suite.test.js`, `req.test.js`, `user-story.test.js`. New file `manifest.test.js` covers the manifest-level additions in depth, including the `baselineAcOptOutRecord.reason` 20-character floor and every enum shape.
+
+### Changed
+
+- **Canonical `$id`** URLs bumped from `https://schemas.stravica.io/rcf/v0.3.0/...` to `https://schemas.stravica.io/rcf/v0.4.0/...` on every schema, in lock-step with the bundle version. Matches the precedent set at 0.3.0.
+- `manifest.schema.json` description now names the added optional records and states the back-compat guarantee explicitly.
+
+### Notes
+
+- Every addition is optional at schema level. The additive-only contract is proven by `fixtures/valid/manifest/manifest-004-pre-040-backcompat.json` (a bare 0.3.x-era manifest) validating cleanly, and by the `pre-0.4.0 ... still validates` tests in each per-schema test file.
+- `$defs` uniqueness was audited across all three tracks before authoring; no shape-disagreeing collisions. The one intentionally shared def (`common.$defs.attestationMode`) is the enum both FBS's `dependsOnServices[]` and manifest's `preFlightServiceEntry` need.
+- The 0.6.0 init-hygiene spec (`packages/{build,core}` in `rcf-lite`) confirmed schema-free and therefore not represented here.
+- Pre-merge constraint alignments in the same 0.4.0 release: `fbs.$defs.designJourney.steps` `minItems` raised from 1 to 2 to match Track B §3.1 ("2-8 short strings"); `manifest.$defs.preFlightServiceEntry.sourceRefs` `minItems` relaxed from 1 to 0 so operator-added service candidates with no PRD or TAD reference validate. Negative-fixture symmetry back-filled for the enum and id-pattern constraints that lacked a dedicated fixture.
+
 ## 0.3.1 - 2026-07-10
 
 Added optional `noCodeNodes` boolean to `fbs.schema.json`. It declares that a build spec produces no traceable code (docs-only or config-only): `rcf build --mark complete` records it via `--no-code-nodes` and the CodeNode gate skips the spec. Additive and backward-compatible - existing FBS documents without the field remain valid. Canonical `$id` URLs stay at `v0.3.0`, following the patch-release precedent set at 0.2.1.

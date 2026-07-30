@@ -83,3 +83,129 @@ test('fbs: non-boolean noCodeNodes rejected', () => {
   const doc = { ...base, noCodeNodes: 'yes' };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.0 additions (Track A + Track B) ---------------------------------
+
+test('fbs: dependsOnServices with a valid attestationMode validates', () => {
+  const doc = {
+    ...base,
+    dependsOnServices: [
+      {
+        id: 'resend',
+        displayName: 'Resend email API',
+        purpose: 'outbound transactional email delivery',
+        attestationMode: 'live',
+        acIds: ['AC-001']
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: dependsOnServices attestationMode rejects unknown value', () => {
+  const doc = {
+    ...base,
+    dependsOnServices: [
+      {
+        id: 'resend',
+        displayName: 'Resend',
+        purpose: 'email',
+        attestationMode: 'someday',
+        acIds: ['AC-001']
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: dependsOnServices entry requires displayName', () => {
+  const doc = {
+    ...base,
+    dependsOnServices: [
+      {
+        id: 'resend',
+        purpose: 'email',
+        attestationMode: 'live',
+        acIds: ['AC-001']
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: uiBearing true with designStageComplete false validates', () => {
+  const doc = { ...base, uiBearing: true, designStageComplete: false };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: designStageComplete non-boolean rejected', () => {
+  const doc = { ...base, designStageComplete: 'yes' };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: designStage themeMode enum enforced', () => {
+  const doc = {
+    ...base,
+    uiBearing: true,
+    designStage: {
+      themeAndA11y: {
+        themeMode: 'sepia',
+        themeTokensModule: 'src/ui/tokens.ts',
+        contrastTargets: 'WCAG AA',
+        contrastTestPath: 'test/a11y.test.ts',
+        contrastTestAuthoredBeforePalette: true
+      }
+    }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: designStage journeys accepts a minimal valid entry', () => {
+  const doc = {
+    ...base,
+    uiBearing: true,
+    designStage: {
+      journeys: [
+        {
+          id: 'signed-in-owner-checks-status',
+          actor: 'signed-in owner',
+          goal: 'see status at a glance',
+          steps: ['lands on /', 'sees tiles']
+        }
+      ]
+    }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: designStage journey with a single step rejected (minItems 2 per Track B §3.1)', () => {
+  const doc = {
+    ...base,
+    uiBearing: true,
+    designStage: {
+      journeys: [
+        {
+          id: 'signed-in-owner-checks-status',
+          actor: 'signed-in owner',
+          goal: 'see status at a glance',
+          steps: ['lands on /']
+        }
+      ]
+    }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: uiClassification verdict enum enforced', () => {
+  const doc = {
+    ...base,
+    uiClassification: { verdict: 'maybe', reason: 'keyword-scan', classifiedAt: '2026-07-30T14:20:00Z' }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: pre-0.4.0 FBS (no track-A or track-B fields) still validates', () => {
+  // The base fixture is the pre-0.4.0 shape: no dependsOnServices,
+  // uiBearing, designStage, or designStageComplete. Back-compat check.
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});

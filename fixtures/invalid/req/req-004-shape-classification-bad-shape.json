@@ -1,0 +1,18 @@
+{
+  "reqId": "REQ-012",
+  "prdId": "PRD-001",
+  "title": "Dashboard",
+  "description": "Signed-in dashboard for owners.",
+  "category": "functional",
+  "domain": "webUi",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-07-30T14:20:00Z",
+  "updatedAt": "2026-07-30T14:20:00Z",
+  "shapeClassification": {
+    "shapes": ["chatbot"],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-07-30T14:20:00Z"
+  }
+}

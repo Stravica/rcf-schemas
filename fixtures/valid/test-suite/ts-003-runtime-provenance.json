@@ -1,0 +1,38 @@
+{
+  "id": "TS-015",
+  "usId": "US-1001",
+  "title": "Recovery email dispatch",
+  "purpose": "Cover the recovery-email flow against the Resend API contract.",
+  "testLevel": "integration",
+  "acIds": ["AC-1001-2"],
+  "testCases": [
+    {
+      "id": "TC-015-happy-path",
+      "acId": "AC-1001-2",
+      "description": "email dispatched on recovery event",
+      "testPointer": "test/email-dispatcher.test.ts::happy path",
+      "status": "passing",
+      "runtimeProvenance": {
+        "profile": "live",
+        "envVarsRequired": ["RESEND_API_KEY"],
+        "externalHostsReached": ["api.resend.com"],
+        "notes": "Playwright records requests, asserts POST /v1/send received"
+      }
+    },
+    {
+      "id": "TC-015-non-2xx",
+      "acId": "AC-1001-2",
+      "description": "non-2xx response surfaces to caller",
+      "status": "passing",
+      "runtimeProvenance": {
+        "profile": "mock",
+        "envVarsRequired": [],
+        "externalHostsReached": [],
+        "notes": "CapturingEmailSender stub returns a 500"
+      }
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-07-30T14:20:00Z",
+  "updatedAt": "2026-07-30T15:00:00Z"
+}

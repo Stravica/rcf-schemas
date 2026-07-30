@@ -134,3 +134,61 @@ test('test-suite: legacy prdId field rejected (0.2.0 drops it)', () => {
   const doc = { ...base, prdId: 'PRD-001' };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.0 additions (Track A runtime provenance) -----------------------
+
+test('test-suite: TC runtimeProvenance with a live profile validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      {
+        id: 'TC-001-happy',
+        acId: 'AC-001',
+        description: 'x',
+        status: 'passing',
+        runtimeProvenance: {
+          profile: 'live',
+          envVarsRequired: ['RESEND_API_KEY'],
+          externalHostsReached: ['api.resend.com']
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC runtimeProvenance rejects unknown profile', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      {
+        id: 'TC-001-happy',
+        acId: 'AC-001',
+        description: 'x',
+        status: 'passing',
+        runtimeProvenance: { profile: 'somehow' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('test-suite: TC runtimeProvenance rejects unknown property', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      {
+        id: 'TC-001-happy',
+        acId: 'AC-001',
+        description: 'x',
+        status: 'passing',
+        runtimeProvenance: { profile: 'mock', credential: 'secret' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('test-suite: pre-0.4.0 TS (no runtimeProvenance) still validates', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
