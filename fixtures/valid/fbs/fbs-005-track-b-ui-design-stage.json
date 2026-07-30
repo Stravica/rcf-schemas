@@ -1,0 +1,56 @@
+{
+  "fbsId": "FBS-016",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 16,
+  "executionStatus": "inProgress",
+  "title": "Web UI dashboard",
+  "summary": "Ship the signed-in owner's dashboard with a shared nav and a light-default theme toggle.",
+  "acIds": ["AC-1101-1", "AC-1101-2"],
+  "dependsOnFbsIds": [],
+  "uiBearing": true,
+  "uiClassification": {
+    "verdict": "ui",
+    "reason": "keyword-scan",
+    "signals": [
+      { "source": "summary", "match": "dashboard" },
+      { "source": "summary", "match": "nav" }
+    ],
+    "classifiedAt": "2026-07-30T14:20:00Z"
+  },
+  "designStage": {
+    "journeys": [
+      {
+        "id": "signed-in-owner-checks-status",
+        "actor": "signed-in owner",
+        "goal": "see current status of every monitor at a glance",
+        "steps": [
+          "lands on / after login",
+          "sees count tiles and monitor list",
+          "clicks a monitor to see its detail"
+        ]
+      }
+    ],
+    "navModel": {
+      "shape": "shared-persistent",
+      "routes": [
+        { "path": "/", "label": "Dashboard", "authRequired": true },
+        { "path": "/monitors", "label": "Monitors", "authRequired": true }
+      ],
+      "signedInAsAffordance": true,
+      "notes": "one persistent nav bar rendered by src/ui/layout.ts on every authenticated route"
+    },
+    "themeAndA11y": {
+      "themeMode": "light-default-with-toggle",
+      "themeTokensModule": "src/ui/tokens.ts",
+      "contrastTargets": "WCAG AA (4.5 text, 3.0 large text, 3.0 UI component)",
+      "contrastTestPath": "test/ui-accessibility.test.ts",
+      "contrastTestAuthoredBeforePalette": true
+    },
+    "authoredAt": "2026-07-30T14:35:00Z",
+    "authoredBy": "rcf-lite-engineer:design-worker"
+  },
+  "designStageComplete": true,
+  "createdAt": "2026-07-30T14:15:00Z",
+  "updatedAt": "2026-07-30T14:35:00Z"
+}

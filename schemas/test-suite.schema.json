@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.3.0/test-suite.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.4.0/test-suite.schema.json",
   "title": "RCF Test Suite",
   "description": "One file per Test Suite. Verifies one or more Acceptance Criteria (on the User Story identified by usId) via inline Test Cases. Test Suites hold the AC references; ACs stay clean of downstream references. Test-run status per TC is authored (Phase 3.7) and later derived from real test runs (Phase 6+).",
   "type": "object",
@@ -18,24 +18,24 @@
     "updatedAt"
   ],
   "properties": {
-    "id": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tsId" },
-    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/usId" },
+    "id": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tsId" },
+    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/usId" },
     "title": { "type": "string", "minLength": 1 },
     "purpose": { "type": "string", "minLength": 1 },
     "testLevel": { "enum": ["unit", "integration", "e2e", "contract", "manual"] },
     "acIds": {
       "type": "array",
       "minItems": 1,
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" }
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/acId" }
     },
     "testCases": {
       "type": "array",
       "minItems": 0,
       "items": { "$ref": "#/$defs/testCase" }
     },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/authoringStatus" },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
   },
   "$defs": {
     "testCase": {
@@ -48,14 +48,40 @@
           "pattern": "^TC-\\d{3}-[a-z0-9-]+$",
           "description": "Test Case identifier. TS suffix (three digits) joined to a lowercase alphanumeric slug (hyphens allowed)."
         },
-        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" },
+        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/acId" },
         "description": { "type": "string", "minLength": 1 },
         "testPointer": {
           "type": "string",
           "description": "Optional pointer to the executable test, format: filePath::testName."
         },
-        "status": { "enum": ["pending", "passing", "failing", "skipped"] }
+        "status": { "enum": ["pending", "passing", "failing", "skipped"] },
+        "runtimeProvenance": { "$ref": "#/$defs/runtimeProvenance" }
       }
+    },
+    "runtimeProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "profile": {
+          "enum": ["mock", "stub", "fixture", "live", "mixed"],
+          "description": "Runtime execution profile the test case actually addressed. mock: the boundary is replaced entirely, no outbound traffic. stub: a stand-in the test controls, localhost only. fixture: replayed responses (cassette or MSW). live: the real third-party service or its provider sandbox. mixed: multiple probes with different profiles; anti-pattern flag pending expansion into finer TCs."
+        },
+        "envVarsRequired": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Environment variable names the test genuinely reads at runtime. Empty array means the test does not read env."
+        },
+        "externalHostsReached": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Hostnames the test actually reached over the wire. Empty for mock, stub, and fixture profiles. Never contains a URL with credentials."
+        },
+        "notes": {
+          "type": "string",
+          "description": "One-line free text describing the test's runtime shape. Never contains a token, key, or password."
+        }
+      },
+      "description": "Per-test-case record of the runtime the test addressed. Optional at schema level; enforced at build-side coverage-strict when the covering AC binds a service attestation."
     }
   }
 }

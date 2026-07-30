@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.3.0/user-story.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.4.0/user-story.schema.json",
   "title": "RCF User Story",
   "description": "User Story document. One file per US. Contains its Acceptance Criteria inline as acceptanceCriteria[].",
   "type": "object",
@@ -20,11 +20,11 @@
     "updatedAt"
   ],
   "properties": {
-    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/usId" },
-    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/prdId" },
-    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/reqId" },
-    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/version" },
-    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/authoringStatus" },
+    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/usId" },
+    "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/prdId" },
+    "reqId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/reqId" },
+    "version": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/version" },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/authoringStatus" },
     "title": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
     "asA": { "type": "string", "minLength": 1 },
@@ -38,10 +38,10 @@
     "tacIds": {
       "type": "array",
       "minItems": 0,
-      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/tacId" }
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tacId" }
     },
-    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" },
-    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/timestamp" }
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
   },
   "$defs": {
     "acceptanceCriterion": {
@@ -49,13 +49,37 @@
       "additionalProperties": false,
       "required": ["id", "description", "testable"],
       "properties": {
-        "id": { "$ref": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json#/$defs/acId" },
+        "id": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/acId" },
         "description": { "type": "string", "minLength": 1 },
         "given": { "type": "string" },
         "when": { "type": "string" },
         "then": { "type": "string" },
-        "testable": { "type": "boolean" }
+        "testable": { "type": "boolean" },
+        "provenance": { "$ref": "#/$defs/acProvenance" }
       }
+    },
+    "acProvenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authoredBy"],
+      "properties": {
+        "authoredBy": {
+          "enum": ["operator", "baseline", "operatorEdited"],
+          "description": "Origin of the acceptance criterion. operator: hand-authored. baseline: injected by the shape-baseline sweep. operatorEdited: baseline entry the operator later edited in place; the baselineKey still traces so opt-outs remain linkable."
+        },
+        "baselineKey": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Catalogue key naming the baseline entry (for example webUi.sharedNav, auth.htmlLoginPage). Required in practice when authoredBy is baseline or operatorEdited."
+        },
+        "injectedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "sourceReqShape": {
+          "enum": ["webUi", "httpApi", "auth", "persistence", "notifications"],
+          "description": "Which parent-requirement shape triggered the injection."
+        },
+        "acceptedByOperatorAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      },
+      "description": "Provenance for an acceptance criterion. Downstream consumers of acceptance criteria treat baseline and operator entries identically; this block is provenance only."
     }
   }
 }

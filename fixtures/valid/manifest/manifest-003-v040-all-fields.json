@@ -1,0 +1,217 @@
+{
+  "version": "2.0.0",
+  "projectName": "Uptime Monitor",
+  "description": "Watchpost rebuild against the 0.7.0 release train.",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "testCommand": "pnpm -r test",
+  "preFlightConfig": [
+    {
+      "id": "pfc-2026-07-30-001",
+      "createdAt": "2026-07-30T14:20:00Z",
+      "prdId": "PRD-001",
+      "servicesInScope": [
+        {
+          "id": "resend",
+          "displayName": "Resend email API",
+          "sourceRefs": ["PRD-001#external-integrations", "TAD-001#dispatch-flow"],
+          "attestationMode": "declaredMockOnly",
+          "credentialSupplied": false,
+          "sandboxProvisioned": false,
+          "operatorReason": "no key available; ship blocker acknowledged, cannot enter deployed profile",
+          "affectedFbsIds": ["FBS-011", "FBS-012"]
+        }
+      ],
+      "operatorAckAt": "2026-07-30T14:22:00Z",
+      "designShapeAnswers": [
+        {
+          "questionId": "auth.htmlLoginPage",
+          "reqId": "REQ-012",
+          "answer": "apiOnly",
+          "reason": "SDK-driven clients only; no human browser flow ships in v1",
+          "answeredAt": "2026-07-30T14:24:00Z"
+        }
+      ]
+    }
+  ],
+  "reviewAudit": [
+    {
+      "id": "ra-FBS-011-1",
+      "fbsId": "FBS-011",
+      "createdAt": "2026-07-30T15:10:00Z",
+      "testTheatreFindings": [
+        {
+          "tsId": "TS-015",
+          "tcId": "TC-015-happy-path",
+          "kind": "mockOnlyIntegrationClaim",
+          "detail": "testLevel=integration but runtimeProvenance.profile=mock; AC-1001-2 dependsOnServices.attestationMode=live",
+          "severity": "block"
+        },
+        {
+          "tsId": "TS-016",
+          "kind": "uiBaselineDrift",
+          "detail": "src/ui/dashboard.ts contains hex literals; uiBaseline.defaults.noHexInViewFiles is true",
+          "severity": "block"
+        }
+      ],
+      "mutationSampling": {
+        "mode": "agent-v1",
+        "mutantsGenerated": 22,
+        "mutantsRun": 22,
+        "killed": 18,
+        "survived": 4,
+        "durationMs": 187000,
+        "survivors": [
+          {
+            "mutationId": "mut-011-04",
+            "targetFile": "src/email-dispatcher.ts",
+            "targetSymbol": "shouldSend",
+            "mutationSummary": "flip guard condition: !isRecovery becomes isRecovery",
+            "acIds": ["AC-1001-2"],
+            "tsIdsShouldHaveCaught": ["TS-015"],
+            "tcIdsShouldHaveCaught": ["TC-015-happy-path", "TC-015-non-2xx"]
+          }
+        ]
+      },
+      "verdict": "block"
+    }
+  ],
+  "uiBaseline": {
+    "id": "uib-2026-07-30-001",
+    "createdAt": "2026-07-30T14:15:00Z",
+    "prdId": "PRD-001",
+    "defaults": {
+      "themeMode": "light-default-with-toggle",
+      "sharedLayoutModule": "src/ui/layout.ts",
+      "designTokensModule": "src/ui/tokens.ts",
+      "noHexInViewFiles": true,
+      "contrastTarget": "WCAG AA",
+      "contrastTestBeforePalette": true,
+      "focusRingsRequired": true,
+      "hoverStatesRequired": true,
+      "componentVocabulary": {
+        "declaredComponents": ["Button", "Input", "Card", "Badge", "Table", "Notice"],
+        "singleBadgeShape": true
+      },
+      "typography": {
+        "baseFontStack": "system-ui",
+        "bodyLineHeight": 1.5,
+        "headingLineHeight": 1.25,
+        "proseMaxWidth": "72ch"
+      },
+      "interactionDefaults": {
+        "loadingIndicatorOnFetch": true,
+        "disabledStateVisuallyDistinct": true
+      },
+      "authFlow": {
+        "htmlLoginPageRequired": true,
+        "smokeChecksRequired": true
+      }
+    },
+    "operatorOptOuts": [
+      {
+        "field": "componentVocabulary.declaredComponents",
+        "reason": "single-page app with no forms; only Button and Notice needed",
+        "operatorAckAt": "2026-07-30T14:14:00Z"
+      }
+    ],
+    "operatorAckAt": "2026-07-30T14:15:00Z"
+  },
+  "uiBaselineHistory": [],
+  "browserVerification": [
+    {
+      "id": "bv-FBS-016-1",
+      "fbsId": "FBS-016",
+      "createdAt": "2026-07-30T15:22:00Z",
+      "mode": "agentScreenshotCritique",
+      "runtimeProfile": "local-dev",
+      "runtimeUrl": "http://127.0.0.1:3000",
+      "routesChecked": [
+        { "path": "/", "screenshotPath": ".rcf/artefacts/bv-FBS-016-1/dashboard-light.png", "themeApplied": "light" },
+        { "path": "/", "screenshotPath": ".rcf/artefacts/bv-FBS-016-1/dashboard-dark.png", "themeApplied": "dark" }
+      ],
+      "invariantChecks": [
+        { "invariant": "sharedNavPresent", "verdict": "pass" },
+        { "invariant": "themeToggleVisible", "verdict": "pass" },
+        { "invariant": "signedInAsAffordance", "verdict": "fail", "detail": "no visible signed-in-as on /monitors/new" }
+      ],
+      "authSmokeChecks": [
+        { "check": "GET /login", "status": 200, "contentType": "text/html", "verdict": "pass" },
+        { "check": "POST /logout", "status": 302, "verdict": "pass" }
+      ],
+      "notes": "Component consistency: pass. Typography: pass. Interaction affordances: pass. Modern feel: reads as recently designed.",
+      "verdict": "block"
+    }
+  ],
+  "baselineAcOptOuts": [
+    {
+      "id": "boo-2026-07-30-001",
+      "createdAt": "2026-07-30T14:30:00Z",
+      "reqId": "REQ-012",
+      "baselineKey": "auth.htmlLoginPage",
+      "scope": "req",
+      "reason": "auth surface is API-only; SDK-driven clients only, no human browser flow",
+      "operatorAckAt": "2026-07-30T14:30:00Z",
+      "linkedPreFlightConfigRef": "pfc-2026-07-30-001#designShapeAnswers.auth.htmlLoginPage"
+    }
+  ],
+  "intakeClassification": {
+    "id": "ic-2026-07-30-001",
+    "createdAt": "2026-07-30T13:50:00Z",
+    "fidelity": "briefStrong",
+    "artefacts": [
+      {
+        "path": "docs/2026-07-29_uptime-monitor-product-brief.md",
+        "kind": "productBrief",
+        "wordCount": 3200,
+        "hash": "sha256:8f4a00000000000000000000000000000000000000000000000000000000",
+        "operatorSourced": true
+      }
+    ],
+    "validationFindings": [
+      {
+        "kind": "impliedButNotStated",
+        "detail": "brief names Resend for email but does not state whether a browser sign-in page is in scope",
+        "raisedAt": "2026-07-30T13:52:00Z",
+        "operatorResponse": "browser sign-in required; confirmed at 13:55Z",
+        "resolvedAt": "2026-07-30T13:55:00Z"
+      }
+    ],
+    "elicitationScope": {
+      "prdDrafted": "drafted",
+      "reqDraftedFromArtefact": ["REQ-001", "REQ-002", "REQ-003"],
+      "reqRequiringElicitation": ["REQ-004", "REQ-005"],
+      "acsFromArtefact": 0,
+      "acsFromElicitation": "all"
+    },
+    "operatorAckAt": "2026-07-30T13:55:00Z"
+  },
+  "registerCanary": [
+    {
+      "id": "rc-2026-07-30-001",
+      "createdAt": "2026-07-30T18:10:00Z",
+      "buildVersion": "0.7.0-rc.1",
+      "fixturePromptId": "canary-prompt-01",
+      "responseWordCount": 152,
+      "grades": {
+        "internalRuleCitation": { "verdict": "pass", "matches": [] },
+        "unglossedJargon": { "verdict": "pass", "matches": [] },
+        "redundantPermissionAsk": { "verdict": "pass", "matches": [] },
+        "bypassOffer": { "verdict": "pass", "matches": [] },
+        "wordCountBudget": { "verdict": "pass", "target": 200, "actual": 152 }
+      },
+      "verdict": "pass"
+    }
+  ],
+  "reviewSurface": {
+    "viewServer": {
+      "mode": "detached",
+      "startedAt": "2026-07-30T09:40:00Z",
+      "socketPath": ".rcf/view.sock",
+      "pid": 42137,
+      "healthCheckPath": "http://127.0.0.1:4373/healthz",
+      "lastHeartbeatAt": "2026-07-30T16:32:00Z"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.3.0/common.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json",
   "title": "RCF Shared Definitions",
   "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 11 doc-type schemas at validator init.",
   "$defs": {
@@ -89,6 +89,10 @@
     "cnStatus": {
       "enum": ["draft", "approved", "deprecated"],
       "description": "Lifecycle status for Code Node documents."
+    },
+    "attestationMode": {
+      "enum": ["live", "sandboxed", "mocked", "declaredMockOnly", "notShipped"],
+      "description": "How a third-party service dependency is attested by tests. Shared between fbs.dependsOnServices[] and manifest.preFlightConfig.servicesInScope[]. live: tests hit the live provider with real credentials. sandboxed: tests hit a provider-run sandbox. mocked: local fixtures or stubs; not ship-authoritative on its own. declaredMockOnly: operator has explicitly declared the FBS ships mock-only for this service. notShipped: the service is used only in local development."
     },
     "docRef": {
       "type": "object",

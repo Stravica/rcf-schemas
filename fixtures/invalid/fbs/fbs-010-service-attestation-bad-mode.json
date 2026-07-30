@@ -1,0 +1,22 @@
+{
+  "fbsId": "FBS-011",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 11,
+  "executionStatus": "inProgress",
+  "title": "Email channel",
+  "summary": "Recovery email dispatch.",
+  "acIds": ["AC-1001-2"],
+  "dependsOnFbsIds": [],
+  "dependsOnServices": [
+    {
+      "id": "resend",
+      "displayName": "Resend email API",
+      "purpose": "outbound transactional email delivery",
+      "attestationMode": "someday",
+      "acIds": ["AC-1001-2"]
+    }
+  ],
+  "createdAt": "2026-07-30T14:15:00Z",
+  "updatedAt": "2026-07-30T14:15:00Z"
+}

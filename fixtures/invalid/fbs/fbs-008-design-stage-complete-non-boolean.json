@@ -1,0 +1,15 @@
+{
+  "fbsId": "FBS-016",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 16,
+  "executionStatus": "inProgress",
+  "title": "Web UI dashboard",
+  "summary": "Dashboard rendering.",
+  "acIds": ["AC-1101-1"],
+  "dependsOnFbsIds": [],
+  "uiBearing": true,
+  "designStageComplete": "yes",
+  "createdAt": "2026-07-30T14:15:00Z",
+  "updatedAt": "2026-07-30T14:15:00Z"
+}

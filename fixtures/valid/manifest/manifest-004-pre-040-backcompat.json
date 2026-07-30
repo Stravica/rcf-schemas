@@ -1,0 +1,8 @@
+{
+  "version": "2.0.0",
+  "projectName": "Pre-0.4.0 back-compat check",
+  "description": "Identical shape to a manifest authored under 0.3.1 or earlier: no preFlightConfig, no reviewAudit, no uiBaseline, no browserVerification, no baselineAcOptOuts, no intakeClassification, no registerCanary, no reviewSurface, no testCommand. Any pre-0.4.0 manifest whose shape matches this fixture must continue to validate against the 0.4.0 schema; that is the additive-only guarantee.",
+  "prd": { "id": "PRD-100", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-100", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-100",  "path": "rcf/build-sequence.json" }
+}

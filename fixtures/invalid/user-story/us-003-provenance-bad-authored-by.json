@@ -1,0 +1,23 @@
+{
+  "usId": "US-1201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-012",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Signed-in owner reaches dashboard",
+  "asA": "signed-in owner",
+  "iWant": "to land on the dashboard after logging in",
+  "soThat": "I can see every monitor at a glance",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1201-1",
+      "description": "any authenticated route renders the shared nav",
+      "testable": true,
+      "provenance": {
+        "authoredBy": "guessed"
+      }
+    }
+  ],
+  "createdAt": "2026-07-30T14:20:00Z",
+  "updatedAt": "2026-07-30T14:20:00Z"
+}
