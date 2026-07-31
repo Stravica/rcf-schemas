@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.4.0/manifest.schema.json",
   "title": "RCF Project Manifest",
-  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. Every added field is optional; pre-0.4.0 manifests remain valid.",
+  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "projectName", "prd", "tad", "bs"],
@@ -178,10 +178,15 @@
     "testTheatreFinding": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["tsId", "kind", "detail", "severity"],
+      "required": ["kind", "detail", "severity"],
       "properties": {
         "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tsId" },
         "tcId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tcId" },
+        "anchorId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-form anchor for findings whose kind does not map to a test suite (for example, uiBaselineDrift, which anchors on the FBS id or a file path). Optional; test-theatre kinds keep tsId as the anchor."
+        },
         "kind": {
           "enum": [
             "mockOnlyIntegrationClaim",
@@ -207,7 +212,19 @@
           "enum": ["advisory", "warn", "block"],
           "description": "Severity of the finding. Only block severities force a block verdict on the audit."
         }
-      }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "uiBaselineDrift" } }, "required": ["kind"] },
+          "then": {},
+          "else": {
+            "properties": {
+              "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/tsId" }
+            },
+            "required": ["tsId"]
+          }
+        }
+      ]
     },
     "mutationSamplingRecord": {
       "type": "object",
