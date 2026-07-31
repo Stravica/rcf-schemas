@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "projectName": "Ship-without-verified ack coverage",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "shipWithoutVerified": [
+    {
+      "id": "swv-FBS-011-1",
+      "fbsId": "FBS-011",
+      "ackedAt": "2026-07-31T10:15:00Z",
+      "declaredAcs": [
+        {
+          "acId": "AC-1001-2",
+          "verdict": "MOCK-ONLY-DECLARED",
+          "reason": "no Resend live-path credentials available at ship time"
+        },
+        {
+          "acId": "AC-1001-3",
+          "verdict": "BLOCKED-BY-DECLARATION"
+        }
+      ],
+      "reportPath": ".rcf-verify-report.json"
+    }
+  ]
+}

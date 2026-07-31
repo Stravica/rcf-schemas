@@ -4,6 +4,21 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.4.1 - 2026-07-31
+
+Additive patch bump: closes the verification-integrity B-1 finding on the 0.7.0 train by giving `rcf finalise --ship-without-verified` a durable, greppable manifest record.
+
+### Added
+
+- **`manifest.schema.json`**: new optional `shipWithoutVerified[]` array on the manifest. Each entry carries `id` (pattern `swv-<fbsId>-<n>`), `fbsId`, `ackedAt` timestamp, `declaredAcs[]` (each with `acId`, a `verdict` enum restricted to `MOCK-ONLY-DECLARED` or `BLOCKED-BY-DECLARATION`, and an optional `reason` string), and `reportPath`. New `$defs`: `shipWithoutVerifiedRecord`, `shipWithoutVerifiedDeclaredAc`. Written by build-side `rcf finalise --ship-without-verified` (rcf-build-lite 0.7.0 train, verification-integrity-cluster-spec section 5.2).
+- Fixture: `fixtures/valid/manifest/manifest-006-ship-without-verified.json` proves the new field validates, alongside a fresh pre-0.4.1 back-compat fixture pass.
+- Tests: `manifest.test.js` covers the new field, the id pattern, the verdict enum guard, and back-compat.
+
+### Notes
+
+- Additive-only: pre-0.4.0 and 0.4.0 manifests remain valid unchanged.
+- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1 and 0.3.1.
+
 ## 0.4.0 - 2026-07-30
 
 Additive minor bump carrying the 0.7.0 release-train schema surface for `rcf-lite`: three ratified track specs (verification-integrity, UI-design-gate, elicitation-and-playbook-hardening) co-ship every new schema field in one release, resolved through a single `$defs`-uniqueness sweep. Every field is optional at schema level; pre-0.4.0 chains remain valid. The 0.6.0 init-hygiene spec is pure build-side and touches no schemas here.

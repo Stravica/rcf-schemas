@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.4.0/manifest.schema.json",
   "title": "RCF Project Manifest",
-  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. Every added field is optional; pre-0.4.0 manifests remain valid.",
+  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "projectName", "prd", "tad", "bs"],
@@ -50,7 +50,12 @@
       "items": { "$ref": "#/$defs/registerCanaryRecord" },
       "description": "Register-regression canary records. One entry per canary run at release preparation."
     },
-    "reviewSurface": { "$ref": "#/$defs/reviewSurfaceRecord" }
+    "reviewSurface": { "$ref": "#/$defs/reviewSurfaceRecord" },
+    "shipWithoutVerified": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/shipWithoutVerifiedRecord" },
+      "description": "Operator acknowledgements recorded when rcf finalise --ship-without-verified acknowledges a MOCK-ONLY-DECLARED or BLOCKED-BY-DECLARATION verdict on the verify report and ships the FBS at complete without promoting to verified. One entry per acknowledgement (verification-integrity-cluster-spec section 5.2). The ack is durable and greppable at ship time."
+    }
   },
   "$defs": {
     "preFlightConfigRecord": {
@@ -699,6 +704,48 @@
         "healthCheckPath": { "type": "string", "minLength": 1 },
         "lastHeartbeatAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
         "operatorRequestedPersistUntil": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" }
+      }
+    },
+    "shipWithoutVerifiedRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fbsId", "ackedAt", "declaredAcs", "reportPath"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^swv-FBS-\\d{3,}-\\d+$",
+          "description": "Ship-without-verified acknowledgement id. Format: swv-<fbsId>-<n>; the trailing integer increments per acknowledgement of the same FBS."
+        },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
+        "ackedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "declaredAcs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/shipWithoutVerifiedDeclaredAc" },
+          "description": "The per-AC verdicts on the verify report that the operator acknowledged. At least one entry, otherwise there is nothing to acknowledge."
+        },
+        "reportPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path (repo-relative or absolute as recorded by finalise) to the verify report file that carried the acknowledged verdicts."
+        }
+      },
+      "description": "Operator acknowledgement recorded on rcf finalise --ship-without-verified. Records the FBS, the verify verdicts acknowledged, and the report they came from, so the ack is durable and greppable at ship time."
+    },
+    "shipWithoutVerifiedDeclaredAc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["acId", "verdict"],
+      "properties": {
+        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/acId" },
+        "verdict": {
+          "enum": ["MOCK-ONLY-DECLARED", "BLOCKED-BY-DECLARATION"],
+          "description": "The verify per-AC verdict class the operator acknowledged. Only these two verdict classes are legitimately acknowledgeable via --ship-without-verified."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional verify-supplied reason string carried through from the report entry."
+        }
       }
     }
   }
