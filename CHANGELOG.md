@@ -4,6 +4,27 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.4.2 - 2026-07-31
+
+Additive patch bump: closes the Track B N-5 review finding on the 0.7.0 train. The `testTheatreFinding` shape now expresses "not every finding kind anchors on a test suite" honestly instead of forcing a UI-drift finding to smuggle an FBS id through the `tsId` slot.
+
+### Added
+
+- **`manifest.schema.json`**: new optional `anchorId` (string, `minLength: 1`) on `$defs.testTheatreFinding`, for kinds whose anchor is not a test suite (for example, `uiBaselineDrift`, which anchors on the FBS id or a file path).
+- Fixture: `fixtures/valid/manifest/manifest-007-ui-baseline-drift-anchor.json` proves the new shape (a `uiBaselineDrift` finding without `tsId`, carrying `anchorId`) validates alongside a legacy test-theatre finding on the same record.
+- Tests: `manifest.test.js` covers the new `anchorId` field, the per-kind `tsId` requiredness rule (drift may omit; test-theatre kinds still must supply), the back-compat guarantee (a pre-0.4.2 emitter's `uiBaselineDrift` with `tsId` still validates), the `anchorId` `minLength: 1` guard, and the coexistence of `anchorId` + `tsId` on one finding.
+
+### Changed
+
+- **`$defs.testTheatreFinding`**: top-level `required` list drops `tsId` (now `["kind", "detail", "severity"]`); a new `allOf` clause requires `tsId` for every kind other than `uiBaselineDrift`. Test-theatre kinds (`mockOnlyIntegrationClaim`, `testPointerBroken`, `assertionStrengthWeak`, `acIdsCoverageDrift`, `otherDeclared`) still cannot omit `tsId`.
+- `manifest.schema.json` description names the 0.4.2 addition and restates the back-compat guarantee.
+
+### Notes
+
+- Additive-only: every 0.4.0- or 0.4.1-valid manifest remains valid. The change relaxes a required field on one specific kind and adds an optional field; nothing that previously validated stops validating.
+- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1, 0.3.1, and 0.4.1.
+- Consumed by `rcf-build-lite`'s Track B fix pass (PR `Stravica/rcf-lite#75`), which will bump its `@stravica-ai/rcf-schemas` dep to `^0.4.2` and emit `uiBaselineDrift` findings with `anchorId` instead of the legacy `tsId: fbs.fbsId` smuggle.
+
 ## 0.4.1 - 2026-07-31
 
 Additive patch bump: closes the verification-integrity B-1 finding on the 0.7.0 train by giving `rcf finalise --ship-without-verified` a durable, greppable manifest record.

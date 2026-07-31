@@ -805,3 +805,191 @@ test('manifest: shipWithoutVerified missing required fbsId rejected', () => {
   };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.2: uiBaselineDrift anchor + per-kind tsId requiredness ----------
+
+test('manifest: 0.4.2 uiBaselineDrift finding without tsId (with anchorId) validates', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-07-31T15:10:00Z',
+        testTheatreFindings: [
+          {
+            anchorId: 'FBS-016',
+            kind: 'uiBaselineDrift',
+            detail: 'hex literal in src/ui/dashboard.ts',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: 0.4.2 uiBaselineDrift finding without tsId and without anchorId still validates (anchorId is optional)', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-07-31T15:10:00Z',
+        testTheatreFindings: [
+          {
+            kind: 'uiBaselineDrift',
+            detail: 'hex literal in src/ui/dashboard.ts',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: 0.4.2 back-compat - uiBaselineDrift finding with the legacy tsId slot still validates', () => {
+  // Pre-0.4.2 emitters (rcf-lite <= 0.7.0 Track B PR head) put the FBS id
+  // into the tsId slot to satisfy the old blanket required rule. That
+  // shape must remain valid so on-disk manifests written by those
+  // versions still load.
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-07-31T15:10:00Z',
+        testTheatreFindings: [
+          {
+            tsId: 'TS-016',
+            kind: 'uiBaselineDrift',
+            detail: 'hex literal in src/ui/dashboard.ts',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: 0.4.2 test-theatre kinds still require tsId - mockOnlyIntegrationClaim without tsId rejected', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-011-1',
+        fbsId: 'FBS-011',
+        createdAt: '2026-07-30T15:10:00Z',
+        testTheatreFindings: [
+          {
+            kind: 'mockOnlyIntegrationClaim',
+            detail: 'mock profile claim without live evidence',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: 0.4.2 test-theatre kinds still require tsId - testPointerBroken without tsId rejected', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-011-1',
+        fbsId: 'FBS-011',
+        createdAt: '2026-07-30T15:10:00Z',
+        testTheatreFindings: [
+          {
+            kind: 'testPointerBroken',
+            detail: 'AC-101-2 has no test',
+            severity: 'warn'
+          }
+        ],
+        verdict: 'warn'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: 0.4.2 test-theatre kinds still require tsId - otherDeclared without tsId rejected', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-011-1',
+        fbsId: 'FBS-011',
+        createdAt: '2026-07-30T15:10:00Z',
+        testTheatreFindings: [
+          {
+            kind: 'otherDeclared',
+            kindDescription: 'declared exception',
+            detail: 'declared exception',
+            severity: 'advisory'
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: 0.4.2 anchorId minLength 1 enforced', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-07-31T15:10:00Z',
+        testTheatreFindings: [
+          {
+            anchorId: '',
+            kind: 'uiBaselineDrift',
+            detail: 'hex literal',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: 0.4.2 anchorId + tsId coexist on a uiBaselineDrift finding (either or both is legitimate)', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-07-31T15:10:00Z',
+        testTheatreFindings: [
+          {
+            tsId: 'TS-016',
+            anchorId: 'FBS-016',
+            kind: 'uiBaselineDrift',
+            detail: 'hex literal',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
