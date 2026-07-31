@@ -687,3 +687,121 @@ test('manifest: registerCanary id pattern enforced (rc-YYYY-MM-DD-NNN)', () => {
   };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.1: shipWithoutVerified (rcf finalise --ship-without-verified ack) --
+
+test('manifest: shipWithoutVerified with a MOCK-ONLY-DECLARED ack validates', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-1',
+        fbsId: 'FBS-011',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [
+          { acId: 'AC-1001-2', verdict: 'MOCK-ONLY-DECLARED', reason: 'no live path' }
+        ],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: shipWithoutVerified accepts BLOCKED-BY-DECLARATION and multiple ACs', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-1',
+        fbsId: 'FBS-011',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [
+          { acId: 'AC-1001-2', verdict: 'MOCK-ONLY-DECLARED' },
+          { acId: 'AC-1001-3', verdict: 'BLOCKED-BY-DECLARATION' }
+        ],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: shipWithoutVerified id pattern enforced (swv-<fbsId>-<n>)', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'not-a-swv-id',
+        fbsId: 'FBS-011',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [{ acId: 'AC-1001-2', verdict: 'MOCK-ONLY-DECLARED' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutVerified verdict enum restricted to MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-1',
+        fbsId: 'FBS-011',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [{ acId: 'AC-1001-2', verdict: 'PASS' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutVerified declaredAcs empty array rejected (minItems 1)', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-1',
+        fbsId: 'FBS-011',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutVerified reportPath minLength 1 enforced', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-1',
+        fbsId: 'FBS-011',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [{ acId: 'AC-1001-2', verdict: 'MOCK-ONLY-DECLARED' }],
+        reportPath: ''
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutVerified missing required fbsId rejected', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-1',
+        ackedAt: '2026-07-31T10:15:00Z',
+        declaredAcs: [{ acId: 'AC-1001-2', verdict: 'MOCK-ONLY-DECLARED' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
