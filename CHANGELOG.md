@@ -27,7 +27,7 @@ Additive patch bump: car 1 of the `rcf-lite` 0.8.0 slug-train. Widens four id pa
 ### Notes
 
 - Additive-only: every 0.4.0-, 0.4.1-, and 0.4.2-valid document remains valid. Every numeric-only id continues to validate; every existing AC and TC without a `scope` field continues to validate.
-- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1, 0.3.1, 0.4.1, and 0.4.2. The 0.8.0 slug-train's second and third cars (`rcf-lite-core`, `rcf-build-lite`) pin `@stravica-ai/rcf-schemas` to `^0.4.3` on merge.
+- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1, 0.3.1, 0.4.1, and 0.4.2. Per the ratified umbrella exact-pin doctrine, the 0.8.0 slug-train's second and third cars (`rcf-lite-core`, `rcf-build-lite`) pin `@stravica-ai/rcf-schemas` to exactly `0.4.3` (no caret, no range) on merge; the pin review is recorded in the umbrella's release notes.
 - Slug scope (FBS, CN, ADR, TAC) is the ratified set: BS is out of scope by design (Baz ruling 2026-07-28, `w-2026-07-28-012`), and PRD, REQ, US, TAD are per-project singletons where number collisions are not the problem the slug solves.
 - Existing documents are NOT retro-slugged. The design is preferred-with-numeric-fallback; adopting slugs is opt-in per document at authoring time.
 - Downstream landmines called out on `w-2026-07-28-012` (walker.js toUpperCase stem, writer.js nextFlatId parser, hardcoded `\d{3}` in walker.js:696-699, deriveSlug 'tc' leak) live in `rcf-lite` consumers, not in this repo. They are addressed by that repo's train cars, not here.
