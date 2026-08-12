@@ -1,0 +1,33 @@
+{
+  "usId": "US-1001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-010",
+  "version": "0.1.0",
+  "status": "approved",
+  "title": "Signed-in owner sees the dashboard on boot",
+  "asA": "signed-in owner",
+  "iWant": "to land on the dashboard after logging in",
+  "soThat": "I can see every monitor's status at a glance",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-1001-1",
+      "description": "on startup, the loader wires the config file and the first probe fires",
+      "testable": true,
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-1001-2",
+      "description": "on the deployed instance, the first probe hits the real target within 60s of boot",
+      "testable": true,
+      "scope": "deployed"
+    },
+    {
+      "id": "AC-1001-3",
+      "description": "parseConfig rejects an empty configuration document",
+      "testable": true,
+      "scope": "library"
+    }
+  ],
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

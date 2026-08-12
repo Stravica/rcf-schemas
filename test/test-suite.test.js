@@ -192,3 +192,103 @@ test('test-suite: TC runtimeProvenance rejects unknown property', () => {
 test('test-suite: pre-0.4.0 TS (no runtimeProvenance) still validates', () => {
   assert.equal(validate(base), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.3 additions (widened TS/TC id patterns) ------------------------
+
+test('test-suite: four-digit tsId validates (widened to \\d{3,})', () => {
+  const doc = { ...base, id: 'TS-1000' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC id with four-digit TS suffix validates', () => {
+  const doc = {
+    ...base,
+    id: 'TS-1000',
+    testCases: [
+      { id: 'TC-1000-happy-path', acId: 'AC-001', description: 'x', status: 'pending' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: two-digit tsId still rejected (three-digit minimum)', () => {
+  const doc = { ...base, id: 'TS-42' };
+  assert.equal(validate(doc), false);
+});
+
+// -- 0.4.3 additions (optional TC scope tag) ----------------------------
+
+test('test-suite: TC without scope still validates (field is optional, back-compat)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC with scope=library validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-happy', acId: 'AC-001', description: 'x', status: 'passing', scope: 'library' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC with scope=runtime validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-boot', acId: 'AC-001', description: 'boot smoke', status: 'passing', scope: 'runtime' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC with scope=deployed validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-deploy', acId: 'AC-001', description: 'deploy smoke', status: 'passing', scope: 'deployed' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC with scope=unclassified validates (migration state)', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-legacy', acId: 'AC-001', description: 'x', status: 'passing', scope: 'unclassified' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: TC with unknown scope value rejected', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-x', acId: 'AC-001', description: 'x', status: 'passing', scope: 'production' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('test-suite: TC with scope alongside runtimeProvenance validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      {
+        id: 'TC-001-live',
+        acId: 'AC-001',
+        description: 'live-provider smoke',
+        status: 'passing',
+        scope: 'deployed',
+        runtimeProvenance: {
+          profile: 'live',
+          envVarsRequired: ['RESEND_API_KEY'],
+          externalHostsReached: ['api.resend.com']
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

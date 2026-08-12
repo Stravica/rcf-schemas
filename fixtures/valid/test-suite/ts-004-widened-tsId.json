@@ -1,0 +1,27 @@
+{
+  "id": "TS-1000",
+  "usId": "US-1001",
+  "title": "Boot integration smoke",
+  "purpose": "Cover the boot-integration observable for AC-1001-1 on a real host.",
+  "testLevel": "integration",
+  "acIds": ["AC-1001-1"],
+  "testCases": [
+    {
+      "id": "TC-1000-startup-loads-config",
+      "acId": "AC-1001-1",
+      "description": "On boot, the config loader wires and dispatches the first tick.",
+      "status": "passing",
+      "scope": "runtime"
+    },
+    {
+      "id": "TC-1000-deployed-smoke",
+      "acId": "AC-1001-1",
+      "description": "On the deployed instance, the first probe fires against a real target.",
+      "status": "passing",
+      "scope": "deployed"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

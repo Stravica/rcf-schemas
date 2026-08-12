@@ -1,0 +1,14 @@
+{
+  "adrId": "ADR-012-choose-postgres",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Choose PostgreSQL for the primary datastore",
+  "context": "The service needs a relational store with strong consistency and mature JSON support.",
+  "decision": "Adopt PostgreSQL 16 as the primary datastore.",
+  "consequences": "Introduces PostgreSQL as a runtime dependency; simplifies query semantics.",
+  "relatedAdrs": ["ADR-005-alignment-policy"],
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

@@ -1,0 +1,18 @@
+{
+  "tacId": "TAC-004-payment-gateway",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Payment gateway",
+  "purpose": "Server-side integration with the third-party payment provider.",
+  "responsibilities": [
+    "Issue authorization requests",
+    "Reconcile capture events"
+  ],
+  "dependencies": [
+    { "name": "Notes store", "kind": "tac", "tacId": "TAC-002-notes-store" }
+  ],
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

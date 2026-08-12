@@ -31,13 +31,13 @@
     },
     "tacId": {
       "type": "string",
-      "pattern": "^TAC-\\d{3,}$",
-      "description": "Technical Architecture Component identifier."
+      "pattern": "^TAC-\\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+      "description": "Technical Architecture Component identifier. Three-digit minimum, unbounded above. An optional kebab-case slug suffix (for example, TAC-004-payment-gateway) is permitted; existing numeric-only ids remain valid."
     },
     "adrId": {
       "type": "string",
-      "pattern": "^ADR-\\d{3,}$",
-      "description": "Architectural Decision Record identifier."
+      "pattern": "^ADR-\\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+      "description": "Architectural Decision Record identifier. Three-digit minimum, unbounded above. An optional kebab-case slug suffix (for example, ADR-012-choose-postgres) is permitted; existing numeric-only ids remain valid."
     },
     "bsId": {
       "type": "string",
@@ -46,23 +46,23 @@
     },
     "fbsId": {
       "type": "string",
-      "pattern": "^FBS-\\d{3,}$",
-      "description": "Functional Build Specification identifier."
+      "pattern": "^FBS-\\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+      "description": "Functional Build Specification identifier. Three-digit minimum, unbounded above. An optional kebab-case slug suffix (for example, FBS-004-user-login) is permitted; existing numeric-only ids remain valid."
     },
     "tsId": {
       "type": "string",
-      "pattern": "^TS-\\d{3}$",
-      "description": "Test Suite identifier."
+      "pattern": "^TS-\\d{3,}$",
+      "description": "Test Suite identifier. Three-digit minimum, unbounded above."
     },
     "tcId": {
       "type": "string",
-      "pattern": "^TC-\\d{3}-[a-z0-9-]+$",
-      "description": "Test Case identifier. TS suffix (three digits) joined to a lowercase alphanumeric slug."
+      "pattern": "^TC-\\d{3,}-[a-z0-9-]+$",
+      "description": "Test Case identifier. TS suffix (three-digit minimum, unbounded above) joined to a lowercase alphanumeric slug."
     },
     "cnId": {
       "type": "string",
-      "pattern": "^CN-\\d{3,}$",
-      "description": "Code Node identifier. Three-digit minimum, unbounded above."
+      "pattern": "^CN-\\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$",
+      "description": "Code Node identifier. Three-digit minimum, unbounded above. An optional kebab-case slug suffix (for example, CN-042-store-validator) is permitted; existing numeric-only ids remain valid."
     },
     "version": {
       "type": "string",
@@ -93,6 +93,10 @@
     "attestationMode": {
       "enum": ["live", "sandboxed", "mocked", "declaredMockOnly", "notShipped"],
       "description": "How a third-party service dependency is attested by tests. Shared between fbs.dependsOnServices[] and manifest.preFlightConfig.servicesInScope[]. live: tests hit the live provider with real credentials. sandboxed: tests hit a provider-run sandbox. mocked: local fixtures or stubs; not ship-authoritative on its own. declaredMockOnly: operator has explicitly declared the FBS ships mock-only for this service. notShipped: the service is used only in local development."
+    },
+    "scopeTag": {
+      "enum": ["library", "runtime", "deployed", "unclassified"],
+      "description": "Scope tag classifying where a behaviour is observable. Shared between user-story.acceptanceCriteria[].scope and test-suite.testCases[].scope. library: observable in an isolated library or fixture. runtime: observable in the running product against local integration. deployed: observable on a booted artefact against real config and real network. unclassified: migration state for chains authored before the scope-tag vocabulary shipped; ruleset-enforcing consumers decide whether unclassified is currently accepted."
     },
     "docRef": {
       "type": "object",

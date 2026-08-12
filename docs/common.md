@@ -15,19 +15,21 @@ Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, s
 | `usId` | string, `^US-\d{3,}$` | `user-story`, `test-suite` |
 | `acId` | string, `^AC-\d{3,}(-\d+)?$` | `user-story.acceptanceCriteria[].id`, `fbs.acIds[]`, `test-suite.acId` |
 | `tadId` | string, `^TAD-\d{3,}$` | `tad`, `tac`, `adr` |
-| `tacId` | string, `^TAC-\d{3,}$` | `tac`, `fbs.contextRequirements.tacIds[]` |
-| `adrId` | string, `^ADR-\d{3,}$` | `adr`, `fbs.contextRequirements.adrIds[]` |
+| `tacId` | string, `^TAC-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$` | `tac`, `fbs.contextRequirements.tacIds[]` |
+| `adrId` | string, `^ADR-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$` | `adr`, `fbs.contextRequirements.adrIds[]` |
 | `bsId` | string, `^BS-\d{3,}$` | `build-sequence`, `fbs.bsId` |
-| `fbsId` | string, `^FBS-\d{3,}$` | `fbs.fbsId`, `fbs.dependsOnFbsIds[]` |
-| `tsId` | string, `^TS-\d{3}$` | `test-suite.id` |
-| `tcId` | string, `^TC-\d{3}-[a-z0-9-]+$` | `test-suite.testCases[].id` |
-| `cnId` | string, `^CN-\d{3,}$` | `cn.cnId`, `cn.dependencies[]` |
+| `fbsId` | string, `^FBS-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$` | `fbs.fbsId`, `fbs.dependsOnFbsIds[]` |
+| `tsId` | string, `^TS-\d{3,}$` | `test-suite.id` |
+| `tcId` | string, `^TC-\d{3,}-[a-z0-9-]+$` | `test-suite.testCases[].id` |
+| `cnId` | string, `^CN-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$` | `cn.cnId`, `cn.dependencies[]` |
 | `version` | string, `^\d+\.\d+\.\d+$` | every doc-type schema |
 | `timestamp` | string, format `date-time` | every doc-type schema |
 | `authoringStatus` | enum: `draft`, `review`, `needsRevision`, `approved`, `superseded` | PRD, REQ, US, TAD, TAC, BS |
 | `adrStatus` | enum: `draft`, `proposed`, `accepted`, `superseded`, `deprecated` | ADR |
 | `executionStatus` | enum: `notStarted`, `inProgress`, `complete`, `verified` | FBS doc + BS slot |
 | `cnStatus` | enum: `draft`, `approved`, `deprecated` | CN |
+| `attestationMode` | enum: `live`, `sandboxed`, `mocked`, `declaredMockOnly`, `notShipped` | `fbs.dependsOnServices[]`, manifest `preFlightConfig.servicesInScope[]` |
+| `scopeTag` | enum: `library`, `runtime`, `deployed`, `unclassified` | `user-story.acceptanceCriteria[].scope`, `test-suite.testCases[].scope` |
 | `docRef` | object `{ id, path }` | manifest `prd`, `tad`, `bs` |
 
 ## Why these are shared

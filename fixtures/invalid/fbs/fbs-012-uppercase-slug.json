@@ -1,0 +1,13 @@
+{
+  "fbsId": "FBS-004-UserLogin",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 4,
+  "executionStatus": "notStarted",
+  "title": "x",
+  "summary": "y",
+  "acIds": ["AC-001"],
+  "dependsOnFbsIds": [],
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

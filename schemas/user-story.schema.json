@@ -55,6 +55,10 @@
         "when": { "type": "string" },
         "then": { "type": "string" },
         "testable": { "type": "boolean" },
+        "scope": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/scopeTag",
+          "description": "Scope at which this acceptance criterion is observable (library, runtime, deployed, unclassified). Optional at schema level; ruleset-enforcing consumers may require it. Governs which test scopes count as coverage for this AC."
+        },
         "provenance": { "$ref": "#/$defs/acProvenance" }
       }
     },

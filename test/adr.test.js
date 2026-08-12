@@ -47,3 +47,32 @@ test('adr: supersededBy that is not an ADR id is rejected', () => {
   const doc = { ...base, status: 'superseded', supersededBy: 'TAC-001' };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.3 additions (slug-suffix on ADR ids) ---------------------------
+
+test('adr: slugged adrId validates', () => {
+  const doc = { ...base, adrId: 'ADR-012-choose-postgres' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('adr: slugged supersededBy validates', () => {
+  const doc = {
+    ...base,
+    status: 'superseded',
+    supersededBy: 'ADR-020-postgres-replacement'
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('adr: slugged relatedAdrs entries validate', () => {
+  const doc = {
+    ...base,
+    relatedAdrs: ['ADR-002', 'ADR-005-alignment-policy']
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('adr: adrId with double-hyphen slug rejected', () => {
+  const doc = { ...base, adrId: 'ADR-012--choose-postgres' };
+  assert.equal(validate(doc), false);
+});

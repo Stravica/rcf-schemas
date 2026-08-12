@@ -993,3 +993,93 @@ test('manifest: 0.4.2 anchorId + tsId coexist on a uiBaselineDrift finding (eith
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.3 additions (slugged FBS ids in composite record ids) ----------
+
+test('manifest: reviewAudit id accepts a slugged FBS id (ra-FBS-<slug>-<n>)', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-user-login-1',
+        fbsId: 'FBS-016-user-login',
+        createdAt: '2026-08-12T09:00:00Z',
+        testTheatreFindings: [],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: reviewAudit id still accepts a numeric-only FBS id (back-compat)', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-011-3',
+        fbsId: 'FBS-011',
+        createdAt: '2026-08-12T09:00:00Z',
+        testTheatreFindings: [],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: browserVerification id accepts a slugged FBS id (bv-FBS-<slug>-<n>)', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-016-dashboard-1',
+        fbsId: 'FBS-016-dashboard',
+        createdAt: '2026-08-12T09:00:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/bv-FBS-016-dashboard-1/root.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [{ invariant: 'sharedNavPresent', verdict: 'pass' }],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: shipWithoutVerified id accepts a slugged FBS id (swv-FBS-<slug>-<n>)', () => {
+  const doc = {
+    ...base,
+    shipWithoutVerified: [
+      {
+        id: 'swv-FBS-011-notifier-1',
+        fbsId: 'FBS-011-notifier',
+        ackedAt: '2026-08-12T09:00:00Z',
+        declaredAcs: [
+          { acId: 'AC-011-1', verdict: 'MOCK-ONLY-DECLARED' }
+        ],
+        reportPath: '.rcf/artefacts/verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: composite FBS-embedded id with trailing hyphen still rejected', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016--1',
+        fbsId: 'FBS-016',
+        createdAt: '2026-08-12T09:00:00Z',
+        testTheatreFindings: [],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});

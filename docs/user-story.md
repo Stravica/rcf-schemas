@@ -40,6 +40,7 @@ Each AC inside `acceptanceCriteria[]`:
 | `when` | string | no | Trigger. |
 | `then` | string | no | Observable outcome. |
 | `testable` | boolean | yes | Author declares the AC is testable. |
+| `scope` | `scopeTag` enum | no | `library`, `runtime`, `deployed`, `unclassified`. Optional at schema level (0.4.3). Names the scope at which the AC is observable; governs which test scopes count as coverage. |
 
 The Given/When/Then triple is optional at the schema level so non-Gherkin teams aren't forced into it; the `testable` boolean is required to make authors stop and confirm the AC can actually be tested.
 
