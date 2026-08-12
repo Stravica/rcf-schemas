@@ -1,0 +1,13 @@
+{
+  "fbsId": "FBS-004-user-login",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 4,
+  "executionStatus": "notStarted",
+  "title": "User login",
+  "summary": "HTML login page and session cookie on submit.",
+  "acIds": ["AC-004-1"],
+  "dependsOnFbsIds": ["FBS-001", "FBS-002-persist-notes"],
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

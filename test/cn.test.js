@@ -78,3 +78,20 @@ test('cn: granularity field is not part of the schema (rejected as additionalPro
   const doc = { ...base, granularity: 'file' };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.3 additions (slug-suffix on CN ids) ----------------------------
+
+test('cn: slugged cnId validates', () => {
+  const doc = { ...base, cnId: 'CN-042-store-validator' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('cn: slugged cn dependency validates', () => {
+  const doc = { ...base, dependencies: ['CN-001', 'CN-002-user-notifier'] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('cn: cnId with uppercase slug segment rejected', () => {
+  const doc = { ...base, cnId: 'CN-042-StoreValidator' };
+  assert.equal(validate(doc), false);
+});

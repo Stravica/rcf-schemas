@@ -20,7 +20,7 @@ Recommended path under the RCF tree: `rcf/test-suites/ts-001.json`. The schema v
 
 | Field | Type | Notes |
 |---|---|---|
-| `id` | `^TS-\d{3}$` | Test Suite identifier. Sequential, not parent-grouped (a US can have multiple TSs across levels). |
+| `id` | `^TS-\d{3,}$` | Test Suite identifier. Sequential, not parent-grouped (a US can have multiple TSs across levels). Three-digit minimum, unbounded above (widened in 0.4.3). |
 | `usId` | `^US-\d{3,}$` | Parent User Story. Mandatory back-reference. |
 | `title` | string, min 1 | Human-readable suite title. |
 | `purpose` | string, min 1 | One-paragraph "what this suite is testing and why". |
@@ -36,11 +36,12 @@ Each entry in `testCases[]`:
 
 | Field | Type | Required | Purpose |
 |---|---|---|---|
-| `id` | `^TC-\d{3}-[a-z0-9-]+$` | yes | TC identifier. `TC-<TS-suffix>-<slug>`; slug is a lowercase alphanumeric identifier (hyphens allowed). Slug uniqueness is within-TS, not global. |
+| `id` | `^TC-\d{3,}-[a-z0-9-]+$` | yes | TC identifier. `TC-<TS-suffix>-<slug>`; slug is a lowercase alphanumeric identifier (hyphens allowed). Slug uniqueness is within-TS, not global. TS-suffix widened to three-digit minimum, unbounded above (0.4.3). |
 | `acId` | `^AC-\d{3,}(-\d+)?$` | yes | Which AC on the parent US this TC verifies. |
 | `description` | string, min 1 | yes | What the TC covers. |
 | `testPointer` | string | no | Pointer to the executable test, `filePath::testName` format. |
 | `status` | enum | yes | `pending`, `passing`, `failing`, `skipped`. Authored in 0.2.0; derived from real test runs in Phase 6+. |
+| `scope` | `scopeTag` enum | no | `library`, `runtime`, `deployed`, `unclassified`. Optional at schema level (0.4.3). Ruleset-enforcing consumers may require the TC scope to be equal to or wider than the covered AC's scope. |
 
 ## What changed in 0.2.0
 

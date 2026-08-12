@@ -1,0 +1,10 @@
+{
+  "cnId": "CN-042-store-validator",
+  "path": "src/store/validator.js#getAjv",
+  "implementsAcIds": ["AC-102-1"],
+  "dependencies": ["CN-001", "CN-002-user-notifier"],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-12T09:00:00Z",
+  "updatedAt": "2026-08-12T09:00:00Z"
+}

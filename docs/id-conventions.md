@@ -1,6 +1,6 @@
 # ID conventions
 
-The pattern, the prefix table, the AC sub-id form, and the file/nested asymmetry.
+The pattern, the prefix table, the AC sub-id form, the optional slug suffix, and the file/nested asymmetry.
 
 ## The pattern
 
@@ -10,7 +10,21 @@ The pattern, the prefix table, the AC sub-id form, and the file/nested asymmetry
 
 Three-digit minimum, unbounded above. `PRD-001` through `PRD-999` use the clean visual; `PRD-1000+` works without a schema migration. A single digit (`PRD-1`) is rejected.
 
-Two families deviate from the family default and are documented alongside their prefix below: `TS-\d{3}` (exactly three digits) and `TC-\d{3}-<slug>` (three-digit TS suffix plus a lowercase alphanumeric slug).
+One family layers the same three-digit-minimum tail onto a slug: `TC-\d{3,}-<slug>` (TS-suffix, three-digit minimum, unbounded above, joined to a lowercase alphanumeric slug).
+
+## Optional slug suffix (0.4.3)
+
+Four families accept an optional kebab-case slug tail: `FBS`, `CN`, `ADR`, `TAC`. The full pattern is:
+
+```
+^<PREFIX>-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$
+```
+
+The slug is derived from the document title (kebab-case, lowercase alphanumeric segments joined by single hyphens). Leading hyphens, trailing hyphens, double hyphens, uppercase letters, and underscores are rejected.
+
+Both forms remain valid: `FBS-004` and `FBS-004-user-login` both validate. Existing numeric-only ids continue to validate; there is no forcing function. Consumers that address documents by id treat the slug as part of the id string, not a separately parseable field.
+
+Rationale: parallel authoring on branches can allocate the same number for different titles. The slug makes those distinct addresses at the filesystem and id layer, converting an add/add merge conflict into a clean co-existence. See the `rcf-lite` slug-train design for the full argument.
 
 ## Prefix table
 
@@ -42,11 +56,11 @@ Pick per project; the schema does not enforce either form. The published `Stravi
 
 ## TS ids
 
-`^TS-\d{3}$`. Sequential, not parent-grouped: a US may have multiple TSs across levels (unit, integration, e2e, ...) and a parent-grouped id would collide. Recommended path: `rcf/test-suites/ts-001.json`.
+`^TS-\d{3,}$`. Sequential, not parent-grouped: a US may have multiple TSs across levels (unit, integration, e2e, ...) and a parent-grouped id would collide. Recommended path: `rcf/test-suites/ts-001.json`.
 
 ## TC ids
 
-`^TC-\d{3}-[a-z0-9-]+$`. TCs are nested in their parent TS's `testCases[]`. The pattern is `TC-<TS-suffix>-<slug>` where slug is a lowercase alphanumeric identifier chosen by the author (hyphens allowed). Examples: `TC-001-happy-path`, `TC-001-rejects-empty`, `TC-042-integration-boundary`. Slug uniqueness is within-TS, not global.
+`^TC-\d{3,}-[a-z0-9-]+$`. TCs are nested in their parent TS's `testCases[]`. The pattern is `TC-<TS-suffix>-<slug>` where slug is a lowercase alphanumeric identifier chosen by the author (hyphens allowed). Examples: `TC-001-happy-path`, `TC-001-rejects-empty`, `TC-042-integration-boundary`. Slug uniqueness is within-TS, not global.
 
 Rationale: sequential numbering for TCs is brittle if you renumber; slug-based ids give readable pointers in test-suite bodies and traceability queries.
 

@@ -209,3 +209,55 @@ test('fbs: pre-0.4.0 FBS (no track-A or track-B fields) still validates', () => 
   // uiBearing, designStage, or designStageComplete. Back-compat check.
   assert.equal(validate(base), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.3 additions (slug-suffix on FBS ids) ---------------------------
+
+test('fbs: numeric-only fbsId still validates (back-compat)', () => {
+  const doc = { ...base, fbsId: 'FBS-042', dependsOnFbsIds: ['FBS-001', 'FBS-041'] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: slugged fbsId validates', () => {
+  const doc = { ...base, fbsId: 'FBS-004-user-login' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: slugged fbsId with multi-segment slug validates', () => {
+  const doc = { ...base, fbsId: 'FBS-004-user-login-v2' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: slugged fbsId with numeric-tail slug segment validates', () => {
+  const doc = { ...base, fbsId: 'FBS-004-notify-v1' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: dependsOnFbsIds accepts slugged FBS ids', () => {
+  const doc = { ...base, dependsOnFbsIds: ['FBS-001', 'FBS-002-persist-notes'] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: four-digit fbsId validates (three-digit-minimum, unbounded)', () => {
+  const doc = { ...base, fbsId: 'FBS-1000' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: fbsId with uppercase slug segment rejected', () => {
+  const doc = { ...base, fbsId: 'FBS-004-UserLogin' };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: fbsId with leading hyphen on slug rejected (empty segment)', () => {
+  const doc = { ...base, fbsId: 'FBS-004--user-login' };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: fbsId with trailing hyphen rejected', () => {
+  const doc = { ...base, fbsId: 'FBS-004-' };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: fbsId with underscore in slug rejected', () => {
+  const doc = { ...base, fbsId: 'FBS-004-user_login' };
+  assert.equal(validate(doc), false);
+});

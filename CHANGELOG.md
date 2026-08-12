@@ -4,6 +4,34 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.4.3 - 2026-08-12
+
+Additive patch bump: car 1 of the `rcf-lite` 0.8.0 slug-train. Widens four id patterns to accept an optional kebab-case slug tail (per the slug design ratified on `w-2026-07-28-012`), widens the TS and TC id patterns to drop the 999 cap, adds a shared scope-tag vocabulary in `common.schema.json`, and exposes an optional `scope` field on ACs and TCs. Every change is additive; every existing id and every existing document continues to validate.
+
+### Added
+
+- **`common.schema.json`**: new `$defs.scopeTag` enum (`library | runtime | deployed | unclassified`), shared between `user-story.acceptanceCriteria[].scope` and `test-suite.testCases[].scope`. `unclassified` is the migration state; the schema does not distinguish gate-passing values, ruleset-enforcing consumers do.
+- **`user-story.schema.json`**: new optional `scope` on `$defs.acceptanceCriterion`, referencing `common.scopeTag`. Names the scope at which the AC is observable and governs which test scopes count as coverage.
+- **`test-suite.schema.json`**: new optional `scope` on `$defs.testCase`, referencing `common.scopeTag`. Ruleset-enforcing consumers may require the TC scope to be equal to or wider than the covered AC's scope.
+- Fixtures: `fixtures/valid/fbs/fbs-006-slugged-id.json`, `fixtures/valid/cn/cn-003-slugged-id.json`, `fixtures/valid/adr/adr-004-slugged-id.json`, `fixtures/valid/tac/tac-003-slugged-id.json`, `fixtures/valid/test-suite/ts-004-widened-tsId.json` (four-digit TS with two scope-tagged TCs), `fixtures/valid/user-story/us-004-ac-scope-tags.json` (three ACs, one per scope value). Invalid coverage: `fixtures/invalid/fbs/fbs-012-uppercase-slug.json`, `fixtures/invalid/test-suite/ts-007-bad-tc-scope.json`, `fixtures/invalid/user-story/us-004-bad-ac-scope.json`.
+- Tests: slug-id cases added to `fbs.test.js`, `cn.test.js`, `adr.test.js`, `tac.test.js`; widened TS/TC id cases and TC scope cases added to `test-suite.test.js`; AC scope cases added to `user-story.test.js`; composite FBS-embedded id cases added to `manifest.test.js` (`reviewAudit.id`, `browserVerification.id`, `shipWithoutVerified.id`).
+
+### Changed
+
+- **`common.schema.json`**: `fbsId`, `cnId`, `adrId`, `tacId` patterns widened to accept an optional kebab-case slug tail, `^<PREFIX>-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$`. Numeric-only ids continue to validate unchanged. Slug segments must be lowercase alphanumeric joined by single hyphens; leading, trailing, and double hyphens are rejected. Kebab is enforced (well-formed) rather than the looser `[a-z0-9-]+` shape so downstream tools can round-trip slugs without normalisation.
+- **`common.schema.json`**: `tsId` widened from `^TS-\d{3}$` to `^TS-\d{3,}$`; `tcId` widened from `^TC-\d{3}-[a-z0-9-]+$` to `^TC-\d{3,}-[a-z0-9-]+$`. Removes the 999 cap on both, and closes the silent-skip trap in downstream walkers that were coded against the three-digit-exact pattern. TC's slug portion keeps the looser `[a-z0-9-]+` shape (legacy compatibility).
+- **`test-suite.schema.json`**: inline `testCase.id` pattern widened in lockstep with `common.tcId` (`^TC-\d{3,}-[a-z0-9-]+$`).
+- **`manifest.schema.json`**: the three FBS-embedded composite id patterns widened to accept both numeric-only and slugged FBS ids: `reviewAudit.id` (`^ra-FBS-\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\d+$`), `browserVerification.id` (`^bv-FBS-\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\d+$`), and `shipWithoutVerified.id` (`^swv-FBS-\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\d+$`). The trailing `-<n>` counter still parses cleanly against slugged FBS ids because the counter is required and anchored.
+- **`docs/id-conventions.md`**, **`docs/common.md`**, **`docs/test-suite.md`**, **`docs/user-story.md`**: updated to reflect the widened patterns, the optional slug suffix, and the `scopeTag` vocabulary.
+
+### Notes
+
+- Additive-only: every 0.4.0-, 0.4.1-, and 0.4.2-valid document remains valid. Every numeric-only id continues to validate; every existing AC and TC without a `scope` field continues to validate.
+- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1, 0.3.1, 0.4.1, and 0.4.2. Per the ratified umbrella exact-pin doctrine, the 0.8.0 slug-train's second and third cars (`rcf-lite-core`, `rcf-build-lite`) pin `@stravica-ai/rcf-schemas` to exactly `0.4.3` (no caret, no range) on merge; the pin review is recorded in the umbrella's release notes.
+- Slug scope (FBS, CN, ADR, TAC) is the ratified set: BS is out of scope by design (Baz ruling 2026-07-28, `w-2026-07-28-012`), and PRD, REQ, US, TAD are per-project singletons where number collisions are not the problem the slug solves.
+- Existing documents are NOT retro-slugged. The design is preferred-with-numeric-fallback; adopting slugs is opt-in per document at authoring time.
+- Downstream landmines called out on `w-2026-07-28-012` (walker.js toUpperCase stem, writer.js nextFlatId parser, hardcoded `\d{3}` in walker.js:696-699, deriveSlug 'tc' leak) live in `rcf-lite` consumers, not in this repo. They are addressed by that repo's train cars, not here.
+
 ## 0.4.2 - 2026-07-31
 
 Additive patch bump: closes the Track B N-5 review finding on the 0.7.0 train. The `testTheatreFinding` shape now expresses "not every finding kind anchors on a test suite" honestly instead of forcing a UI-drift finding to smuggle an FBS id through the `tsId` slot.

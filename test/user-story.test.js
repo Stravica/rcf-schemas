@@ -116,3 +116,75 @@ test('user-story: AC provenance authoredBy=operator alone validates', () => {
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.3 additions (optional AC scope tag) ----------------------------
+
+test('user-story: AC without scope still validates (field is optional, back-compat)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with scope=library validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'parser rejects empty string', testable: true, scope: 'library' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with scope=runtime validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'on startup, config loads', testable: true, scope: 'runtime' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with scope=deployed validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'probe fires against real target', testable: true, scope: 'deployed' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with scope=unclassified validates (migration state)', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, scope: 'unclassified' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with unknown scope value rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, scope: 'production' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC with scope alongside provenance validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'boot-scope observable',
+        testable: true,
+        scope: 'runtime',
+        provenance: { authoredBy: 'baseline', baselineKey: 'httpApi.bootIntegration', sourceReqShape: 'httpApi' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

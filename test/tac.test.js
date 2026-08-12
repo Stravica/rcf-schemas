@@ -36,3 +36,25 @@ test('tac: bad tadId prefix is rejected', () => {
   const doc = { ...base, tadId: 'TAC-001' };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.3 additions (slug-suffix on TAC ids) ---------------------------
+
+test('tac: slugged tacId validates', () => {
+  const doc = { ...base, tacId: 'TAC-004-payment-gateway' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('tac: slugged dependency tacId validates', () => {
+  const doc = {
+    ...base,
+    dependencies: [
+      { name: 'Notes store', kind: 'tac', tacId: 'TAC-002-notes-store' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('tac: tacId with trailing hyphen rejected', () => {
+  const doc = { ...base, tacId: 'TAC-004-' };
+  assert.equal(validate(doc), false);
+});

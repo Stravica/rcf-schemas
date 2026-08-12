@@ -45,8 +45,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^TC-\\d{3}-[a-z0-9-]+$",
-          "description": "Test Case identifier. TS suffix (three digits) joined to a lowercase alphanumeric slug (hyphens allowed)."
+          "pattern": "^TC-\\d{3,}-[a-z0-9-]+$",
+          "description": "Test Case identifier. TS suffix (three-digit minimum, unbounded above) joined to a lowercase alphanumeric slug (hyphens allowed)."
         },
         "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/acId" },
         "description": { "type": "string", "minLength": 1 },
@@ -55,6 +55,10 @@
           "description": "Optional pointer to the executable test, format: filePath::testName."
         },
         "status": { "enum": ["pending", "passing", "failing", "skipped"] },
+        "scope": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/scopeTag",
+          "description": "Scope this test case exercises (library, runtime, deployed, unclassified). Optional at schema level; ruleset-enforcing consumers may require the TC scope to be equal to or wider than the covered AC's scope."
+        },
         "runtimeProvenance": { "$ref": "#/$defs/runtimeProvenance" }
       }
     },

@@ -154,8 +154,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^ra-FBS-\\d{3,}-\\d+$",
-          "description": "Review-audit record id. Format: ra-<fbsId>-<n>; the trailing integer increments per re-audit of the same FBS."
+          "pattern": "^ra-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
+          "description": "Review-audit record id. Format: ra-<fbsId>-<n>; the trailing integer increments per re-audit of the same FBS. Accepts both numeric-only and kebab-slug FBS ids."
         },
         "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
         "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
@@ -389,8 +389,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^bv-FBS-\\d{3,}-\\d+$",
-          "description": "Browser-verification record id. Format: bv-<fbsId>-<n>."
+          "pattern": "^bv-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
+          "description": "Browser-verification record id. Format: bv-<fbsId>-<n>. Accepts both numeric-only and kebab-slug FBS ids."
         },
         "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
         "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
@@ -730,8 +730,8 @@
       "properties": {
         "id": {
           "type": "string",
-          "pattern": "^swv-FBS-\\d{3,}-\\d+$",
-          "description": "Ship-without-verified acknowledgement id. Format: swv-<fbsId>-<n>; the trailing integer increments per acknowledgement of the same FBS."
+          "pattern": "^swv-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
+          "description": "Ship-without-verified acknowledgement id. Format: swv-<fbsId>-<n>; the trailing integer increments per acknowledgement of the same FBS. Accepts both numeric-only and kebab-slug FBS ids."
         },
         "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/fbsId" },
         "ackedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
