@@ -261,3 +261,51 @@ test('fbs: fbsId with underscore in slug rejected', () => {
   const doc = { ...base, fbsId: 'FBS-004-user_login' };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.4 additions (contextRequirements.standardIds host for selective retrieval) -
+
+test('fbs: contextRequirements with standardIds validates', () => {
+  const doc = {
+    ...base,
+    contextRequirements: {
+      standardIds: ['wsd-naming', 'security-baseline']
+    }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: contextRequirements with standardIds alongside tacIds and adrIds validates', () => {
+  const doc = {
+    ...base,
+    contextRequirements: {
+      tacIds: ['TAC-002-error-envelope'],
+      adrIds: ['ADR-004-rfc7807'],
+      standardIds: ['wsd-naming']
+    }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: contextRequirements without standardIds still validates (back-compat)', () => {
+  const doc = {
+    ...base,
+    contextRequirements: { tacIds: ['TAC-001'], adrIds: [] }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: standardIds with uppercase entry rejected', () => {
+  const doc = {
+    ...base,
+    contextRequirements: { standardIds: ['WSD-Naming'] }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: empty standardIds array validates (agentic selection returned nothing)', () => {
+  const doc = {
+    ...base,
+    contextRequirements: { standardIds: [] }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

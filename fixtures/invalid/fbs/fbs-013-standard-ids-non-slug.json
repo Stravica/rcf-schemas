@@ -1,0 +1,16 @@
+{
+  "fbsId": "FBS-014",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 14,
+  "executionStatus": "notStarted",
+  "title": "Bad standardIds shape",
+  "summary": "standardIds carries an uppercase entry that is not a valid slug.",
+  "acIds": ["AC-001"],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "standardIds": ["WSD-Naming"]
+  },
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

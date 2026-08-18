@@ -64,3 +64,33 @@ test('prd: authoring status enum enforced', () => {
   };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.4 additions (slug-prefixed prdId for blueprint-contributed PRD fragments) -
+
+test('prd: slug-prefixed prdId (spa-PRD-001) validates', () => {
+  const doc = {
+    prdId: 'spa-PRD-001',
+    productName: 'Blueprint-owned PRD fragment',
+    version: '0.1.0',
+    status: 'draft',
+    problemStatement: 'Frames the SPA-specific scope the blueprint owns.',
+    objectives: ['Cover the SPA-specific scope.'],
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('prd: uppercase slug prefix on prdId (SPA-PRD-001) is rejected', () => {
+  const doc = {
+    prdId: 'SPA-PRD-001',
+    productName: 'Bad prefix',
+    version: '0.1.0',
+    status: 'draft',
+    problemStatement: 'n/a',
+    objectives: ['n/a'],
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), false);
+});

@@ -1,0 +1,26 @@
+{
+  "version": "2.0.0",
+  "projectName": "Out-of-root standards project",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "standards": [
+    {
+      "id": "std-security-baseline",
+      "slug": "security-baseline",
+      "sourcePath": "/Users/thefoot/personal/patterns/security-baseline",
+      "copyPath": "rcf/standards/security-baseline",
+      "tags": ["security", "logging"],
+      "testsProvidedBy": "standard",
+      "provenance": "personal"
+    },
+    {
+      "id": "std-http-errors",
+      "slug": "http-errors",
+      "sourcePath": "docs/patterns/http-errors",
+      "tags": ["api", "errors"],
+      "testsProvidedBy": "none",
+      "provenance": "corporate"
+    }
+  ]
+}

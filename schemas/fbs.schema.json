@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.4.0/fbs.schema.json",
   "title": "RCF Functional Build Spec",
-  "description": "Functional Build Specification. One per build session. Carries the mandatory bsId parent reference plus buildOrder and executionStatus. Owns its acIds[] scope (Acceptance Criteria delivered by this FBS) and its dependsOnFbsIds[] graph edge (other FBSs this one depends on).",
+  "description": "Functional Build Specification. One per build session. Carries the mandatory bsId parent reference plus buildOrder and executionStatus. Owns its acIds[] scope (Acceptance Criteria delivered by this FBS) and its dependsOnFbsIds[] graph edge (other FBSs this one depends on). From 0.4.4 the contextRequirements block carries an optional standardIds[] array. It is the host for the bundle assembler's selective-retrieval step: the assembler analyses the FBS work text against the manifest.standards[] tag vocabulary and populates standardIds for that bundle only, or honours an operator override authored on the FBS. Every added field is optional; pre-0.4.4 FBSes remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": [
@@ -56,6 +56,11 @@
         "adrIds": {
           "type": "array",
           "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/adrId" }
+        },
+        "standardIds": {
+          "type": "array",
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/standardSlug" },
+          "description": "Standards-pack slugs (from manifest.standards[]) that apply to this FBS. Populated by the bundle assembler's agentic selective-retrieval step at bundle-assembly time; an operator-authored value overrides the agentic selection for that FBS. Empty or absent means no standards content is included in the bundle; the assembler never blocks on an empty selection."
         },
         "existingModules": {
           "type": "array",

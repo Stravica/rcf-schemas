@@ -26,6 +26,22 @@ Both forms remain valid: `FBS-004` and `FBS-004-user-login` both validate. Exist
 
 Rationale: parallel authoring on branches can allocate the same number for different titles. The slug makes those distinct addresses at the filesystem and id layer, converting an add/add merge conflict into a clean co-existence. See the `rcf-lite` slug-train design for the full argument.
 
+## Optional slug prefix (0.4.4) — blueprint namespacing
+
+Six families accept an optional kebab-case slug **prefix**: `PRD`, `REQ`, `US`, `BS`, `TAD`, `TS`. The full pattern is:
+
+```
+^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?<PREFIX>-\d{3,}$
+```
+
+The prefix is a blueprint's slug (or any well-formed kebab slug) followed by a hyphen. Examples: `spa-REQ-001`, `spa-US-101`, `rest-BS-001`, `my-blueprint-TAD-002`. Existing numeric-only ids continue to validate; the prefix is purely opt-in.
+
+This unblocks the blueprint mechanism landing in `rcf-build-lite`: blueprint-contributed docs carry the blueprint's slug as a namespace so multiple applied blueprints cannot collide on ids and every trace query names the provenance visibly.
+
+**Mixed grammar (intentional, minimal-delta):** ADR/TAC/FBS/CN carry the slug in the **suffix** (0.4.3); PRD/REQ/US/BS/TAD/TS carry it in the **prefix** (0.4.4). ADR/TAC/FBS/CN were left untouched at 0.4.4 because their suffix affordance already namespaces blueprint contributions (`TAC-002-spa-tokens`, `ADR-005-rest-versioning`). Unifying the grammar is a schemas follow-up; the mixed grammar is documented and working tools accept both.
+
+**Not extended:** `AC` and `TC` ids keep the numeric-only + AC-hierarchical / TC-slug forms. AC/TC ids are anchored to their parent US/TS chain, whose ids now carry the slug prefix; adding a redundant prefix on ACs and TCs adds no expressiveness.
+
 ## Prefix table
 
 | Prefix | Document | File? | Where defined |

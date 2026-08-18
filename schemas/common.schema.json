@@ -2,22 +2,22 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json",
   "title": "RCF Shared Definitions",
-  "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 11 doc-type schemas at validator init.",
+  "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 11 doc-type schemas at validator init. From 0.4.4 the reqId/usId/prdId/bsId/tadId/tsId patterns accept an optional lowercase kebab-slug prefix (for example, spa-REQ-001) so blueprint mechanisms can contribute namespaced doc ids without colliding with project-authored ids. Existing numeric-only ids remain valid. The adrId/tacId/fbsId/cnId patterns already carry an optional kebab-slug SUFFIX (0.4.3) and are intentionally left untouched: id grammar is mixed across types for tonight (prefix for REQ/US/PRD/BS/TAD/TS; suffix for ADR/TAC/FBS/CN); unifying is a schemas follow-up.",
   "$defs": {
     "prdId": {
       "type": "string",
-      "pattern": "^PRD-\\d{3,}$",
-      "description": "PRD identifier. Three-digit minimum, unbounded above."
+      "pattern": "^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?PRD-\\d{3,}$",
+      "description": "PRD identifier. Three-digit minimum, unbounded above. An optional lowercase kebab-slug prefix (for example, spa-PRD-001) is permitted for blueprint-contributed docs; existing numeric-only ids remain valid."
     },
     "reqId": {
       "type": "string",
-      "pattern": "^REQ-\\d{3,}$",
-      "description": "Requirement identifier."
+      "pattern": "^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?REQ-\\d{3,}$",
+      "description": "Requirement identifier. An optional lowercase kebab-slug prefix (for example, spa-REQ-001) is permitted for blueprint-contributed docs; existing numeric-only ids remain valid."
     },
     "usId": {
       "type": "string",
-      "pattern": "^US-\\d{3,}$",
-      "description": "User Story identifier."
+      "pattern": "^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?US-\\d{3,}$",
+      "description": "User Story identifier. An optional lowercase kebab-slug prefix (for example, spa-US-101) is permitted for blueprint-contributed docs; existing numeric-only ids remain valid."
     },
     "acId": {
       "type": "string",
@@ -26,8 +26,8 @@
     },
     "tadId": {
       "type": "string",
-      "pattern": "^TAD-\\d{3,}$",
-      "description": "Technical Architecture Document identifier."
+      "pattern": "^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?TAD-\\d{3,}$",
+      "description": "Technical Architecture Document identifier. An optional lowercase kebab-slug prefix (for example, spa-TAD-001) is permitted for blueprint-contributed docs; existing numeric-only ids remain valid."
     },
     "tacId": {
       "type": "string",
@@ -41,8 +41,8 @@
     },
     "bsId": {
       "type": "string",
-      "pattern": "^BS-\\d{3,}$",
-      "description": "Build Sequence identifier."
+      "pattern": "^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?BS-\\d{3,}$",
+      "description": "Build Sequence identifier. An optional lowercase kebab-slug prefix (for example, spa-BS-001) is permitted for blueprint-contributed docs; existing numeric-only ids remain valid."
     },
     "fbsId": {
       "type": "string",
@@ -51,8 +51,8 @@
     },
     "tsId": {
       "type": "string",
-      "pattern": "^TS-\\d{3,}$",
-      "description": "Test Suite identifier. Three-digit minimum, unbounded above."
+      "pattern": "^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?TS-\\d{3,}$",
+      "description": "Test Suite identifier. Three-digit minimum, unbounded above. An optional lowercase kebab-slug prefix (for example, spa-TS-001) is permitted for blueprint-contributed docs; existing numeric-only ids remain valid."
     },
     "tcId": {
       "type": "string",
@@ -97,6 +97,16 @@
     "scopeTag": {
       "enum": ["library", "runtime", "deployed", "unclassified"],
       "description": "Scope tag classifying where a behaviour is observable. Shared between user-story.acceptanceCriteria[].scope and test-suite.testCases[].scope. library: observable in an isolated library or fixture. runtime: observable in the running product against local integration. deployed: observable on a booted artefact against real config and real network. unclassified: migration state for chains authored before the scope-tag vocabulary shipped; ruleset-enforcing consumers decide whether unclassified is currently accepted."
+    },
+    "blueprintSlug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "description": "Blueprint slug in lowercase kebab (for example, spa, rest, msg-consumer). Same shape as the id-prefix slug that namespaces blueprint-contributed docs."
+    },
+    "standardSlug": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+      "description": "Standards-pack slug in lowercase kebab (for example, wsd-naming, security-baseline). Used by manifest.standards[] and referenced by fbs.contextRequirements.standardIds."
     },
     "docRef": {
       "type": "object",

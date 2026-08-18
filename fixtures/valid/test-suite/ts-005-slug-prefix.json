@@ -1,0 +1,19 @@
+{
+  "id": "spa-TS-001",
+  "usId": "spa-US-101",
+  "title": "Loading-state coverage on every fetched route",
+  "purpose": "Assert every declared SPA route with a fetch shows a skeleton loader within 100ms.",
+  "testLevel": "unit",
+  "acIds": ["AC-001"],
+  "testCases": [
+    {
+      "id": "TC-001-happy-path",
+      "acId": "AC-001",
+      "description": "Skeleton renders synchronously for a route with a pending fetch.",
+      "status": "pending"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

@@ -86,3 +86,35 @@ test('req: shapeClassification requires classifiedAt', () => {
 test('req: pre-0.4.0 REQ (no shapeClassification) still validates', () => {
   assert.equal(validate(base), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.4 additions (slug-prefixed reqId for blueprint contributions) -
+
+test('req: slug-prefixed reqId (spa-REQ-001) validates', () => {
+  const doc = { ...base, reqId: 'spa-REQ-001' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('req: multi-segment slug prefix (my-blueprint-REQ-042) validates', () => {
+  const doc = { ...base, reqId: 'my-blueprint-REQ-042' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('req: uppercase slug prefix (SPA-REQ-001) is rejected', () => {
+  const doc = { ...base, reqId: 'SPA-REQ-001' };
+  assert.equal(validate(doc), false);
+});
+
+test('req: double-hyphen slug prefix (spa--REQ-001) is rejected', () => {
+  const doc = { ...base, reqId: 'spa--REQ-001' };
+  assert.equal(validate(doc), false);
+});
+
+test('req: leading-hyphen slug prefix (-REQ-001) is rejected', () => {
+  const doc = { ...base, reqId: '-REQ-001' };
+  assert.equal(validate(doc), false);
+});
+
+test('req: numeric-only reqId still validates (back-compat)', () => {
+  const doc = { ...base, reqId: 'REQ-999' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
