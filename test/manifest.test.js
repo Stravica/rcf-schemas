@@ -1175,6 +1175,36 @@ test('manifest: blueprint contribution missing path rejected', () => {
   assert.equal(validate(doc), false);
 });
 
+test('manifest: blueprint ADR contribution with scope:global and topic validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a',
+        contributions: [
+          { id: 'ADR-004-spa', path: 'rcf/adrs/adr-004-spa.json', kind: 'adr', scope: 'global', topic: 'versioning' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: blueprint contribution scope other than "global" rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a',
+        contributions: [
+          { id: 'ADR-004-spa', path: 'x', kind: 'adr', scope: 'project' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
 test('manifest: blueprint contribution kind unknown rejected', () => {
   const doc = {
     ...base,

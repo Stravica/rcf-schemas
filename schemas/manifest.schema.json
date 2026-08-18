@@ -818,6 +818,15 @@
         "kind": {
           "enum": ["prd", "req", "us", "tad", "tac", "adr", "bs", "fbs", "ts", "cn"],
           "description": "Optional doc-kind classifier. Purely informational; the id + path pair is authoritative."
+        },
+        "scope": {
+          "enum": ["global"],
+          "description": "ADR contributions only: marks a whole-project decision (auth model, error envelope, versioning strategy). Two applied blueprints each contributing a scope:global ADR on the same topic is a hard conflict, surfaced by rcf blueprint add. Absent for non-global contributions."
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ADR contributions only, required in practice when scope=global: the topic key the conflict detector matches on (for example, 'versioning', 'auth', 'errorEnvelope'). Absent for non-global contributions."
         }
       }
     },
