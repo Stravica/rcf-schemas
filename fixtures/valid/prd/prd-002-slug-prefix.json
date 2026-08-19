@@ -1,0 +1,12 @@
+{
+  "prdId": "spa-PRD-001",
+  "productName": "Blueprint-owned PRD fragment",
+  "version": "0.1.0",
+  "status": "draft",
+  "problemStatement": "Blueprint-contributed PRD fragment attached to a wider project PRD.",
+  "objectives": [
+    "Cover the SPA-specific scope the blueprint owns."
+  ],
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

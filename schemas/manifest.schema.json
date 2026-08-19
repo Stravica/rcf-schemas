@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.4.0/manifest.schema.json",
   "title": "RCF Project Manifest",
-  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. Every added field is optional; pre-0.4.0 manifests remain valid.",
+  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. From 0.4.4 the manifest carries two optional additive sections that host the blueprint-library mechanism: blueprints[] (applied-blueprints registry written by rcf blueprint add / remove / upgrade) and standards[] (standards-pack registry written at rcf init and rcf standards add). Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "projectName", "prd", "tad", "bs"],
@@ -55,6 +55,16 @@
       "type": "array",
       "items": { "$ref": "#/$defs/shipWithoutVerifiedRecord" },
       "description": "Operator acknowledgements recorded when rcf finalise --ship-without-verified acknowledges a MOCK-ONLY-DECLARED or BLOCKED-BY-DECLARATION verdict on the verify report and ships the FBS at complete without promoting to verified. One entry per acknowledgement (verification-integrity-cluster-spec section 5.2). The ack is durable and greppable at ship time."
+    },
+    "blueprints": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/appliedBlueprintRecord" },
+      "description": "Applied-blueprints registry. One entry per rcf blueprint add / upgrade invocation on the project. Records the blueprint's slug, applied version, source, namespace and the ids and paths the blueprint contributed to the tree. Written by the rcf blueprint verb family; read by rcf blueprint list / remove / upgrade. Optional; projects that never call rcf blueprint have no entries. Composition (multiple applied blueprints) is expressed by multiple entries with distinct slugs."
+    },
+    "standards": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/standardsPackRecord" },
+      "description": "Standards-pack registry. One entry per standards folder registered at rcf init (or later via rcf standards add). Records the pack's id, slug, source path, optional copy path (present only when the source lived outside the project root and was copied into rcf/standards/<slug>/ for portability), tag vocabulary, testsProvidedBy classification, and provenance. Read by the bundle assembler's selective-retrieval step when populating fbs.contextRequirements.standardIds. Optional; projects that register no standards have no entries."
     }
   },
   "$defs": {
@@ -764,6 +774,102 @@
           "description": "Optional verify-supplied reason string carried through from the report entry."
         }
       }
+    },
+    "appliedBlueprintRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "version", "appliedAt", "source"],
+      "properties": {
+        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/blueprintSlug" },
+        "version": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/version" },
+        "appliedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Where the blueprint was resolved from at apply time (for example, a registry path, a git ref, or a local file path). Provenance for rcf blueprint upgrade."
+        },
+        "namespace": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/blueprintSlug",
+          "description": "Doc-id namespace used for this blueprint's contributions. Defaults to slug when omitted; the field exists so an operator can rename the namespace at add-time to avoid a project-authored slug collision."
+        },
+        "contributions": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/appliedBlueprintContribution" },
+          "description": "Every doc id and file path the blueprint contributed to the tree at apply time. Makes rcf blueprint remove and rcf blueprint upgrade mechanical: remove deletes exactly these paths and refuses when any project-authored doc references any of these ids; upgrade diffs the new contribution set against this one."
+        }
+      },
+      "description": "One applied-blueprint record. Written by rcf blueprint add on clean apply and rewritten by rcf blueprint upgrade; removed by rcf blueprint remove."
+    },
+    "appliedBlueprintContribution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "path"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Contributed doc id (for example, spa-REQ-001, or TAC-002-spa-logging when the doc kind namespaces via kebab-suffix). Schema-wise a minLength: 1 string because the union of all doc-id patterns is enforced at the owning doc's schema."
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Project-relative path the contribution was written to (for example, rcf/requirements/spa-req-001.json)."
+        },
+        "kind": {
+          "enum": ["prd", "req", "us", "tad", "tac", "adr", "bs", "fbs", "ts", "cn"],
+          "description": "Optional doc-kind classifier. Purely informational; the id + path pair is authoritative."
+        },
+        "scope": {
+          "enum": ["global"],
+          "description": "ADR contributions only: marks a whole-project decision (auth model, error envelope, versioning strategy). Two applied blueprints each contributing a scope:global ADR on the same topic is a hard conflict, surfaced by rcf blueprint add. Absent for non-global contributions."
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "description": "ADR contributions only, required in practice when scope=global: the topic key the conflict detector matches on (for example, 'versioning', 'auth', 'errorEnvelope'). Absent for non-global contributions."
+        }
+      }
+    },
+    "standardsPackRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "slug", "sourcePath", "tags", "testsProvidedBy", "provenance"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^std-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+          "description": "Standards-pack record id. Format: std-<slug>. Slug is repeated in the id so the record id is grep-friendly across the manifest."
+        },
+        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/standardSlug" },
+        "sourcePath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path to the standards content. When the source lives inside the project root the pack is referenced in place (no copy is written); when outside, the pack is copied into rcf/standards/<slug>/ and copyPath records the copy destination."
+        },
+        "copyPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Present only when sourcePath was outside the project root at registration time. Points at the in-tree mirror under rcf/standards/<slug>/. Absent for in-repo sources (reference-by-default)."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "description": "Ordered tag vocabulary for this pack (for example, naming, security, logging, ui, api). Read by the bundle assembler's selective-retrieval step alongside the pack summary when scoring relevance to an FBS's work text."
+        },
+        "summary": {
+          "type": "string",
+          "description": "Short human-readable summary of the pack's scope. Read by the selective-retrieval step; omitted for guidance-only packs where the tags carry enough signal."
+        },
+        "testsProvidedBy": {
+          "enum": ["standard", "agent", "none"],
+          "description": "How adherence to this pack is expressed. standard: the pack ships adherence checks that convert into ACs in the tree at registration or standards add time. agent: the working agent derives adherence from the pack's prose during build. none: guidance-only; the pack contributes prose that lands in the bundle but no adherence tests."
+        },
+        "provenance": {
+          "enum": ["personal", "corporate"],
+          "description": "Records whether the pack is a personal pattern collection or a corporate standards library. Reads at bundle-time as informational; init records the distinction so a project-level report can name where each pack came from."
+        }
+      },
+      "description": "One standards-pack registration. Written by rcf init (during standards prompting) and rcf standards add; read by the bundle assembler's selective-retrieval step."
     }
   }
 }

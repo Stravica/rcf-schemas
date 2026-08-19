@@ -4,6 +4,32 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.4.4 - 2026-08-18
+
+Additive patch bump for the blueprint-library mechanism landing in `rcf-build-lite`. Unblocks Phase 1 of the blueprint programme (`w-2026-08-18-016`) by adding the schema seams the mechanism keys to. Every change is additive: every 0.4.3-valid document remains valid, and every existing id continues to validate byte-for-byte.
+
+### Added
+
+- **`common.schema.json`**: new `$defs.blueprintSlug` and `$defs.standardSlug`, both `^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$`. Shared shape for blueprint and standards-pack slugs; referenced from `manifest.blueprints[]`, `manifest.standards[]`, and `fbs.contextRequirements.standardIds`.
+- **`manifest.schema.json`**: new optional `blueprints[]` at top level, items `$defs.appliedBlueprintRecord` (slug, version, appliedAt, source, optional namespace, optional contributions[] listing every doc id + path the blueprint contributed). Written by the `rcf blueprint` verb family (`add` on clean apply, `upgrade` on re-apply, `remove` deletes the entry). Composition (multiple applied blueprints) is expressed by multiple entries.
+- **`manifest.schema.json`**: new optional `standards[]` at top level, items `$defs.standardsPackRecord` (id `^std-<slug>$`, slug, sourcePath, optional copyPath, tags[], optional summary, `testsProvidedBy` = `standard | agent | none`, `provenance` = `personal | corporate`). Records standards-pack registrations from `rcf init` and `rcf standards add`. `copyPath` is present only when the source lived outside the project root at registration time.
+- **`fbs.schema.json`**: new optional `contextRequirements.standardIds[]`, items reference `common.standardSlug`. Host for the bundle assembler's agentic selective-retrieval step; an operator-authored value overrides the agentic selection.
+- Fixtures (valid): `fixtures/valid/manifest/manifest-008-blueprints-registered.json` (two applied blueprints, one with contributions[]), `fixtures/valid/manifest/manifest-009-standards-in-repo.json` (in-repo standards pack, no copyPath), `fixtures/valid/manifest/manifest-010-standards-copied-in.json` (out-of-root pack with copyPath), `fixtures/valid/fbs/fbs-007-standard-ids.json` (FBS with agentically-populated standardIds), `fixtures/valid/req/req-002-slug-prefix.json`, `fixtures/valid/user-story/us-005-slug-prefix.json`, `fixtures/valid/prd/prd-002-slug-prefix.json`, `fixtures/valid/build-sequence/bs-002-slug-prefix.json`, `fixtures/valid/tad/tad-002-slug-prefix.json`, `fixtures/valid/test-suite/ts-005-slug-prefix.json`, plus `fixtures/valid/manifest/manifest-011-preblueprint-chain-frozen.json` (frozen pre-0.4.3 chain snapshot used by the byte-for-byte back-compat test).
+- Fixtures (invalid): `fixtures/invalid/manifest/manifest-018-blueprint-bad-slug.json`, `fixtures/invalid/manifest/manifest-019-standards-bad-id.json`, `fixtures/invalid/fbs/fbs-013-standard-ids-non-slug.json`, `fixtures/invalid/req/req-003-slug-prefix-uppercase.json`, `fixtures/invalid/user-story/us-005-slug-prefix-trailing-hyphen.json`.
+- Tests: prefix-id cases added to `req.test.js`, `user-story.test.js`, `prd.test.js`, `build-sequence.test.js`, `tad.test.js`, `test-suite.test.js`; blueprints[] and standards[] cases added to `manifest.test.js`; contextRequirements.standardIds cases added to `fbs.test.js`; new `back-compat-freeze.test.js` asserts the frozen pre-0.4.3 chain snapshot validates byte-for-byte (sha256 pin).
+
+### Changed
+
+- **`common.schema.json`**: `prdId`, `reqId`, `usId`, `bsId`, `tadId`, `tsId` patterns widened to accept an optional lowercase kebab-slug prefix, `^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?<PREFIX>-\d{3,}$`. Numeric-only ids continue to validate unchanged. Slug prefixes are well-formed kebab (leading letter, lowercase alnum segments joined by single hyphens; leading, trailing, and double hyphens are rejected).
+
+### Notes
+
+- Additive-only: every 0.4.3-valid document remains valid byte-for-byte. `back-compat-freeze.test.js` proves this with a hash-pinned fixture read as raw bytes.
+- Id grammar is now mixed across types: **prefix** for REQ/US/PRD/BS/TAD/TS (this bump), **suffix** for ADR/TAC/FBS/CN (already the shape from 0.4.3). This is a minimal-delta choice tonight to unblock the blueprint mechanism without churning the four types whose suffix affordance already namespaces them. Unifying the grammar is a schemas follow-up; the mixed grammar is documented and the working tools accept both.
+- The `acId` and `tcId` patterns are intentionally left unchanged. AC/TC ids are anchored to their parent US/TS chain, whose ids now carry the slug prefix; adding a redundant prefix on ACs and TCs was out of scope for tonight and adds no expressiveness.
+- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1, 0.3.1, 0.4.1, 0.4.2, and 0.4.3.
+- Version choice: per repo precedent (every prior additive change since 0.2.0 has bumped as a **patch**: 0.2.1, 0.3.1, 0.4.1, 0.4.2, 0.4.3), this bumps `0.4.3 -> 0.4.4`. Dave's Path A brief allowed for a minor bump if the repo convention read pattern-widening as minor; the repo convention does not: the 0.4.3 pattern-widening bump was itself a patch. Precedent wins.
+
 ## 0.4.3 - 2026-08-12
 
 Additive patch bump: car 1 of the `rcf-lite` 0.8.0 slug-train. Widens four id patterns to accept an optional kebab-case slug tail (per the slug design ratified on `w-2026-07-28-012`), widens the TS and TC id patterns to drop the 999 cap, adds a shared scope-tag vocabulary in `common.schema.json`, and exposes an optional `scope` field on ACs and TCs. Every change is additive; every existing id and every existing document continues to validate.

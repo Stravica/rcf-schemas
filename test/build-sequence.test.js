@@ -32,3 +32,29 @@ test('build-sequence: missing prdId is rejected', () => {
   delete doc.prdId;
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.4 additions (slug-prefixed bsId for blueprint-contributed BS fragments) -
+
+test('build-sequence: slug-prefixed bsId (spa-BS-001) validates', () => {
+  const doc = {
+    bsId: 'spa-BS-001',
+    prdId: 'PRD-001',
+    version: '0.1.0',
+    status: 'draft',
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('build-sequence: uppercase slug prefix on bsId (SPA-BS-001) is rejected', () => {
+  const doc = {
+    bsId: 'SPA-BS-001',
+    prdId: 'PRD-001',
+    version: '0.1.0',
+    status: 'draft',
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), false);
+});

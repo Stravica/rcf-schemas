@@ -1,0 +1,18 @@
+{
+  "fbsId": "FBS-014",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 14,
+  "executionStatus": "notStarted",
+  "title": "Wire error envelope on the POST /users endpoint",
+  "summary": "Introduce the RFC 7807 problem-details envelope on the POST /users error paths.",
+  "acIds": ["AC-014-1", "AC-014-2"],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "tacIds": ["TAC-002-error-envelope"],
+    "adrIds": ["ADR-004-rfc7807"],
+    "standardIds": ["wsd-naming", "security-baseline"]
+  },
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

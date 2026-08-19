@@ -188,3 +188,24 @@ test('user-story: AC with scope alongside provenance validates', () => {
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.4 additions (slug-prefixed usId / reqId for blueprint contributions) -
+
+test('user-story: slug-prefixed usId (spa-US-101) with slug-prefixed reqId validates', () => {
+  const doc = { ...base, usId: 'spa-US-101', reqId: 'spa-REQ-001' };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: uppercase slug prefix on usId (SPA-US-101) is rejected', () => {
+  const doc = { ...base, usId: 'SPA-US-101' };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: double-hyphen slug prefix on usId (spa--US-101) is rejected', () => {
+  const doc = { ...base, usId: 'spa--US-101' };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: numeric-only usId still validates (back-compat)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});

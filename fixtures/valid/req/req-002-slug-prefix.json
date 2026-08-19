@@ -1,0 +1,13 @@
+{
+  "reqId": "spa-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Every route ships loading, empty, error and success states",
+  "description": "Blueprint-contributed requirement: every declared route in the SPA carries all four state visuals.",
+  "category": "functional",
+  "domain": "ui",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

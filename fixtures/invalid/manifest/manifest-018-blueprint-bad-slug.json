@@ -1,0 +1,15 @@
+{
+  "version": "2.0.0",
+  "projectName": "Invalid blueprint slug",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "blueprints": [
+    {
+      "slug": "SPA",
+      "version": "1.0.0",
+      "appliedAt": "2026-08-18T10:00:00Z",
+      "source": "@stravica-ai/rcf-blueprint-spa@1.0.0"
+    }
+  ]
+}

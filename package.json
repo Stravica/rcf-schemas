@@ -1,6 +1,6 @@
 {
   "name": "@stravica-ai/rcf-schemas",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "type": "module",
   "description": "JSON Schemas for the Requirements Confidence Framework (RCF). Language-neutral. The contract every RCF tool keys to.",
   "license": "Apache-2.0",

@@ -1,0 +1,13 @@
+{
+  "reqId": "SPA-REQ-001",
+  "prdId": "PRD-001",
+  "title": "Uppercase slug prefix must be rejected",
+  "description": "Slug prefixes are lowercase kebab; upper-case must fail.",
+  "category": "functional",
+  "domain": "ui",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

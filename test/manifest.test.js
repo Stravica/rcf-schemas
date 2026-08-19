@@ -1083,3 +1083,247 @@ test('manifest: composite FBS-embedded id with trailing hyphen still rejected', 
   };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.4 additions (blueprints[] applied-blueprints registry) ---------
+
+test('manifest: blueprints[] with one applied blueprint (required fields only) validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa',
+        version: '1.0.0',
+        appliedAt: '2026-08-18T10:00:00Z',
+        source: '@stravica-ai/rcf-blueprint-spa@1.0.0'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: blueprints[] with contributions array validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa',
+        version: '1.0.0',
+        appliedAt: '2026-08-18T10:00:00Z',
+        source: 'git+ssh://git@github.com/Stravica/rcf-blueprint-spa.git#v1.0.0',
+        namespace: 'spa',
+        contributions: [
+          { id: 'spa-REQ-001', path: 'rcf/requirements/spa-req-001.json', kind: 'req' },
+          { id: 'TAC-002-spa-tokens', path: 'rcf/tacs/tac-002-spa-tokens.json', kind: 'tac' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: blueprints[] with multiple composed blueprints validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa',  version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a' },
+      { slug: 'rest', version: '1.0.0', appliedAt: '2026-08-18T10:00:05Z', source: 'b' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: blueprint slug in uppercase rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'SPA', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprint missing required version rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa', appliedAt: '2026-08-18T10:00:00Z', source: 'a' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprint with bad semver version rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa', version: '1.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprint contribution missing path rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a',
+        contributions: [ { id: 'spa-REQ-001' } ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprint ADR contribution with scope:global and topic validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a',
+        contributions: [
+          { id: 'ADR-004-spa', path: 'rcf/adrs/adr-004-spa.json', kind: 'adr', scope: 'global', topic: 'versioning' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: blueprint contribution scope other than "global" rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a',
+        contributions: [
+          { id: 'ADR-004-spa', path: 'x', kind: 'adr', scope: 'project' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprint contribution kind unknown rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a',
+        contributions: [ { id: 'x', path: 'y', kind: 'notADocKind' } ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+// -- 0.4.4 additions (standards[] standards-pack registry) --------------
+
+test('manifest: standards[] with an in-repo pack (no copyPath) validates', () => {
+  const doc = {
+    ...base,
+    standards: [
+      {
+        id: 'std-wsd-naming',
+        slug: 'wsd-naming',
+        sourcePath: 'docs/standards/wsd-naming',
+        tags: ['naming', 'conventions'],
+        testsProvidedBy: 'agent',
+        provenance: 'corporate'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: standards[] with an out-of-root pack (copyPath present) validates', () => {
+  const doc = {
+    ...base,
+    standards: [
+      {
+        id: 'std-security-baseline',
+        slug: 'security-baseline',
+        sourcePath: '/Users/thefoot/personal/patterns/security-baseline',
+        copyPath: 'rcf/standards/security-baseline',
+        tags: ['security'],
+        summary: 'Baseline security posture for services.',
+        testsProvidedBy: 'standard',
+        provenance: 'personal'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: standards pack with bad id (missing std- prefix) rejected', () => {
+  const doc = {
+    ...base,
+    standards: [
+      {
+        id: 'wsd-naming',
+        slug: 'wsd-naming',
+        sourcePath: 'docs/standards/wsd-naming',
+        tags: ['naming'],
+        testsProvidedBy: 'agent',
+        provenance: 'corporate'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: standards pack with unknown testsProvidedBy rejected', () => {
+  const doc = {
+    ...base,
+    standards: [
+      {
+        id: 'std-wsd-naming',
+        slug: 'wsd-naming',
+        sourcePath: 'docs/standards/wsd-naming',
+        tags: ['naming'],
+        testsProvidedBy: 'humans',
+        provenance: 'corporate'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: standards pack with unknown provenance rejected', () => {
+  const doc = {
+    ...base,
+    standards: [
+      {
+        id: 'std-wsd-naming',
+        slug: 'wsd-naming',
+        sourcePath: 'docs/standards/wsd-naming',
+        tags: ['naming'],
+        testsProvidedBy: 'agent',
+        provenance: 'internal'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprints + standards + preFlightConfig on one manifest validates (additive composition)', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: 'a' }
+    ],
+    standards: [
+      {
+        id: 'std-wsd-naming', slug: 'wsd-naming', sourcePath: 'docs/x',
+        tags: ['naming'], testsProvidedBy: 'agent', provenance: 'corporate'
+      }
+    ],
+    testCommand: 'pnpm -r test'
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: pre-0.4.4 manifest (no blueprints[] and no standards[]) still validates', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});

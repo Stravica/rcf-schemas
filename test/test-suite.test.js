@@ -292,3 +292,46 @@ test('test-suite: TC with scope alongside runtimeProvenance validates', () => {
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.4 additions (slug-prefixed tsId + usId for blueprint-contributed TS fragments) -
+
+test('test-suite: slug-prefixed tsId (spa-TS-001) with slug-prefixed usId validates', () => {
+  const doc = {
+    id: 'spa-TS-001',
+    usId: 'spa-US-101',
+    title: 'Blueprint-owned test suite',
+    purpose: 'Cover blueprint-contributed AC surfaces.',
+    testLevel: 'unit',
+    acIds: ['AC-001'],
+    testCases: [
+      {
+        id: 'TC-001-happy-path',
+        acId: 'AC-001',
+        description: 'happy path',
+        status: 'pending'
+      }
+    ],
+    status: 'draft',
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: uppercase slug prefix on tsId (SPA-TS-001) is rejected', () => {
+  const doc = {
+    id: 'SPA-TS-001',
+    usId: 'US-101',
+    title: 'bad',
+    purpose: 'bad',
+    testLevel: 'unit',
+    acIds: ['AC-001'],
+    testCases: [
+      { id: 'TC-001-x', acId: 'AC-001', description: 'x', status: 'pending' }
+    ],
+    status: 'draft',
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), false);
+});

@@ -37,3 +37,41 @@ test('tad: TAD with legacy architecturalDecisionIds is rejected', () => {
   const doc = { ...base, architecturalDecisionIds: ['ADR-001'] };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.4.4 additions (slug-prefixed tadId for blueprint-contributed TAD fragments) -
+
+test('tad: slug-prefixed tadId (spa-TAD-001) validates', () => {
+  const doc = {
+    tadId: 'spa-TAD-001',
+    prdId: 'PRD-001',
+    version: '0.1.0',
+    status: 'draft',
+    systemOverview: {
+      executiveSummary: 'Blueprint fragment',
+      systemPurpose: 'Frame SPA shell',
+      architecturalApproach: 'SPA',
+      keyCapabilities: ['Theme toggle']
+    },
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('tad: uppercase slug prefix on tadId (SPA-TAD-001) is rejected', () => {
+  const doc = {
+    tadId: 'SPA-TAD-001',
+    prdId: 'PRD-001',
+    version: '0.1.0',
+    status: 'draft',
+    systemOverview: {
+      executiveSummary: 'x',
+      systemPurpose: 'y',
+      architecturalApproach: 'z',
+      keyCapabilities: ['a']
+    },
+    createdAt: '2026-08-18T00:00:00Z',
+    updatedAt: '2026-08-18T00:00:00Z'
+  };
+  assert.equal(validate(doc), false);
+});

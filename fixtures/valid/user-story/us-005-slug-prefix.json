@@ -1,0 +1,20 @@
+{
+  "usId": "spa-US-101",
+  "prdId": "PRD-001",
+  "reqId": "spa-REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "As a visitor I see a loading state on every fetch",
+  "asA": "first-time visitor",
+  "iWant": "to see a skeleton or spinner while data is loading",
+  "soThat": "I know the app is doing something instead of guessing whether it is broken",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-001",
+      "description": "Every route with a fetch shows a skeleton within 100ms of navigation",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}

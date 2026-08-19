@@ -1,0 +1,14 @@
+{
+  "tadId": "spa-TAD-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "systemOverview": {
+    "executiveSummary": "Blueprint-contributed TAD fragment covering the SPA shell.",
+    "systemPurpose": "Frame the design tokens, nav shell and theme parity the SPA blueprint owns.",
+    "architecturalApproach": "Single-page application delivered light and dark by default.",
+    "keyCapabilities": ["Theme toggle", "Skeleton loaders", "Responsive layout"]
+  },
+  "createdAt": "2026-08-18T00:00:00Z",
+  "updatedAt": "2026-08-18T00:00:00Z"
+}
