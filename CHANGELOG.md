@@ -4,6 +4,24 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.4.5 - 2026-08-19
+
+Additive patch bump for the blueprint conflict-resolution mechanism landing in `rcf-lite` Phase 3.5. Adds the schema seam the `rcf blueprint supersede` and `rcf blueprint add --resolve` verbs key to, so a project can record an operator ruling that resolves a cross-blueprint conflict on a scope:global ADR topic. Every change is additive: every 0.4.4-valid document remains valid, and every existing id continues to validate byte-for-byte.
+
+### Added
+
+- **`manifest.schema.json`**: new optional `resolutions[]` at top level, items `$defs.blueprintConflictResolution`. One entry per operator-authored resolution of a cross-blueprint conflict. Fields: `id` (`^res-YYYY-MM-DD-NNN$`), `createdAt`, `kind` (single-valued enum `globalAdrTopic`; the enum is deliberately single-valued so later minor bumps can add further resolution classes additively without breaking existing consumers), `topic` (the topic key the resolution applies to, matching both superseded blueprint ADRs), `resolvedByAdrId` (the project-level ADR id that supersedes the blueprint ADRs), `supersedes[]` (min 2 items, each `{ slug: blueprintSlug, adrId: string }`), and optional `reason` (operator note). Written by `rcf blueprint supersede` and `rcf blueprint add --resolve`; read by the conflict detector so a would-be conflict on a resolved topic is honoured and both blueprint ADRs may co-reside as superseded history.
+- Fixtures (valid): `fixtures/valid/manifest/manifest-012-blueprint-topic-resolution.json` (two applied blueprints whose global auth ADRs collide, resolved by a project-level ADR that supersedes both).
+- Fixtures (invalid): `fixtures/invalid/manifest/manifest-020-resolution-bad-id.json` (resolution id in the wrong shape), `fixtures/invalid/manifest/manifest-021-resolution-single-supersedes.json` (supersedes[] with a single entry, violating minItems 2).
+- Tests: `resolutions[]` cases added to `manifest.test.js` covering the happy path (required fields, with reason, three superseded ADRs, additive composition alongside `blueprints[]` and `standards[]`), the reject-cases (bad id shape, missing required fields, unknown kind, `supersedes[]` minItems 2, uppercase slug in a `supersedes[]` entry, missing `adrId`, and an unrecognised additional property under `additionalProperties: false`), plus a pre-0.4.5 back-compat case that keeps a `blueprints[]`+`standards[]` manifest with no `resolutions[]` valid.
+
+### Notes
+
+- Additive-only: every 0.4.4-valid document remains valid. The prior `blueprints[]` + `standards[]` shape is untouched.
+- `back-compat-freeze.test.js` (added in 0.4.4) continues to assert the frozen pre-0.4.3 chain snapshot validates byte-for-byte; the 0.4.5 additions are new-fields-only and cannot affect existing document bytes.
+- Canonical `$id` URLs stay at `v0.4.0`, following the patch-release precedent set at 0.2.1, 0.3.1, 0.4.1, 0.4.2, 0.4.3, and 0.4.4.
+- Version choice: additive change, no existing document invalidated, no shape widened destructively — per repo precedent this bumps `0.4.4 -> 0.4.5` as a patch.
+
 ## 0.4.4 - 2026-08-18
 
 Additive patch bump for the blueprint-library mechanism landing in `rcf-build-lite`. Unblocks Phase 1 of the blueprint programme (`w-2026-08-18-016`) by adding the schema seams the mechanism keys to. Every change is additive: every 0.4.3-valid document remains valid, and every existing id continues to validate byte-for-byte.
