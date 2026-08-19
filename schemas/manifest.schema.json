@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.4.0/manifest.schema.json",
   "title": "RCF Project Manifest",
-  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. From 0.4.4 the manifest carries two optional additive sections that host the blueprint-library mechanism: blueprints[] (applied-blueprints registry written by rcf blueprint add / remove / upgrade) and standards[] (standards-pack registry written at rcf init and rcf standards add). Every added field is optional; pre-0.4.0 manifests remain valid.",
+  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. From 0.4.4 the manifest carries two optional additive sections that host the blueprint-library mechanism: blueprints[] (applied-blueprints registry written by rcf blueprint add / remove / upgrade) and standards[] (standards-pack registry written at rcf init and rcf standards add). From 0.4.5 the manifest additionally carries an optional resolutions[] section: one entry per operator-authored resolution of a cross-blueprint conflict, keyed at first by the globalAdrTopic conflict class (two applied blueprints each contributing a scope:global ADR on the same topic, resolved by a project-level ADR that supersedes both). Written by rcf blueprint supersede and by rcf blueprint add --resolve; read by the conflict detector so the resolved conflict is honoured and both blueprint ADRs may co-reside as superseded history. Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "projectName", "prd", "tad", "bs"],
@@ -65,6 +65,11 @@
       "type": "array",
       "items": { "$ref": "#/$defs/standardsPackRecord" },
       "description": "Standards-pack registry. One entry per standards folder registered at rcf init (or later via rcf standards add). Records the pack's id, slug, source path, optional copy path (present only when the source lived outside the project root and was copied into rcf/standards/<slug>/ for portability), tag vocabulary, testsProvidedBy classification, and provenance. Read by the bundle assembler's selective-retrieval step when populating fbs.contextRequirements.standardIds. Optional; projects that register no standards have no entries."
+    },
+    "resolutions": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/blueprintConflictResolution" },
+      "description": "Operator-authored resolutions of cross-blueprint conflicts. One entry per resolved conflict. Written by rcf blueprint supersede (which also scaffolds the project-level ADR that supersedes both blueprint ADRs) and by rcf blueprint add --resolve (which records the resolution declaratively on the add itself). Read by the conflict detector at rcf blueprint add: a resolution whose kind and key match a would-be conflict causes the detector to honour the resolution and let both blueprint ADRs co-reside as superseded history. Optional; projects with no cross-blueprint conflicts have no entries."
     }
   },
   "$defs": {
@@ -870,6 +875,59 @@
         }
       },
       "description": "One standards-pack registration. Written by rcf init (during standards prompting) and rcf standards add; read by the bundle assembler's selective-retrieval step."
+    },
+    "blueprintConflictResolution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "createdAt", "kind", "topic", "resolvedByAdrId", "supersedes"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^res-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
+          "description": "Blueprint-conflict-resolution record id. Format: res-YYYY-MM-DD-NNN. Monotonic per project."
+        },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/timestamp" },
+        "kind": {
+          "enum": ["globalAdrTopic"],
+          "description": "Which conflict class this record resolves. Currently the only kind is globalAdrTopic (two applied blueprints each contributing a scope:global ADR on the same topic). The enum is single-valued so a later minor bump can add further resolution classes additively without breaking existing consumers."
+        },
+        "topic": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The topic key the resolution applies to (for example, 'auth', 'versioning', 'errorEnvelope'). Matches the topic on both superseded blueprint ADRs. Required for kind=globalAdrTopic; the conflict detector reads this to know which would-be conflict the record honours."
+        },
+        "resolvedByAdrId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The project-level ADR id that supersedes the blueprint ADRs (for example, ADR-042). Its file lives outside any applied blueprint's namespace and is authored at rcf blueprint supersede time. Provenance for the resolution; the conflict detector does not currently re-read the referenced ADR."
+        },
+        "supersedes": {
+          "type": "array",
+          "minItems": 2,
+          "items": { "$ref": "#/$defs/blueprintConflictResolutionSupersededAdr" },
+          "description": "The blueprint ADRs this resolution supersedes. Two entries at minimum: the two applied blueprints whose global ADRs collided on topic. Both blueprint ADRs co-reside on disk as superseded history; the resolvedByAdrId is the live decision."
+        },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional operator note recording why this resolution was chosen. Free text; the schema does not enforce a minimum floor here so the operator can record a terse one-liner when the resolvedByAdrId itself carries the reasoning."
+        }
+      },
+      "description": "One blueprint-conflict resolution. Written by rcf blueprint supersede (scaffolds the resolvedByAdrId and appends the record) and by rcf blueprint add --resolve (appends the record without scaffolding a new ADR). Read by the conflict detector to skip a would-be conflict when a resolution matches."
+    },
+    "blueprintConflictResolutionSupersededAdr": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["slug", "adrId"],
+      "properties": {
+        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json#/$defs/blueprintSlug" },
+        "adrId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The blueprint-owned ADR id that is superseded (for example, spa-ADR-005 or ADR-005-spa). Kept as a free-string minLength: 1 so the shape does not have to encode the mixed prefix/suffix namespacing grammar."
+        }
+      },
+      "description": "One superseded blueprint ADR: the applied blueprint's slug plus the ADR id inside that blueprint's contribution set."
     }
   }
 }

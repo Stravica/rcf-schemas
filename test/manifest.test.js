@@ -1327,3 +1327,155 @@ test('manifest: blueprints + standards + preFlightConfig on one manifest validat
 test('manifest: pre-0.4.4 manifest (no blueprints[] and no standards[]) still validates', () => {
   assert.equal(validate(base), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.4.5 additions (resolutions[] blueprint-conflict resolutions) -----
+
+const validResolution = {
+  id: 'res-2026-08-19-001',
+  createdAt: '2026-08-19T10:15:00Z',
+  kind: 'globalAdrTopic',
+  topic: 'auth',
+  resolvedByAdrId: 'ADR-042',
+  supersedes: [
+    { slug: 'spa',  adrId: 'ADR-005-spa' },
+    { slug: 'rest', adrId: 'ADR-003-rest' }
+  ]
+};
+
+test('manifest: resolutions[] with one blueprint-conflict resolution (required fields only) validates', () => {
+  const doc = { ...base, resolutions: [validResolution] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: resolutions[] entry carrying an operator reason validates', () => {
+  const doc = {
+    ...base,
+    resolutions: [
+      { ...validResolution, reason: 'Project auth model is documented in ADR-042; both blueprint ADRs remain on disk as superseded history.' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: resolutions[] with three superseded blueprint ADRs validates (three blueprints on the same topic)', () => {
+  const doc = {
+    ...base,
+    resolutions: [
+      {
+        ...validResolution,
+        supersedes: [
+          { slug: 'spa',   adrId: 'ADR-005-spa' },
+          { slug: 'rest',  adrId: 'ADR-003-rest' },
+          { slug: 'admin', adrId: 'ADR-002-admin' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: resolution id in the wrong format (missing res- prefix) rejected', () => {
+  const doc = { ...base, resolutions: [{ ...validResolution, id: 'resolution-1' }] };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution missing required kind rejected', () => {
+  const { kind, ...rest } = validResolution;
+  const doc = { ...base, resolutions: [rest] };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution missing required topic rejected', () => {
+  const { topic, ...rest } = validResolution;
+  const doc = { ...base, resolutions: [rest] };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution missing required resolvedByAdrId rejected', () => {
+  const { resolvedByAdrId, ...rest } = validResolution;
+  const doc = { ...base, resolutions: [rest] };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution with an unknown kind rejected', () => {
+  const doc = { ...base, resolutions: [{ ...validResolution, kind: 'crossBlueprintOwnership' }] };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution supersedes[] with a single entry rejected (minItems 2)', () => {
+  const doc = {
+    ...base,
+    resolutions: [{ ...validResolution, supersedes: [{ slug: 'spa', adrId: 'ADR-005-spa' }] }]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution supersedes[] entry with uppercase slug rejected', () => {
+  const doc = {
+    ...base,
+    resolutions: [{
+      ...validResolution,
+      supersedes: [
+        { slug: 'SPA',  adrId: 'ADR-005-spa' },
+        { slug: 'rest', adrId: 'ADR-003-rest' }
+      ]
+    }]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution supersedes[] entry missing adrId rejected', () => {
+  const doc = {
+    ...base,
+    resolutions: [{
+      ...validResolution,
+      supersedes: [
+        { slug: 'spa' },
+        { slug: 'rest', adrId: 'ADR-003-rest' }
+      ]
+    }]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: resolution with an unrecognised additional property rejected', () => {
+  const doc = {
+    ...base,
+    resolutions: [{ ...validResolution, priority: 'high' }]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: blueprints + resolutions + standards on one manifest validates (additive composition)', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa',  version: '1.0.0', appliedAt: '2026-08-19T10:00:00Z', source: 'a' },
+      { slug: 'rest', version: '1.0.0', appliedAt: '2026-08-19T10:00:05Z', source: 'b' }
+    ],
+    resolutions: [validResolution],
+    standards: [
+      {
+        id: 'std-wsd-naming', slug: 'wsd-naming', sourcePath: 'docs/x',
+        tags: ['naming'], testsProvidedBy: 'agent', provenance: 'corporate'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: pre-0.4.5 manifest (blueprints[] and standards[] present, no resolutions[]) still validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa', version: '1.0.0', appliedAt: '2026-08-19T10:00:00Z', source: 'a' }
+    ],
+    standards: [
+      {
+        id: 'std-wsd-naming', slug: 'wsd-naming', sourcePath: 'docs/x',
+        tags: ['naming'], testsProvidedBy: 'agent', provenance: 'corporate'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

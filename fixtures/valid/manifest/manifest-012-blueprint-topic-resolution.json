@@ -1,0 +1,41 @@
+{
+  "version": "2.0.0",
+  "projectName": "Composed SPA + REST project with a resolved auth conflict",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "blueprints": [
+    {
+      "slug": "spa",
+      "version": "1.0.0",
+      "appliedAt": "2026-08-19T10:00:00Z",
+      "source": "@stravica-ai/rcf-blueprint-spa@1.0.0",
+      "contributions": [
+        { "id": "ADR-005-spa", "path": "rcf/adrs/adr-005-spa.json", "kind": "adr", "scope": "global", "topic": "auth" }
+      ]
+    },
+    {
+      "slug": "rest",
+      "version": "1.0.0",
+      "appliedAt": "2026-08-19T10:00:05Z",
+      "source": "@stravica-ai/rcf-blueprint-rest@1.0.0",
+      "contributions": [
+        { "id": "ADR-003-rest", "path": "rcf/adrs/adr-003-rest.json", "kind": "adr", "scope": "global", "topic": "auth" }
+      ]
+    }
+  ],
+  "resolutions": [
+    {
+      "id": "res-2026-08-19-001",
+      "createdAt": "2026-08-19T10:15:00Z",
+      "kind": "globalAdrTopic",
+      "topic": "auth",
+      "resolvedByAdrId": "ADR-042",
+      "supersedes": [
+        { "slug": "spa",  "adrId": "ADR-005-spa" },
+        { "slug": "rest", "adrId": "ADR-003-rest" }
+      ],
+      "reason": "Project auth model is documented in ADR-042; both blueprint auth ADRs remain on disk as superseded history."
+    }
+  ]
+}
