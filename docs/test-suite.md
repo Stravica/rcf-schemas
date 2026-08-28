@@ -4,7 +4,7 @@ Test Suite. One file per Test Suite. The JSON specification of what Test Cases e
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.3.0/test-suite.schema.json`
+`https://schemas.stravica.io/rcf/v0.5.0/test-suite.schema.json`
 
 ## TS-as-JSON: what this schema is for
 
@@ -39,9 +39,13 @@ Each entry in `testCases[]`:
 | `id` | `^TC-\d{3,}-[a-z0-9-]+$` | yes | TC identifier. `TC-<TS-suffix>-<slug>`; slug is a lowercase alphanumeric identifier (hyphens allowed). Slug uniqueness is within-TS, not global. TS-suffix widened to three-digit minimum, unbounded above (0.4.3). |
 | `acId` | `^AC-\d{3,}(-\d+)?$` | yes | Which AC on the parent US this TC verifies. |
 | `description` | string, min 1 | yes | What the TC covers. |
-| `testPointer` | string | no | Pointer to the executable test, `filePath::testName` format. |
+| `testPointer` | string, min 1 | conditional | Pointer to the executable test, `filePath::testName` format. **Required** when `status` is `passing` or `failing` (a passing or failing verdict claims coverage and must point at the test that produced the verdict). **Optional** when `status` is `pending` or `skipped` (no executable test has landed yet, and there is nothing honest to point at). Non-empty when present. Behaviour ratified 2026-08-27; landed in 0.5.0. |
 | `status` | enum | yes | `pending`, `passing`, `failing`, `skipped`. Authored in 0.2.0; derived from real test runs in Phase 6+. |
 | `scope` | `scopeTag` enum | no | `library`, `runtime`, `deployed`, `unclassified`. Optional at schema level (0.4.3). Ruleset-enforcing consumers may require the TC scope to be equal to or wider than the covered AC's scope. |
+
+## What changed in 0.5.0
+
+`testPointer` moved from unconditionally-optional to conditionally-required by `status`. A TC with `status: passing` or `status: failing` MUST carry a non-empty `testPointer`; a TC with `status: pending` or `status: skipped` MAY omit it (and may still declare a planned pointer). The old shape (unconditionally optional) let a TC claim a passing verdict while pointing at nothing, which is dishonest coverage; 0.5.0 makes the schema express what the rcf-lite consumer already enforced as a local overlay (`w-2026-07-28-005`). Consumers on 0.4.x that shipped only `pending`/`skipped` TCs without `testPointer` remain valid; consumers that shipped `passing`/`failing` TCs without `testPointer` need to add pointers or downgrade the verdict.
 
 ## What changed in 0.2.0
 

@@ -57,6 +57,7 @@ test('test-suite: TC id pattern accepts hyphenated slug', () => {
         id: 'TC-042-happy-path',
         acId: 'AC-001',
         description: 'x',
+        testPointer: 'test/x.test.js::hyphenated slug',
         status: 'passing'
       }
     ]
@@ -145,6 +146,7 @@ test('test-suite: TC runtimeProvenance with a live profile validates', () => {
         id: 'TC-001-happy',
         acId: 'AC-001',
         description: 'x',
+        testPointer: 'test/x.test.js::live',
         status: 'passing',
         runtimeProvenance: {
           profile: 'live',
@@ -226,7 +228,7 @@ test('test-suite: TC with scope=library validates', () => {
   const doc = {
     ...base,
     testCases: [
-      { id: 'TC-001-happy', acId: 'AC-001', description: 'x', status: 'passing', scope: 'library' }
+      { id: 'TC-001-happy', acId: 'AC-001', description: 'x', testPointer: 'test/x.test.js::library', status: 'passing', scope: 'library' }
     ]
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
@@ -236,7 +238,7 @@ test('test-suite: TC with scope=runtime validates', () => {
   const doc = {
     ...base,
     testCases: [
-      { id: 'TC-001-boot', acId: 'AC-001', description: 'boot smoke', status: 'passing', scope: 'runtime' }
+      { id: 'TC-001-boot', acId: 'AC-001', description: 'boot smoke', testPointer: 'test/boot.test.js::smoke', status: 'passing', scope: 'runtime' }
     ]
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
@@ -246,7 +248,7 @@ test('test-suite: TC with scope=deployed validates', () => {
   const doc = {
     ...base,
     testCases: [
-      { id: 'TC-001-deploy', acId: 'AC-001', description: 'deploy smoke', status: 'passing', scope: 'deployed' }
+      { id: 'TC-001-deploy', acId: 'AC-001', description: 'deploy smoke', testPointer: 'test/deploy.smoke.ts::deployed', status: 'passing', scope: 'deployed' }
     ]
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
@@ -256,7 +258,7 @@ test('test-suite: TC with scope=unclassified validates (migration state)', () =>
   const doc = {
     ...base,
     testCases: [
-      { id: 'TC-001-legacy', acId: 'AC-001', description: 'x', status: 'passing', scope: 'unclassified' }
+      { id: 'TC-001-legacy', acId: 'AC-001', description: 'x', testPointer: 'test/x.test.js::legacy', status: 'passing', scope: 'unclassified' }
     ]
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
@@ -266,7 +268,7 @@ test('test-suite: TC with unknown scope value rejected', () => {
   const doc = {
     ...base,
     testCases: [
-      { id: 'TC-001-x', acId: 'AC-001', description: 'x', status: 'passing', scope: 'production' }
+      { id: 'TC-001-x', acId: 'AC-001', description: 'x', testPointer: 'test/x.test.js::x', status: 'passing', scope: 'production' }
     ]
   };
   assert.equal(validate(doc), false);
@@ -280,6 +282,7 @@ test('test-suite: TC with scope alongside runtimeProvenance validates', () => {
         id: 'TC-001-live',
         acId: 'AC-001',
         description: 'live-provider smoke',
+        testPointer: 'test/live.test.ts::live provider',
         status: 'passing',
         scope: 'deployed',
         runtimeProvenance: {
@@ -288,6 +291,114 @@ test('test-suite: TC with scope alongside runtimeProvenance validates', () => {
           externalHostsReached: ['api.resend.com']
         }
       }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+// -- 0.5.0 additions (testPointer conditionally required by TC status) --
+
+test('test-suite: pending TC without testPointer still validates (back-compat)', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-pending', acId: 'AC-001', description: 'not landed yet', status: 'pending' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: skipped TC without testPointer validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-skip', acId: 'AC-001', description: 'known-skipped, no landed test', status: 'skipped' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: passing TC WITHOUT testPointer is rejected', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-passing', acId: 'AC-001', description: 'claim without pointer', status: 'passing' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+  const errs = JSON.stringify(validate.errors);
+  assert.ok(/testPointer/.test(errs), `expected error to mention testPointer, got ${errs}`);
+});
+
+test('test-suite: failing TC WITHOUT testPointer is rejected', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-failing', acId: 'AC-001', description: 'failing verdict without pointer', status: 'failing' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+  const errs = JSON.stringify(validate.errors);
+  assert.ok(/testPointer/.test(errs), `expected error to mention testPointer, got ${errs}`);
+});
+
+test('test-suite: passing TC WITH testPointer validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-passing', acId: 'AC-001', description: 'x', testPointer: 'test/x.test.js::case', status: 'passing' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: failing TC WITH testPointer validates', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-failing', acId: 'AC-001', description: 'x', testPointer: 'test/x.test.js::case', status: 'failing' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: pending TC MAY carry a testPointer (declared intent)', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-planned', acId: 'AC-001', description: 'planned', testPointer: 'test/planned.test.js::planned', status: 'pending' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: skipped TC MAY carry a testPointer (declared intent)', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-skip-with-pointer', acId: 'AC-001', description: 'skipped but declared', testPointer: 'test/skip.test.js::case', status: 'skipped' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('test-suite: empty-string testPointer rejected (minLength 1)', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-empty', acId: 'AC-001', description: 'empty pointer', testPointer: '', status: 'passing' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('test-suite: mixed TCs (passing+pointer, pending+no-pointer, skipped+no-pointer) validate together', () => {
+  const doc = {
+    ...base,
+    testCases: [
+      { id: 'TC-001-a', acId: 'AC-001', description: 'a', testPointer: 'test/a.test.js::a', status: 'passing' },
+      { id: 'TC-001-b', acId: 'AC-001', description: 'b', status: 'pending' },
+      { id: 'TC-001-c', acId: 'AC-001', description: 'c', status: 'skipped' }
     ]
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));

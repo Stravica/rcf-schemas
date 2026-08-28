@@ -23,6 +23,7 @@
       "id": "TC-015-non-2xx",
       "acId": "AC-1001-2",
       "description": "non-2xx response surfaces to caller",
+      "testPointer": "test/email-dispatcher.test.ts::non-2xx surfaces",
       "status": "passing",
       "runtimeProvenance": {
         "profile": "mock",

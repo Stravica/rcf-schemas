@@ -4,7 +4,7 @@ Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, s
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.3.0/common.schema.json`
+`https://schemas.stravica.io/rcf/v0.5.0/common.schema.json`
 
 ## What's in `$defs`
 

@@ -46,7 +46,7 @@ io.stravica.rcf:rcf-schemas:0.3.0
 Each schema is fetchable by its canonical `$id`:
 
 ```
-https://schemas.stravica.io/rcf/v0.3.0/<name>.schema.json
+https://schemas.stravica.io/rcf/v0.5.0/<name>.schema.json
 ```
 
 ## Use
@@ -77,7 +77,7 @@ for (const name of names) {
   ajv.addSchema(schema);
 }
 
-const validatePrd = ajv.getSchema('https://schemas.stravica.io/rcf/v0.3.0/prd.schema.json');
+const validatePrd = ajv.getSchema('https://schemas.stravica.io/rcf/v0.5.0/prd.schema.json');
 const ok = validatePrd(myPrdDoc);
 if (!ok) console.error(validatePrd.errors);
 ```

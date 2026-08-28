@@ -4,6 +4,34 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.5.0 - 2026-08-28
+
+Minor bump for the `testPointer` conditional-by-status ruling (`w-2026-08-27-dave-001`, Baz ratified 2026-08-27). `testPointer` on a Test Case is now REQUIRED when the TC's `status` is `passing` or `failing`, and OPTIONAL when the TC's `status` is `pending` or `skipped`. This closes the "a passing verdict may point at nothing" hole the 0.4.x shape allowed and moves the durable landing point for the rule out of `rcf-lite`'s local strictness overlay (`w-2026-07-28-005`) into the shared schema, where every consumer inherits it uniformly.
+
+### Changed
+
+- **`test-suite.schema.json`**: `$defs.testCase.testPointer` gains `minLength: 1` (a `testPointer` present at all must be non-empty; empty-string pointers were the same class of dishonest-coverage failure as absent pointers). A new `allOf` clause on `$defs.testCase` conditionally requires `testPointer` when `status` is `passing` or `failing`; other statuses may still omit it. The `additionalProperties: false` guarantee is preserved: nothing new is permitted; only the requiredness on one existing field is tightened for two of the four status values.
+- **Canonical `$id`** URLs bumped from `https://schemas.stravica.io/rcf/v0.4.0/...` to `https://schemas.stravica.io/rcf/v0.5.0/...` on every schema, in lock-step with the bundle version. Matches the precedent set at 0.3.0 and 0.4.0 (patch releases keep the URL pinned; minor releases bump the URL). No consumer in the Stravica org hard-codes the URL literal (org-wide search 2026-08-28 hit only this repo's own files); `rcf-lite`, `rcf-build-lite`, `rcf-tools`, and every persona-run repo load schemas by file path and register with whatever `$id` the file declares.
+- **Documentation URLs bumped in lock-step.** The `docs/*.md` canonical-`$id` references were stale on `v0.3.0` (never bumped at 0.4.0); this release syncs every doc page and the `README.md` code example to `v0.5.0`.
+
+### Added
+
+- **Fixtures (valid)**: `fixtures/valid/test-suite/ts-006-testpointer-conditional.json` (a five-TC suite exercising every branch: passing+pointer, failing+pointer, pending without pointer, skipped without pointer, and pending with a declared-intent pointer).
+- **Fixtures (invalid)**: `fixtures/invalid/test-suite/ts-008-passing-tc-missing-testpointer.json`, `fixtures/invalid/test-suite/ts-009-failing-tc-missing-testpointer.json` (the two directions of the new required rule), `fixtures/invalid/test-suite/ts-010-empty-testpointer.json` (the `minLength: 1` guard against empty-string pointers).
+- **Tests**: `test/test-suite.test.js` gains the conditional-required cases (pending/skipped without pointer still valid; passing/failing without pointer rejected with an error referencing `testPointer`; passing/failing with pointer valid; pending/skipped may still carry a declared pointer; empty-string pointer rejected; mixed-status suite valid). Existing tests that constructed `status: passing` TCs without `testPointer` were updated to include a pointer so they exercise their originally intended assertion (id-slug pattern, scope tags, runtime provenance, and so on) rather than fail on the new rule.
+
+### Migration
+
+- **Pre-0.5.0 docs with only `pending`/`skipped` TCs missing `testPointer`**: remain valid unchanged.
+- **Pre-0.5.0 docs with `passing` or `failing` TCs missing `testPointer`**: were already dishonest coverage claims; validate against 0.5.0 by either (a) adding the real `testPointer` (the honest fix; the pointer is what the TC is asserting exists), or (b) downgrading the TC to `pending` or `skipped` if no executable landed. `rcf-lite`'s pre-0.5.0 strictness overlay already forced this in practice for tools that ran through the CLI; 0.5.0 makes the schema the single source of truth.
+- **`rcf-lite` consumers**: the durable landing was called out in `rcf-lite`'s own overlay comment ("drop this block when that ships"). A follow-up `rcf-lite` release pins `@stravica-ai/rcf-schemas` to `0.5.0` and removes the local overlay so validation is inherited from the schema uniformly.
+
+### Notes
+
+- Pre-1.0 semver convention (repo has followed this since 0.1.0): breaking-in-any-direction schema changes bump minor. This release breaks docs that authored dishonest `passing`/`failing`-without-pointer TCs; hence 0.5.0, not a patch.
+- The rule is expressed as an `allOf` with an `if`/`then` conditional (the same pattern 0.4.2 used for per-kind `testTheatreFinding.tsId` requiredness). Ajv strict mode requires `testPointer` to be redeclared inside `then.properties`; the redeclaration mirrors the outer shape (`type: string, minLength: 1`) and is not an independent constraint.
+- The 0.4.4 `back-compat-freeze.test.js` byte-for-byte pin is on a manifest fixture (`manifest-011-preblueprint-chain-frozen.json`) and is untouched by this release; it continues to pass on 0.5.0.
+
 ## 0.4.5 - 2026-08-19
 
 Additive patch bump for the blueprint conflict-resolution mechanism landing in `rcf-lite` Phase 3.5. Adds the schema seam the `rcf blueprint supersede` and `rcf blueprint add --resolve` verbs key to, so a project can record an operator ruling that resolves a cross-blueprint conflict on a scope:global ADR topic. Every change is additive: every 0.4.4-valid document remains valid, and every existing id continues to validate byte-for-byte.
