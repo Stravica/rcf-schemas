@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.4.0/common.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json",
   "title": "RCF Shared Definitions",
   "description": "Shared $defs referenced via $ref from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the docRef shape. This file is not a document schema; consumers register it alongside the 11 doc-type schemas at validator init. From 0.4.4 the reqId/usId/prdId/bsId/tadId/tsId patterns accept an optional lowercase kebab-slug prefix (for example, spa-REQ-001) so blueprint mechanisms can contribute namespaced doc ids without colliding with project-authored ids. Existing numeric-only ids remain valid. The adrId/tacId/fbsId/cnId patterns already carry an optional kebab-slug SUFFIX (0.4.3) and are intentionally left untouched: id grammar is mixed across types for tonight (prefix for REQ/US/PRD/BS/TAD/TS; suffix for ADR/TAC/FBS/CN); unifying is a schemas follow-up.",
   "$defs": {

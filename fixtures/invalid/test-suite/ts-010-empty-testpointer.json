@@ -1,0 +1,20 @@
+{
+  "id": "TS-203",
+  "usId": "US-203",
+  "title": "Empty testPointer is rejected",
+  "purpose": "0.5.0 requires testPointer to be non-empty (minLength 1); an empty string is not a legitimate pointer.",
+  "testLevel": "unit",
+  "acIds": ["AC-203-1"],
+  "testCases": [
+    {
+      "id": "TC-203-empty-pointer",
+      "acId": "AC-203-1",
+      "description": "Empty pointer would let a TC claim coverage while pointing at nothing.",
+      "testPointer": "",
+      "status": "passing"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "updatedAt": "2026-08-28T00:00:00Z"
+}

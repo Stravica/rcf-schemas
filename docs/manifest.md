@@ -4,7 +4,7 @@ Project manifest. Roots-only shape: declares `prd`, `tad`, `bs`. Children are ow
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.3.0/manifest.schema.json`
+`https://schemas.stravica.io/rcf/v0.5.0/manifest.schema.json`
 
 ## Required fields
 

@@ -1,0 +1,19 @@
+{
+  "id": "TS-202",
+  "usId": "US-202",
+  "title": "Failing TC missing required testPointer",
+  "purpose": "0.5.0 requires testPointer on failing TCs; this fixture omits it and must be rejected.",
+  "testLevel": "unit",
+  "acIds": ["AC-202-1"],
+  "testCases": [
+    {
+      "id": "TC-202-failing-no-pointer",
+      "acId": "AC-202-1",
+      "description": "Claims a failing verdict but points at nothing; the conditional-required rule rejects this shape.",
+      "status": "failing"
+    }
+  ],
+  "status": "draft",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "updatedAt": "2026-08-28T00:00:00Z"
+}

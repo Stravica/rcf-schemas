@@ -1,0 +1,46 @@
+{
+  "id": "TS-200",
+  "usId": "US-200",
+  "title": "TC testPointer conditional-by-status coverage",
+  "purpose": "Prove the 0.5.0 rule: testPointer is required for passing/failing TCs and optional for pending/skipped TCs.",
+  "testLevel": "unit",
+  "acIds": ["AC-200-1"],
+  "testCases": [
+    {
+      "id": "TC-200-passing-with-pointer",
+      "acId": "AC-200-1",
+      "description": "Passing TC carries the executable pointer.",
+      "testPointer": "test/example.test.js::passing case",
+      "status": "passing"
+    },
+    {
+      "id": "TC-200-failing-with-pointer",
+      "acId": "AC-200-1",
+      "description": "Failing TC still points at the executable that produced the verdict.",
+      "testPointer": "test/example.test.js::failing case",
+      "status": "failing"
+    },
+    {
+      "id": "TC-200-pending-no-pointer",
+      "acId": "AC-200-1",
+      "description": "Pending TC has no landed executable yet, so no pointer.",
+      "status": "pending"
+    },
+    {
+      "id": "TC-200-skipped-no-pointer",
+      "acId": "AC-200-1",
+      "description": "Skipped TC also has no executable to point at.",
+      "status": "skipped"
+    },
+    {
+      "id": "TC-200-pending-with-pointer",
+      "acId": "AC-200-1",
+      "description": "A pending TC may still declare its intended pointer.",
+      "testPointer": "test/example.test.js::planned case",
+      "status": "pending"
+    }
+  ],
+  "status": "approved",
+  "createdAt": "2026-08-28T00:00:00Z",
+  "updatedAt": "2026-08-28T00:00:00Z"
+}
