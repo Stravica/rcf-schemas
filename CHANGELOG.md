@@ -4,6 +4,23 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.5.1 - 2026-08-31
+
+Additive patch bump for the external-blueprint-library mechanism landing in `rcf-lite`. Adds one optional field on the applied-blueprint record so a project can durably record which registered library an apply resolved through, without the ownership fact having to be re-derived by string-matching `source`. Every change is additive: every 0.5.0-valid document remains valid, and every existing id continues to validate byte-for-byte.
+
+### Added
+
+- **`manifest.schema.json`**: new optional `libraryPrefix` on `$defs.appliedBlueprintRecord`, referencing `common.$defs.blueprintSlug`. Stamped when an apply resolves through a registered external blueprint library (for example, an apply of `acme:spa` stamps `libraryPrefix: acme`); absent for shelf and path applies. Once stamped, the record's `libraryPrefix` is the ownership fact: the library registry may be renamed, re-pointed, or unregistered without orphaning previously applied records. Written by the library-resolving branch of `rcf blueprint add`; read by `rcf library remove`'s ownership check in preference to `source`-prefix matching.
+- Fixtures (valid): `fixtures/valid/manifest/manifest-013-blueprint-library-prefix.json` (one library-applied blueprint with `libraryPrefix` stamped, alongside a shelf-applied blueprint with no `libraryPrefix`).
+- Fixtures (invalid): `fixtures/invalid/manifest/manifest-022-library-prefix-bad-slug.json` (uppercase `libraryPrefix`, violates the `blueprintSlug` shape).
+- Tests: `libraryPrefix` cases added to `manifest.test.js` covering the happy path (stamped alone, coexists with `namespace` and `contributions`), the shelf/path back-compat case (record without `libraryPrefix` still validates), a mixed library-and-shelf record, the two reject cases (uppercase, leading-hyphen), and a pre-0.5.1 back-compat case that keeps a `blueprints[]` record without `libraryPrefix` valid.
+
+### Notes
+
+- Additive-only: every 0.5.0-valid document remains valid. `additionalProperties: false` on the record is preserved: `libraryPrefix` is the only new permitted property.
+- Canonical `$id` URLs stay at `v0.5.0`, following the patch-release precedent set at 0.2.1, 0.3.1, 0.4.1, 0.4.2, 0.4.3, 0.4.4, and 0.4.5.
+- Version choice: per repo precedent (every additive change since 0.2.0 has bumped as a patch), this bumps `0.5.0 -> 0.5.1`.
+
 ## 0.5.0 - 2026-08-28
 
 Minor bump for the `testPointer` conditional-by-status ruling (`w-2026-08-27-dave-001`, Baz ratified 2026-08-27). `testPointer` on a Test Case is now REQUIRED when the TC's `status` is `passing` or `failing`, and OPTIONAL when the TC's `status` is `pending` or `skipped`. This closes the "a passing verdict may point at nothing" hole the 0.4.x shape allowed and moves the durable landing point for the rule out of `rcf-lite`'s local strictness overlay (`w-2026-07-28-005`) into the shared schema, where every consumer inherits it uniformly.

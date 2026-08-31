@@ -1464,6 +1464,102 @@ test('manifest: blueprints + resolutions + standards on one manifest validates (
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
 
+// -- 0.5.1 additions (appliedBlueprintRecord.libraryPrefix) ------------
+
+test('manifest: blueprint with libraryPrefix stamped validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa',
+        version: '1.0.0',
+        appliedAt: '2026-08-31T10:00:00Z',
+        source: 'acme:spa',
+        libraryPrefix: 'acme'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: blueprint without libraryPrefix still validates (shelf/path apply)', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa',
+        version: '1.0.0',
+        appliedAt: '2026-08-31T10:00:00Z',
+        source: 'rcf/blueprints/spa'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: mixed library-applied and shelf-applied blueprints in one record validate', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa',  version: '1.0.0', appliedAt: '2026-08-31T10:00:00Z', source: 'acme:spa', libraryPrefix: 'acme' },
+      { slug: 'rest', version: '1.0.0', appliedAt: '2026-08-31T10:00:05Z', source: 'rcf/blueprints/rest' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: libraryPrefix in uppercase rejected (blueprintSlug shape)', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-31T10:00:00Z',
+        source: 'acme:spa', libraryPrefix: 'ACME'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: libraryPrefix with leading hyphen rejected', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-31T10:00:00Z',
+        source: 'acme:spa', libraryPrefix: '-acme'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: libraryPrefix coexists with namespace and contributions on one record', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      {
+        slug: 'spa', version: '1.0.0', appliedAt: '2026-08-31T10:00:00Z',
+        source: 'acme:spa', libraryPrefix: 'acme', namespace: 'spa',
+        contributions: [
+          { id: 'spa-REQ-001', path: 'rcf/requirements/spa-req-001.json', kind: 'req' }
+        ]
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: pre-0.5.1 blueprint record (no libraryPrefix) still validates', () => {
+  const doc = {
+    ...base,
+    blueprints: [
+      { slug: 'spa', version: '1.0.0', appliedAt: '2026-08-18T10:00:00Z', source: '@stravica-ai/rcf-blueprint-spa@1.0.0' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
 test('manifest: pre-0.4.5 manifest (blueprints[] and standards[] present, no resolutions[]) still validates', () => {
   const doc = {
     ...base,
