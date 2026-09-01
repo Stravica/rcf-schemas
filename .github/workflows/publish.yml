@@ -1,10 +1,33 @@
 name: publish
+# Tag-driven publishing for @stravica-ai/rcf-schemas via npm Trusted
+# Publishing (GitHub Actions OIDC). No long-lived NODE_AUTH_TOKEN and no
+# per-write OTP: npm mints a short-lived token for THIS workflow run based
+# on the OIDC claim (repo + workflow filename), and the maintainer
+# account's 2FA setting no longer stands between a tag push and the
+# registry.
+#
+# The trusted-publisher binding is repo (Stravica/rcf-schemas) + workflow
+# FILENAME (publish.yml). Renaming this file breaks the binding. The
+# one-time npmjs.com configuration lives in
+# operator/knowledge/engineering/npm-publish-automation.md in the estate
+# repo.
+#
+# Tag route:
+#
+#   v<version>  ->  @stravica-ai/rcf-schemas  (repo root)
+#
+# Single publish route because the repo ships a single public package at
+# its root. If a second public package is ever added, migrate this route
+# to a prefixed tag scheme (e.g. rcf-schemas-v*) rather than sharing v*.
 on:
   push:
-    tags: ['v*']
+    tags:
+      - 'v*'
+
 permissions:
   contents: read
   id-token: write
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -15,10 +38,125 @@ jobs:
           version: 9
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
         with:
-          node-version: 24
+          node-version-file: '.nvmrc'
           registry-url: 'https://registry.npmjs.org/'
           cache: pnpm
+
       - run: pnpm install --frozen-lockfile
+
       - run: pnpm test
-      - name: Publish to public npm
-        run: pnpm publish --no-git-checks --access public --provenance
+
+      - name: Resolve version from tag
+        id: pkg
+        run: |
+          set -euo pipefail
+          TAG="${GITHUB_REF_NAME}"
+          case "$TAG" in
+            v*) NAME="@stravica-ai/rcf-schemas"; VERSION="${TAG#v}" ;;
+            *) echo "::error::Unrecognised release tag '$TAG' expected v*"; exit 1 ;;
+          esac
+          # Hard guard: the tag's version MUST equal package.json version.
+          # A wrong or stale tag never publishes.
+          PKG_VERSION="$(node -p "require('./package.json').version")"
+          if [ "$PKG_VERSION" != "$VERSION" ]; then
+            echo "::error::Tag version '$VERSION' does not match package.json version '$PKG_VERSION'"
+            exit 1
+          fi
+          # Registry cross-check: refuse to republish an already-live version.
+          # `npm view` exits non-zero when the version does not exist, which
+          # is the safe path. A zero exit means someone already published
+          # this exact version.
+          if npm view "$NAME@$VERSION" version >/dev/null 2>&1; then
+            echo "::error::$NAME@$VERSION is already on the registry; refusing to republish"
+            exit 1
+          fi
+          # A hyphen in VERSION (0.5.1-rc.0) routes to the `prerelease`
+          # dist-tag so a prerelease can never move `latest`.
+          case "$VERSION" in
+            *-*) DIST="prerelease" ;;
+            *)   DIST="latest" ;;
+          esac
+          {
+            echo "name=$NAME"
+            echo "version=$VERSION"
+            echo "dist=$DIST"
+          } >> "$GITHUB_OUTPUT"
+          echo "Resolved $NAME@$VERSION -> dist-tag '$DIST'"
+
+      # Pre-publish cold-install smoke (operator/knowledge/engineering/
+      # release-flow-discipline.md). Pack the tarball, install it into a
+      # fresh consumer directory that has no workspace visibility, and
+      # exercise the shipped surface for real. A schema package's shipped
+      # surface is the schemas/ directory: load a canonical schema by its
+      # published path and assert the JSON parses and carries the expected
+      # top-level fields. Catches the "green in-workspace, DOA from
+      # registry" class before the publish step runs.
+      - name: Cold-install smoke (pack + install into a fresh consumer)
+        run: |
+          set -euo pipefail
+          pnpm pack
+          TARBALL="$(pwd)/$(ls *.tgz | head -1)"
+          mkdir -p /tmp/publish-smoke
+          cd /tmp/publish-smoke
+          cat > package.json <<'JSON'
+          { "name": "publish-smoke", "private": true, "version": "0.0.0", "type": "module" }
+          JSON
+          pnpm add "$TARBALL"
+          node --input-type=module -e '
+            import { readFile } from "node:fs/promises";
+            import { createRequire } from "node:module";
+            const require = createRequire(import.meta.url);
+            const pkg = require("@stravica-ai/rcf-schemas/package.json");
+            console.log("installed:", pkg.name + "@" + pkg.version);
+            const prdPath = require.resolve("@stravica-ai/rcf-schemas/schemas/prd.schema.json");
+            const commonPath = require.resolve("@stravica-ai/rcf-schemas/schemas/common.schema.json");
+            const manifestPath = require.resolve("@stravica-ai/rcf-schemas/schemas/manifest.schema.json");
+            for (const p of [prdPath, commonPath, manifestPath]) {
+              const raw = await readFile(p, "utf8");
+              const schema = JSON.parse(raw);
+              if (typeof schema.$id !== "string" || schema.$id.length === 0) {
+                throw new Error("schema missing $id: " + p);
+              }
+              if (typeof schema.$schema !== "string" || schema.$schema.length === 0) {
+                throw new Error("schema missing $schema: " + p);
+              }
+              console.log("ok:", p.split("/").slice(-1)[0], "$id=" + schema.$id);
+            }
+            console.log("Cold-install smoke: PASS");
+          '
+
+      # Publish via `pnpm publish`. OIDC-mode auth is picked up automatically
+      # when `id-token: write` is granted and `registry-url` is set on the
+      # setup-node step above; no NODE_AUTH_TOKEN, no .npmrc secret, no OTP.
+      # `--provenance` attaches SLSA v1 provenance (public repo + GitHub-
+      # hosted runner meet the requirements). `--no-git-checks` because a
+      # tag build is a detached HEAD.
+      - name: Publish package
+        run: |
+          set -euo pipefail
+          if [ "${{ steps.pkg.outputs.dist }}" = "prerelease" ]; then
+            echo "Prerelease version (${{ steps.pkg.outputs.version }}) -> publishing under dist-tag 'prerelease'"
+            pnpm publish --provenance --access public --tag prerelease --no-git-checks
+          else
+            echo "Release version (${{ steps.pkg.outputs.version }}) -> publishing under default dist-tag 'latest'"
+            pnpm publish --provenance --access public --no-git-checks
+          fi
+
+      # Post-publish registry confirmation. Reports the shasum + provenance
+      # marker so a rollout worker can promote-race-guard the tarball at
+      # the same shasum before it starts a consumer sweep.
+      - name: Confirm published version on registry
+        run: |
+          set -euo pipefail
+          NAME="${{ steps.pkg.outputs.name }}"
+          VERSION="${{ steps.pkg.outputs.version }}"
+          # Retry a few times to ride out registry CDN lag right after publish.
+          for i in 1 2 3 4 5; do
+            if npm view "$NAME@$VERSION" version dist.shasum dist.integrity 2>/dev/null; then
+              exit 0
+            fi
+            echo "registry did not report $NAME@$VERSION yet (attempt $i); sleeping 5s"
+            sleep 5
+          done
+          echo "::error::registry did not report $NAME@$VERSION after 5 attempts"
+          exit 1
