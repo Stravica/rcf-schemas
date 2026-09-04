@@ -4,7 +4,7 @@ Code Node. One file per node. Bridges the requirements graph to source code: ide
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.5.0/cn.schema.json`
+`https://schemas.stravica.io/rcf/v0.6.0/cn.schema.json`
 
 ## Required fields
 

@@ -48,18 +48,19 @@ export async function buildAjv() {
 
 export function getSchemaByName(ajv, name) {
   const idMap = {
-    'common.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/common.schema.json',
-    'prd.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/prd.schema.json',
-    'req.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/req.schema.json',
-    'user-story.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/user-story.schema.json',
-    'tad.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/tad.schema.json',
-    'tac.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/tac.schema.json',
-    'adr.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/adr.schema.json',
-    'build-sequence.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/build-sequence.schema.json',
-    'fbs.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/fbs.schema.json',
-    'test-suite.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/test-suite.schema.json',
-    'manifest.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/manifest.schema.json',
-    'cn.schema.json': 'https://schemas.stravica.io/rcf/v0.5.0/cn.schema.json'
+    'common.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/common.schema.json',
+    'prd.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/prd.schema.json',
+    'req.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/req.schema.json',
+    'user-story.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/user-story.schema.json',
+    'tad.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/tad.schema.json',
+    'tac.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/tac.schema.json',
+    'adr.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/adr.schema.json',
+    'build-sequence.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/build-sequence.schema.json',
+    'fbs.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/fbs.schema.json',
+    'test-suite.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/test-suite.schema.json',
+    'manifest.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/manifest.schema.json',
+    'cn.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/cn.schema.json',
+    'eval.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/eval.schema.json'
   };
   const id = idMap[name];
   if (!id) throw new Error(`Unknown schema file: ${name}`);
@@ -80,7 +81,8 @@ export const SCHEMA_NAMES = [
   'fbs',
   'test-suite',
   'manifest',
-  'cn'
+  'cn',
+  'eval'
 ];
 
 export const DOC_TYPE_SCHEMAS = SCHEMA_NAMES.filter((n) => n !== 'common');

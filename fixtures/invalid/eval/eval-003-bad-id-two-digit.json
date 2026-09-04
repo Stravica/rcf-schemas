@@ -1,0 +1,14 @@
+{
+  "id": "EVAL-42",
+  "usId": "US-101",
+  "acIds": ["AC-101-1"],
+  "title": "Bad id",
+  "purpose": "Two-digit EVAL id violates the three-digit-minimum rule.",
+  "criteria": [{ "id": "on-topic", "description": "x" }],
+  "cases": [{ "id": "case-a", "input": {} }],
+  "judge": { "type": "rubric" },
+  "passThreshold": { "aggregateScore": 0.8 },
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

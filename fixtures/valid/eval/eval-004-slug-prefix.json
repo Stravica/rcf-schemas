@@ -1,0 +1,18 @@
+{
+  "id": "spa-EVAL-001",
+  "usId": "spa-US-101",
+  "acIds": ["AC-101-1"],
+  "title": "Blueprint-owned EVAL",
+  "purpose": "Prove the slug-prefixed evalId form validates in the same way as the other blueprint-namespaced doc types.",
+  "criteria": [
+    { "id": "shape-ok", "description": "output has the expected shape" }
+  ],
+  "cases": [
+    { "id": "case-only", "input": { "x": 1 } }
+  ],
+  "judge": { "type": "rubric" },
+  "passThreshold": { "aggregateScore": 0.9 },
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

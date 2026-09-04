@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://schemas.stravica.io/rcf/v0.5.0/manifest.schema.json",
+  "$id": "https://schemas.stravica.io/rcf/v0.6.0/manifest.schema.json",
   "title": "RCF Project Manifest",
   "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. From 0.4.4 the manifest carries two optional additive sections that host the blueprint-library mechanism: blueprints[] (applied-blueprints registry written by rcf blueprint add / remove / upgrade) and standards[] (standards-pack registry written at rcf init and rcf standards add). From 0.4.5 the manifest additionally carries an optional resolutions[] section: one entry per operator-authored resolution of a cross-blueprint conflict, keyed at first by the globalAdrTopic conflict class (two applied blueprints each contributing a scope:global ADR on the same topic, resolved by a project-level ADR that supersedes both). Written by rcf blueprint supersede and by rcf blueprint add --resolve; read by the conflict detector so the resolved conflict is honoured and both blueprint ADRs may co-reside as superseded history. From 0.5.1 the appliedBlueprintRecord carries an optional libraryPrefix (blueprintSlug), stamped when an apply resolves through a registered external blueprint library so the library-registered ownership is durable on the record itself rather than derived by string-matching source; absent for shelf or path applies. Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
@@ -10,9 +10,9 @@
     "version": { "type": "string", "const": "2.0.0" },
     "projectName": { "type": "string", "minLength": 1 },
     "description": { "type": "string" },
-    "prd": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/docRef" },
-    "tad": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/docRef" },
-    "bs":  { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/docRef" },
+    "prd": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/docRef" },
+    "tad": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/docRef" },
+    "bs":  { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/docRef" },
     "testCommand": {
       "type": "string",
       "minLength": 1,
@@ -83,14 +83,14 @@
           "pattern": "^pfc-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
           "description": "Pre-flight config record id. Format: pfc-YYYY-MM-DD-NNN. Monotonic per project."
         },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
-        "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/prdId" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
+        "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/prdId" },
         "servicesInScope": {
           "type": "array",
           "items": { "$ref": "#/$defs/preFlightServiceEntry" },
           "description": "One entry per third-party service candidate the operator ruled on. Empty array is legitimate for projects that named no services."
         },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "designShapeAnswers": {
           "type": "array",
           "items": { "$ref": "#/$defs/designShapeAnswer" },
@@ -115,7 +115,7 @@
           "items": { "type": "string", "minLength": 1 },
           "description": "Where in the PRD or TAD the service was named (for example, PRD-001#external-integrations). Provenance so an operator can review the derivation. Operator-added candidates may carry an empty array when the operator introduced the service at pre-flight without a PRD or TAD reference."
         },
-        "attestationMode": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/attestationMode" },
+        "attestationMode": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/attestationMode" },
         "credentialSupplied": {
           "type": "boolean",
           "description": "Whether the operator supplied a key or token at pre-flight."
@@ -131,7 +131,7 @@
         },
         "affectedFbsIds": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/fbsId" },
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/fbsId" },
           "description": "FBS ids in the build queue that will inherit this service. May be back-filled at plan time."
         }
       }
@@ -147,7 +147,7 @@
           "description": "Catalogue id of the design-shape question (for example, auth.htmlLoginPage)."
         },
         "reqId": {
-          "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/reqId",
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/reqId",
           "description": "Requirement the question was posed against, when the question is REQ-scoped."
         },
         "answer": {
@@ -159,7 +159,7 @@
           "type": "string",
           "description": "Plain-text reason. Required in practice when the answer triggers a downstream opt-out ledger write; the ledger entry then applies the 20-character floor at its own site."
         },
-        "answeredAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" }
+        "answeredAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
       }
     },
     "reviewAuditRecord": {
@@ -172,8 +172,8 @@
           "pattern": "^ra-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
           "description": "Review-audit record id. Format: ra-<fbsId>-<n>; the trailing integer increments per re-audit of the same FBS. Accepts both numeric-only and kebab-slug FBS ids."
         },
-        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/fbsId" },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/fbsId" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "testTheatreFindings": {
           "type": "array",
           "items": { "$ref": "#/$defs/testTheatreFinding" },
@@ -185,7 +185,7 @@
           "description": "Aggregated verdict for the audit. block if any finding severity is block; warn if any warn and no block; pass otherwise."
         },
         "operatorAckAt": {
-          "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp",
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp",
           "description": "Set when the operator has read a warn or block verdict."
         }
       }
@@ -195,8 +195,8 @@
       "additionalProperties": false,
       "required": ["kind", "detail", "severity"],
       "properties": {
-        "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/tsId" },
-        "tcId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/tcId" },
+        "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tsId" },
+        "tcId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tcId" },
         "anchorId": {
           "type": "string",
           "minLength": 1,
@@ -234,7 +234,7 @@
           "then": {},
           "else": {
             "properties": {
-              "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/tsId" }
+              "tsId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tsId" }
             },
             "required": ["tsId"]
           }
@@ -282,15 +282,15 @@
         "acIds": {
           "type": "array",
           "minItems": 1,
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/acId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/acId" }
         },
         "tsIdsShouldHaveCaught": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/tsId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tsId" }
         },
         "tcIdsShouldHaveCaught": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/tcId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tcId" }
         }
       }
     },
@@ -304,15 +304,15 @@
           "pattern": "^uib-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
           "description": "UI-baseline record id. Format: uib-YYYY-MM-DD-NNN. Monotonic per project."
         },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
-        "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/prdId" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
+        "prdId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/prdId" },
         "defaults": { "$ref": "#/$defs/uiBaselineDefaults" },
         "operatorOptOuts": {
           "type": "array",
           "items": { "$ref": "#/$defs/uiBaselineOptOut" },
           "description": "Explicit operator overrides to individual defaults. Silence is never an opt-out; every override lands here with a reason."
         },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" }
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
       }
     },
     "uiBaselineDefaults": {
@@ -394,7 +394,7 @@
           "description": "JSON-path string into defaults naming the field the operator overrode (for example, componentVocabulary.declaredComponents)."
         },
         "reason": { "type": "string", "minLength": 1 },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" }
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
       }
     },
     "browserVerificationRecord": {
@@ -407,8 +407,8 @@
           "pattern": "^bv-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
           "description": "Browser-verification record id. Format: bv-<fbsId>-<n>. Accepts both numeric-only and kebab-slug FBS ids."
         },
-        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/fbsId" },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/fbsId" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "mode": {
           "enum": ["operatorSession", "agentScreenshotCritique"],
           "description": "Which path satisfied the gate. operatorSession: the operator loaded the app and cleared the pages themselves. agentScreenshotCritique: a subagent drove a browser and critiqued screenshots."
@@ -446,7 +446,7 @@
           "enum": ["pass", "warn", "block"],
           "description": "Aggregated verdict for the browser-verification run."
         },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "operatorShipDespiteBlockReason": {
           "type": "string",
           "minLength": 1,
@@ -515,9 +515,9 @@
           "pattern": "^boo-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
           "description": "Opt-out record id. Format: boo-YYYY-MM-DD-NNN. Monotonic per project."
         },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "reqId": {
-          "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/reqId",
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/reqId",
           "description": "Requirement the opt-out applies to. Required in practice when scope is req."
         },
         "baselineKey": {
@@ -534,7 +534,7 @@
           "minLength": 20,
           "description": "Operator's plain-text ruling. Minimum 20 characters; a one-word answer reads as silence, which is exactly what this ledger exists to prevent."
         },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "linkedPreFlightConfigRef": {
           "type": "string",
           "minLength": 1,
@@ -552,7 +552,7 @@
           "pattern": "^ic-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
           "description": "Intake classification record id. Format: ic-YYYY-MM-DD-NNN."
         },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "fidelity": {
           "enum": ["none", "napkin", "briefLight", "briefStrong", "prd", "prdPlusTad"],
           "description": "Classifier verdict on what the operator supplied. none: nothing supplied. napkin: one paragraph or a sketch. briefLight: half-page brief. briefStrong: full product brief with NFRs and out-of-scope. prd: full PRD. prdPlusTad: PRD plus a technical architecture doc."
@@ -567,7 +567,7 @@
           "description": "Findings raised at phase 2. Empty array is legitimate; a clean artefact still records the empty result."
         },
         "elicitationScope": { "$ref": "#/$defs/intakeElicitationScope" },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" }
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
       }
     },
     "intakeArtefact": {
@@ -610,9 +610,9 @@
           "description": "Required in practice when kind is otherDeclared."
         },
         "detail": { "type": "string", "minLength": 1 },
-        "raisedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "raisedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "operatorResponse": { "type": "string" },
-        "resolvedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" }
+        "resolvedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
       }
     },
     "intakeElicitationScope": {
@@ -625,11 +625,11 @@
         },
         "reqDraftedFromArtefact": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/reqId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/reqId" }
         },
         "reqRequiringElicitation": {
           "type": "array",
-          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/reqId" }
+          "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/reqId" }
         },
         "acsFromArtefact": {
           "oneOf": [
@@ -655,7 +655,7 @@
           "pattern": "^rc-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
           "description": "Register-canary record id. Format: rc-YYYY-MM-DD-NNN."
         },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "buildVersion": { "type": "string", "minLength": 1 },
         "fixturePromptId": { "type": "string", "minLength": 1 },
         "responseWordCount": { "type": "integer", "minimum": 0 },
@@ -664,7 +664,7 @@
           "enum": ["pass", "fail"],
           "description": "pass when every graded dimension passed. Any dimension fail forces a top-level fail."
         },
-        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "operatorAckAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "shipDespiteFailReason": {
           "type": "string",
           "minLength": 1,
@@ -730,12 +730,12 @@
           "enum": ["foreground", "detached"],
           "description": "Server lifecycle mode. foreground matches the current pre-0.4.0 behaviour; detached is the default for interactive sessions."
         },
-        "startedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "startedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "socketPath": { "type": "string", "minLength": 1 },
         "pid": { "type": "integer", "minimum": 1 },
         "healthCheckPath": { "type": "string", "minLength": 1 },
-        "lastHeartbeatAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
-        "operatorRequestedPersistUntil": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" }
+        "lastHeartbeatAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
+        "operatorRequestedPersistUntil": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
       }
     },
     "shipWithoutVerifiedRecord": {
@@ -748,8 +748,8 @@
           "pattern": "^swv-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
           "description": "Ship-without-verified acknowledgement id. Format: swv-<fbsId>-<n>; the trailing integer increments per acknowledgement of the same FBS. Accepts both numeric-only and kebab-slug FBS ids."
         },
-        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/fbsId" },
-        "ackedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/fbsId" },
+        "ackedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "declaredAcs": {
           "type": "array",
           "minItems": 1,
@@ -769,7 +769,7 @@
       "additionalProperties": false,
       "required": ["acId", "verdict"],
       "properties": {
-        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/acId" },
+        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/acId" },
         "verdict": {
           "enum": ["MOCK-ONLY-DECLARED", "BLOCKED-BY-DECLARATION"],
           "description": "The verify per-AC verdict class the operator acknowledged. Only these two verdict classes are legitimately acknowledgeable via --ship-without-verified."
@@ -785,20 +785,20 @@
       "additionalProperties": false,
       "required": ["slug", "version", "appliedAt", "source"],
       "properties": {
-        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/blueprintSlug" },
-        "version": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/version" },
-        "appliedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/blueprintSlug" },
+        "version": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/version" },
+        "appliedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "source": {
           "type": "string",
           "minLength": 1,
           "description": "Where the blueprint was resolved from at apply time (for example, a registry path, a git ref, or a local file path). Provenance for rcf blueprint upgrade."
         },
         "namespace": {
-          "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/blueprintSlug",
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/blueprintSlug",
           "description": "Doc-id namespace used for this blueprint's contributions. Defaults to slug when omitted; the field exists so an operator can rename the namespace at add-time to avoid a project-authored slug collision."
         },
         "libraryPrefix": {
-          "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/blueprintSlug",
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/blueprintSlug",
           "description": "Registered library prefix the blueprint was resolved through at apply time (for example, acme in acme:spa). Present only when the apply resolved through a registered external blueprint library; absent for shelf or path applies. Once stamped this record's libraryPrefix is the ownership fact for remove: the library registry may be edited (renamed, re-pointed, unregistered) without orphaning previously applied records."
         },
         "contributions": {
@@ -849,7 +849,7 @@
           "pattern": "^std-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
           "description": "Standards-pack record id. Format: std-<slug>. Slug is repeated in the id so the record id is grep-friendly across the manifest."
         },
-        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/standardSlug" },
+        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/standardSlug" },
         "sourcePath": {
           "type": "string",
           "minLength": 1,
@@ -890,7 +890,7 @@
           "pattern": "^res-\\d{4}-\\d{2}-\\d{2}-\\d{3}$",
           "description": "Blueprint-conflict-resolution record id. Format: res-YYYY-MM-DD-NNN. Monotonic per project."
         },
-        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/timestamp" },
+        "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
         "kind": {
           "enum": ["globalAdrTopic"],
           "description": "Which conflict class this record resolves. Currently the only kind is globalAdrTopic (two applied blueprints each contributing a scope:global ADR on the same topic). The enum is single-valued so a later minor bump can add further resolution classes additively without breaking existing consumers."
@@ -924,7 +924,7 @@
       "additionalProperties": false,
       "required": ["slug", "adrId"],
       "properties": {
-        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.5.0/common.schema.json#/$defs/blueprintSlug" },
+        "slug": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/blueprintSlug" },
         "adrId": {
           "type": "string",
           "minLength": 1,

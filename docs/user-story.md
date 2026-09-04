@@ -4,7 +4,7 @@ User Story document. One file per US. Contains Acceptance Criteria inline as `ac
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.5.0/user-story.schema.json`
+`https://schemas.stravica.io/rcf/v0.6.0/user-story.schema.json`
 
 ## Required fields
 
@@ -27,6 +27,8 @@ User Story document. One file per US. Contains Acceptance Criteria inline as `ac
 | Field | Type | Purpose |
 |---|---|---|
 | `description` | string | Additional narrative beyond the asA / iWant / soThat triple. |
+| `tacIds` | array of `tacId` | Cross-link to TAC components this story exercises. |
+| `tags` | array of string | Free-form tag list (0.6.0). Same shape as `req.tags`. Consumers may impose local conventions (for example, the rcf-lite blueprint-authoring checklist requires `blueprint:<slug>` on every US a blueprint contributes). Optional at schema; absence is not an error. |
 
 ## Acceptance criterion shape
 
@@ -41,6 +43,7 @@ Each AC inside `acceptanceCriteria[]`:
 | `then` | string | no | Observable outcome. |
 | `testable` | boolean | yes | Author declares the AC is testable. |
 | `scope` | `scopeTag` enum | no | `library`, `runtime`, `deployed`, `unclassified`. Optional at schema level (0.4.3). Names the scope at which the AC is observable; governs which test scopes count as coverage. |
+| `determinism` | enum: `deterministic`, `nonDeterministic` | no | 0.6.0. Author's declaration of whether the AC's observable output is deterministic or non-deterministic (LLM-generated text, ranked results, generated code, judgement calls). Optional at schema level; absence is treated as `deterministic` by every consumer. Governs whether an EVAL is required by `rcf audit eval coverage --strict` and whether the merge gate emits `EVAL-MISSING` / `EVAL-BELOW-THRESHOLD` per-AC verdicts. |
 
 The Given/When/Then triple is optional at the schema level so non-Gherkin teams aren't forced into it; the `testable` boolean is required to make authors stop and confirm the AC can actually be tested.
 

@@ -6,7 +6,7 @@ Structurally, each FBS carries the mandatory `bsId` back-reference plus `buildOr
 
 ## Canonical `$id`
 
-`https://schemas.stravica.io/rcf/v0.5.0/fbs.schema.json`
+`https://schemas.stravica.io/rcf/v0.6.0/fbs.schema.json`
 
 ## Required fields
 

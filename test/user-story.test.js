@@ -209,3 +209,75 @@ test('user-story: double-hyphen slug prefix on usId (spa--US-101) is rejected', 
 test('user-story: numeric-only usId still validates (back-compat)', () => {
   assert.equal(validate(base), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.6.0 additions (AC determinism marker + US tags) ------------------
+
+test('user-story: AC without determinism validates (field is optional, absence resolves to deterministic in consumers)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with determinism=deterministic validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, determinism: 'deterministic' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with determinism=nonDeterministic validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, determinism: 'nonDeterministic' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with unknown determinism value rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, determinism: 'partial' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC with determinism alongside scope and provenance validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'the assistant answers the user question',
+        testable: true,
+        scope: 'runtime',
+        determinism: 'nonDeterministic',
+        provenance: { authoredBy: 'operator' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: US without tags validates (field is optional, back-compat)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: US with tags array of strings validates', () => {
+  const doc = { ...base, tags: ['blueprint:spa', 'auth'] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: US with empty tags[] validates (no minItems)', () => {
+  const doc = { ...base, tags: [] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: US with non-string tag entry rejected', () => {
+  const doc = { ...base, tags: ['ok', 42] };
+  assert.equal(validate(doc), false);
+});
