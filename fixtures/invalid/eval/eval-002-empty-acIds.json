@@ -1,0 +1,14 @@
+{
+  "id": "EVAL-001",
+  "usId": "US-101",
+  "acIds": [],
+  "title": "Empty acIds",
+  "purpose": "acIds[] must contain at least one AC id.",
+  "criteria": [{ "id": "on-topic", "description": "x" }],
+  "cases": [{ "id": "case-a", "input": {} }],
+  "judge": { "type": "rubric" },
+  "passThreshold": { "aggregateScore": 0.8 },
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "id": "EVAL-001",
+  "usId": "US-101",
+  "acIds": ["AC-101-1"],
+  "title": "Answer relevance rubric",
+  "purpose": "Grade the assistant's answer for topical relevance against a small hand-authored case set.",
+  "criteria": [
+    {
+      "id": "on-topic",
+      "description": "Answer addresses the user's stated question."
+    }
+  ],
+  "cases": [
+    {
+      "id": "case-hello",
+      "input": { "question": "hello?" }
+    }
+  ],
+  "judge": {
+    "type": "rubric"
+  },
+  "passThreshold": {
+    "aggregateScore": 0.8
+  },
+  "status": "draft",
+  "createdAt": "2026-09-04T10:00:00Z",
+  "updatedAt": "2026-09-04T10:00:00Z"
+}

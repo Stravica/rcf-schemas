@@ -1,0 +1,338 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.stravica.io/rcf/v0.6.0/eval.schema.json",
+  "title": "RCF EVAL",
+  "description": "One file per EVAL. Grades the observable output of one or more nonDeterministic Acceptance Criteria on the User Story identified by usId. EVAL is a peer of a Test Suite: TS/TC verify deterministic behaviour, EVAL grades non-deterministic behaviour (LLM-generated text, ranked results, generated code, judgement calls). EVAL is optional in the chain; it is required only for ACs marked determinism: nonDeterministic. The document holds the case set, the judge configuration, the pass threshold, and an append-only runRecord[] of graded runs. runRecord entries are authored by whichever runner produced them (project runner, verify's later --with-eval extension, or a hand-written entry). Running an EVAL is not a schema concern; the schema is the shape the runner produces and the coverage audit reads.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "usId",
+    "acIds",
+    "title",
+    "purpose",
+    "criteria",
+    "cases",
+    "judge",
+    "passThreshold",
+    "status",
+    "createdAt",
+    "updatedAt"
+  ],
+  "properties": {
+    "id": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/evalId" },
+    "usId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/usId" },
+    "acIds": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/acId" },
+      "description": "ACs this EVAL grades. All ACs must live on the parent US (cross-US coverage is not permitted at v1; the AC-to-EVAL binding is scoped by the parent US the same way TS is)."
+    },
+    "title": { "type": "string", "minLength": 1 },
+    "purpose": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Multi-sentence rationale. What non-deterministic behaviour is being graded, and why the criteria set is the right one."
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/criterion" },
+      "description": "Rubric criteria. Each criterion is a graded axis (correctness, tone, safety, latency, and so on) with an optional critical flag and a weight."
+    },
+    "cases": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/case" },
+      "description": "Graded examples. A case is not a TC in the test-runner sense; TCs count executions of code paths, EVAL cases count graded outputs."
+    },
+    "judge": { "$ref": "#/$defs/judge" },
+    "passThreshold": { "$ref": "#/$defs/passThreshold" },
+    "runRecord": {
+      "type": "array",
+      "minItems": 0,
+      "items": { "$ref": "#/$defs/runRecord" },
+      "description": "Append-only history of graded runs. The most recent entry is the one the merge gate reads for EVAL-BELOW-THRESHOLD. Absent or empty means no run has landed yet (audit reports the EVAL as pending)."
+    },
+    "status": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/authoringStatus" },
+    "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
+    "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
+  },
+  "$defs": {
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "description"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+          "description": "Kebab-slug identifier, unique within the EVAL."
+        },
+        "description": {
+          "type": "string",
+          "minLength": 1,
+          "description": "One-line prose describing what this criterion grades."
+        },
+        "critical": {
+          "type": "boolean",
+          "description": "When true, a case that fails this criterion fails the whole run even if the aggregate score would otherwise pass. Optional; defaults to false at consumer level."
+        },
+        "weight": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "description": "Positive weight for aggregate scoring under llmJudge and scriptedMetric. Optional; defaults to 1 at consumer level. Unused when judge.type is rubric and every criterion is boolean."
+        }
+      }
+    },
+    "case": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "input"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+          "description": "Kebab-slug identifier, unique within the EVAL."
+        },
+        "input": {
+          "description": "Free-shape JSON. The inputs the AC's system-under-test receives on this case."
+        },
+        "expected": {
+          "description": "Free-shape JSON. The reference output where one exists. Optional; many non-deterministic cases have no single reference."
+        },
+        "criteriaIds": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "description": "Subset of criteria[].id this case should be graded against. Empty array or omission means all criteria."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free text; case-specific guidance for the judge to consume."
+        }
+      }
+    },
+    "judge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type"],
+      "properties": {
+        "type": {
+          "enum": ["rubric", "llmJudge", "scriptedMetric"],
+          "description": "How this EVAL scores its cases. rubric: deterministic scoring against declared boolean criteria, no external process. llmJudge: spawn the subscription-authenticated LLM CLI (claude on PATH), capture structured JSON on stdout, validate against declared response schema. scriptedMetric: run a project-owned executable whose stdout is a scored JSON envelope."
+        },
+        "harness": {
+          "$ref": "#/$defs/judgeHarness",
+          "description": "Required when type is llmJudge."
+        },
+        "script": {
+          "$ref": "#/$defs/judgeScript",
+          "description": "Required when type is scriptedMetric."
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "llmJudge" } }
+          },
+          "then": {
+            "properties": {
+              "harness": { "$ref": "#/$defs/judgeHarness" }
+            },
+            "required": ["harness"]
+          }
+        },
+        {
+          "if": {
+            "required": ["type"],
+            "properties": { "type": { "const": "scriptedMetric" } }
+          },
+          "then": {
+            "properties": {
+              "script": { "$ref": "#/$defs/judgeScript" }
+            },
+            "required": ["script"]
+          }
+        }
+      ]
+    },
+    "judgeHarness": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["invoker", "responseSchemaPath"],
+      "properties": {
+        "invoker": {
+          "enum": ["claude", "codex"],
+          "description": "Bin name on PATH. Estate rule: subscription-only. The verify launcher already uses the same pattern (spawn claude by bare name; no API keys enter rcf-lite). codex is included for consumers on the codex CLI leg of the subscription-only rule; the enum can grow additively when the estate expands."
+        },
+        "modelHint": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional model hint passed through to the CLI when the underlying CLI supports a model flag. Falls back to the CLI's default; the fallback is logged in the runRecord[] entry's notes."
+        },
+        "systemPromptPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path relative to project root of the system prompt used for grading. Project-owned, git-tracked."
+        },
+        "responseSchemaPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path relative to project root of the JSON schema the judge is required to return. Fields declared here are the per-criterion score (0..1), per-criterion rationale, and boolean flags for critical criteria."
+        }
+      }
+    },
+    "judgeScript": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["command", "responseSchemaPath"],
+      "properties": {
+        "command": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "argv for the scoring process. First entry is the executable; remaining entries are arguments. Runner spawns this per case with the case payload on stdin."
+        },
+        "responseSchemaPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path relative to project root of the JSON schema stdout must satisfy. A scored JSON envelope with per-criterion score and rationale."
+        }
+      }
+    },
+    "passThreshold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["aggregateScore"],
+      "properties": {
+        "aggregateScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Minimum weighted aggregate score (0..1) across cases for a run to be counted a pass."
+        },
+        "criticalMustPass": {
+          "type": "boolean",
+          "description": "When true, any critical criterion failing on any case fails the run even if aggregateScore is met. Optional; consumers default to true."
+        },
+        "minCasesPassing": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Optional floor on how many cases must fully pass (all criteria met, no critical failure). Absent means no case-count floor is enforced."
+        }
+      }
+    },
+    "runRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["runId", "runAt", "runner", "aggregateScore", "criticalFailures", "verdict"],
+      "properties": {
+        "runId": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique identifier for this graded run. Free-form (project convention); runners commonly use an ISO timestamp plus a short suffix."
+        },
+        "runAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
+        "runner": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Free-form identifier for what produced the record (for example, claude-cli:0.1.28, rcf-lite:0.17.0, hand-authored)."
+        },
+        "modelPinned": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional. Model pin captured at run time (relevant for llmJudge runs). Records the invoker-resolved model when a modelHint was passed and the CLI reported the resolution."
+        },
+        "aggregateScore": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Weighted aggregate across cases (0..1) for this run."
+        },
+        "criticalFailures": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "description": "Criterion ids that failed a critical check on at least one case. Empty means no critical failures."
+        },
+        "perCaseScores": {
+          "type": "array",
+          "minItems": 0,
+          "items": { "$ref": "#/$defs/perCaseScore" },
+          "description": "Optional per-case detail. Absent for compact records; present for full grading detail."
+        },
+        "verdict": {
+          "enum": ["pass", "fail", "pending"],
+          "description": "Overall verdict for this run. pending is used when a run is recorded but grading is not yet complete; the coverage audit treats pending as absent for resolving-EVAL purposes."
+        },
+        "artefactPointer": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional pointer to a raw-judge-output artefact on disk. Path is relative to project root. Consumers do not read the pointed file at coverage time; it is retained for post-hoc review."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Free text; used by runners to record fallbacks (for example, modelHint not honoured by the invoker) or operator context."
+        }
+      }
+    },
+    "perCaseScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["caseId", "score"],
+      "properties": {
+        "caseId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$",
+          "description": "The case id this score belongs to."
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Weighted score for the case (0..1)."
+        },
+        "criteriaScores": {
+          "type": "array",
+          "minItems": 0,
+          "items": { "$ref": "#/$defs/criterionScore" },
+          "description": "Optional per-criterion breakdown for this case."
+        },
+        "criticalFailed": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+          },
+          "description": "Criterion ids that failed a critical check on this case."
+        }
+      }
+    },
+    "criterionScore": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["criterionId", "score"],
+      "properties": {
+        "criterionId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$"
+        },
+        "score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1
+        },
+        "rationale": {
+          "type": "string",
+          "description": "Judge-authored rationale for this criterion score on this case."
+        }
+      }
+    }
+  }
+}

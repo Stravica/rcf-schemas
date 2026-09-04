@@ -24,7 +24,7 @@ function walkForObjects(node, path, hits) {
   }
 }
 
-test('schema set has the 12 expected files', async () => {
+test('schema set has the 13 expected files', async () => {
   const schemas = await loadSchemas();
   const got = Object.keys(schemas).sort();
   const want = SCHEMA_NAMES.map((n) => `${n}.schema.json`).sort();

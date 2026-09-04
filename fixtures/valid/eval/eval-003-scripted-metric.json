@@ -1,0 +1,34 @@
+{
+  "id": "EVAL-003",
+  "usId": "US-301",
+  "acIds": ["AC-301-1"],
+  "title": "Ranking metric (scripted)",
+  "purpose": "Grade the recommender's top-k output against labelled reference sets using a project-owned scoring script.",
+  "criteria": [
+    {
+      "id": "ndcg-at-5",
+      "description": "Normalised discounted cumulative gain at rank 5."
+    }
+  ],
+  "cases": [
+    {
+      "id": "case-cold-start",
+      "input": { "userId": "u-1" },
+      "expected": { "topK": ["item-a", "item-b", "item-c"] }
+    }
+  ],
+  "judge": {
+    "type": "scriptedMetric",
+    "script": {
+      "command": ["node", "eval/score/ndcg.mjs"],
+      "responseSchemaPath": "eval/schemas/ndcg-response.json"
+    }
+  },
+  "passThreshold": {
+    "aggregateScore": 0.7,
+    "criticalMustPass": false
+  },
+  "status": "review",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

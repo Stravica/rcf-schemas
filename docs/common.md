@@ -1,6 +1,6 @@
 # common.schema.json
 
-Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the `docRef` shape live here. This file is not itself a document schema; consumers register it alongside the other 11 schemas at validator init.
+Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, status enums, version string, timestamp format, and the `docRef` shape live here. This file is not itself a document schema; consumers register it alongside the other 12 schemas at validator init.
 
 ## Canonical `$id`
 
@@ -21,6 +21,7 @@ Shared `$defs` referenced via `$ref` from every other RCF schema. ID patterns, s
 | `fbsId` | string, `^FBS-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$` | `fbs.fbsId`, `fbs.dependsOnFbsIds[]` |
 | `tsId` | string, `^TS-\d{3,}$` | `test-suite.id` |
 | `tcId` | string, `^TC-\d{3,}-[a-z0-9-]+$` | `test-suite.testCases[].id` |
+| `evalId` | string, `^([a-z][a-z0-9]*(?:-[a-z0-9]+)*-)?EVAL-\d{3,}$` | `eval.id` |
 | `cnId` | string, `^CN-\d{3,}(-[a-z0-9]+(?:-[a-z0-9]+)*)?$` | `cn.cnId`, `cn.dependencies[]` |
 | `version` | string, `^\d+\.\d+\.\d+$` | every doc-type schema |
 | `timestamp` | string, format `date-time` | every doc-type schema |

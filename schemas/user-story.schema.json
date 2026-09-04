@@ -40,6 +40,11 @@
       "minItems": 0,
       "items": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tacId" }
     },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Free-form tag list. Same shape as req.tags. Consumers may impose local conventions (for example, the rcf-lite blueprint-authoring checklist requires blueprint:<slug> on every US that a blueprint contributes). Optional at schema; absence is not an error."
+    },
     "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
     "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" }
   },
@@ -58,6 +63,10 @@
         "scope": {
           "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/scopeTag",
           "description": "Scope at which this acceptance criterion is observable (library, runtime, deployed, unclassified). Optional at schema level; ruleset-enforcing consumers may require it. Governs which test scopes count as coverage for this AC."
+        },
+        "determinism": {
+          "enum": ["deterministic", "nonDeterministic"],
+          "description": "Whether the AC's observable output is deterministic (same inputs, same outputs) or non-deterministic (LLM-generated text, ranked results, generated code, judgement calls). Optional at schema level; absence is treated as 'deterministic' by every consumer. Governs whether an EVAL is required by rcf audit eval coverage --strict and whether the merge gate emits EVAL-MISSING or EVAL-BELOW-THRESHOLD per-AC verdicts."
         },
         "provenance": { "$ref": "#/$defs/acProvenance" }
       }

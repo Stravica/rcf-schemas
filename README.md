@@ -10,9 +10,9 @@ JSON Schemas for the [Requirements Confidence Framework (RCF)](https://stravica.
 
 ## What's here
 
-- **12 schema files** in `schemas/`:
+- **13 schema files** in `schemas/`:
   - `common.schema.json` - shared `$defs` (id patterns, status enums, version, timestamp, `docRef`). Referenced via `$ref` from every other schema.
-  - `prd`, `req`, `user-story`, `tad`, `tac`, `adr`, `build-sequence`, `fbs`, `test-suite`, `manifest`, `cn`.
+  - `prd`, `req`, `user-story`, `tad`, `tac`, `adr`, `build-sequence`, `fbs`, `test-suite`, `eval`, `manifest`, `cn`.
 - **Per-schema docs** in `docs/` (one page per schema) plus cross-cutting `id-conventions.md` and `file-layout.md`.
 - **JSON test fixtures** in `fixtures/valid/` and `fixtures/invalid/` (every schema covered).
 - **CHANGELOG** in `CHANGELOG.md`.
@@ -66,7 +66,7 @@ const pkgRoot = require.resolve('@stravica-ai/rcf-schemas/package.json').replace
 
 const names = [
   'common', 'prd', 'req', 'user-story', 'tad', 'tac', 'adr',
-  'build-sequence', 'fbs', 'test-suite', 'manifest', 'cn'
+  'build-sequence', 'fbs', 'test-suite', 'eval', 'manifest', 'cn'
 ];
 
 const ajv = new Ajv({ strict: true, allErrors: true });
@@ -95,7 +95,7 @@ pkg = files('stravica_rcf_schemas') / 'schemas'
 
 names = [
     'common', 'prd', 'req', 'user-story', 'tad', 'tac', 'adr',
-    'build-sequence', 'fbs', 'test-suite', 'manifest', 'cn'
+    'build-sequence', 'fbs', 'test-suite', 'eval', 'manifest', 'cn'
 ]
 
 resources = []
@@ -115,7 +115,7 @@ Configure a `SchemaClient` (everit) or `SchemaLoader` (networknt) that resolves 
 
 ### Any other language
 
-The schemas use JSON Schema Draft 2020-12. Any validator that supports 2020-12 + multi-file `$ref` will work. Register the 12 schemas (with `common.schema.json` first) and resolve by `$id`.
+The schemas use JSON Schema Draft 2020-12. Any validator that supports 2020-12 + multi-file `$ref` will work. Register the 13 schemas (with `common.schema.json` first) and resolve by `$id`.
 
 ## Chain shape (0.3.0)
 
@@ -134,7 +134,7 @@ Per-schema docs in [`docs/`](./docs/README.md):
 
 - [common](./docs/common.md) | [prd](./docs/prd.md) | [req](./docs/req.md) | [user-story](./docs/user-story.md)
 - [tad](./docs/tad.md) | [tac](./docs/tac.md) | [adr](./docs/adr.md)
-- [build-sequence](./docs/build-sequence.md) | [fbs](./docs/fbs.md) | [test-suite](./docs/test-suite.md)
+- [build-sequence](./docs/build-sequence.md) | [fbs](./docs/fbs.md) | [test-suite](./docs/test-suite.md) | [eval](./docs/eval.md)
 - [manifest](./docs/manifest.md) | [cn](./docs/cn.md)
 
 Cross-cutting:

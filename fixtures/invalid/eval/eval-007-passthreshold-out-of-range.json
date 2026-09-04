@@ -1,0 +1,14 @@
+{
+  "id": "EVAL-001",
+  "usId": "US-101",
+  "acIds": ["AC-101-1"],
+  "title": "passThreshold out of range",
+  "purpose": "aggregateScore must be within 0..1.",
+  "criteria": [{ "id": "on-topic", "description": "x" }],
+  "cases": [{ "id": "case-a", "input": {} }],
+  "judge": { "type": "rubric" },
+  "passThreshold": { "aggregateScore": 1.5 },
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

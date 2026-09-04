@@ -1,0 +1,14 @@
+{
+  "id": "EVAL-001",
+  "usId": "US-101",
+  "acIds": ["AC-101-1"],
+  "title": "Bad judge type",
+  "purpose": "judge.type enum rejects unknown values.",
+  "criteria": [{ "id": "on-topic", "description": "x" }],
+  "cases": [{ "id": "case-a", "input": {} }],
+  "judge": { "type": "vibes" },
+  "passThreshold": { "aggregateScore": 0.8 },
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

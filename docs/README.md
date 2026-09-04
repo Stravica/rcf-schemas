@@ -16,6 +16,7 @@ One page per schema file under `schemas/`.
 - [build-sequence](./build-sequence.md) - ordered FBS plan.
 - [fbs](./fbs.md) - Functional Build Specification.
 - [test-suite](./test-suite.md) - Test Suite for a single AC.
+- [eval](./eval.md) - EVAL, graded-output peer of a Test Suite for non-deterministic ACs.
 - [manifest](./manifest.md) - project roots-only manifest.
 - [cn](./cn.md) - Code Node, bridging the spec graph to source.
 

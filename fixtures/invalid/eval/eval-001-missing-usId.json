@@ -1,0 +1,13 @@
+{
+  "id": "EVAL-001",
+  "acIds": ["AC-101-1"],
+  "title": "Missing usId",
+  "purpose": "No parent US declared.",
+  "criteria": [{ "id": "on-topic", "description": "x" }],
+  "cases": [{ "id": "case-a", "input": {} }],
+  "judge": { "type": "rubric" },
+  "passThreshold": { "aggregateScore": 0.8 },
+  "status": "draft",
+  "createdAt": "2026-09-04T00:00:00Z",
+  "updatedAt": "2026-09-04T00:00:00Z"
+}

@@ -59,7 +59,8 @@ export function getSchemaByName(ajv, name) {
     'fbs.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/fbs.schema.json',
     'test-suite.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/test-suite.schema.json',
     'manifest.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/manifest.schema.json',
-    'cn.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/cn.schema.json'
+    'cn.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/cn.schema.json',
+    'eval.schema.json': 'https://schemas.stravica.io/rcf/v0.6.0/eval.schema.json'
   };
   const id = idMap[name];
   if (!id) throw new Error(`Unknown schema file: ${name}`);
@@ -80,7 +81,8 @@ export const SCHEMA_NAMES = [
   'fbs',
   'test-suite',
   'manifest',
-  'cn'
+  'cn',
+  'eval'
 ];
 
 export const DOC_TYPE_SCHEMAS = SCHEMA_NAMES.filter((n) => n !== 'common');
