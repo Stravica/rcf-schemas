@@ -1,0 +1,48 @@
+{
+  "version": "2.0.0",
+  "projectName": "visual-round T-0 probe-pack fixture",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "browserVerification": [
+    {
+      "id": "bv-FBS-040-1",
+      "fbsId": "FBS-040",
+      "createdAt": "2026-09-05T09:00:00Z",
+      "mode": "agentScreenshotCritique",
+      "runtimeProfile": "local-dev",
+      "runtimeUrl": "http://127.0.0.1:3000",
+      "routesChecked": [
+        { "path": "/", "screenshotPath": ".rcf/artefacts/bv-FBS-040-1/root-light.png", "themeApplied": "light" }
+      ],
+      "invariantChecks": [
+        { "invariant": "sharedNavPresent", "verdict": "pass" }
+      ],
+      "probePacks": [
+        {
+          "packName": "application-dashboard-tile-states",
+          "packVersion": "1.0.0",
+          "blueprintSlug": "application-dashboard",
+          "applicable": false,
+          "detail": "appliesTo returned false for FBS-040",
+          "checks": []
+        },
+        {
+          "packName": "application-datatable-grid-shell",
+          "packVersion": "1.0.0",
+          "blueprintSlug": "application-datatable",
+          "applicable": true,
+          "preChecks": [
+            { "id": "AC-17101-0", "verdict": "pass", "severity": "warn" }
+          ],
+          "checks": [
+            { "id": "AC-17101-1", "verdict": "pass", "severity": "block" },
+            { "id": "AC-17101-2", "verdict": "fail", "severity": "block", "detail": "row order after sort did not match server order" },
+            { "id": "AC-17101-3", "verdict": "skipped", "severity": "warn", "detail": "skipped-by-pre-check:AC-17101-0" }
+          ]
+        }
+      ],
+      "verdict": "block"
+    }
+  ]
+}

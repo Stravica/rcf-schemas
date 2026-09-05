@@ -1575,3 +1575,247 @@ test('manifest: pre-0.4.5 manifest (blueprints[] and standards[] present, no res
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.6.1: browserVerificationRecord.probePacks[] -----------------------
+// Additive optional carrier for the T-0 visual-round Playwright-first
+// ship-gate results. Item shape matches
+// packages/rcf-lite/src/browser-verify/pack-runner.js emission exactly.
+
+test('manifest: browserVerification with probePacks (applicable=false + applicable=true) validates', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-040-1',
+        fbsId: 'FBS-040',
+        createdAt: '2026-09-05T09:00:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/bv-FBS-040-1/root.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-dashboard-tile-states',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-dashboard',
+            applicable: false,
+            detail: 'appliesTo returned false for FBS-040',
+            checks: []
+          },
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            preChecks: [
+              { id: 'AC-17101-0', verdict: 'pass', severity: 'warn' }
+            ],
+            checks: [
+              { id: 'AC-17101-1', verdict: 'pass', severity: 'block' },
+              { id: 'AC-17101-2', verdict: 'fail', severity: 'block', detail: 'row order after sort did not match server order' },
+              { id: 'AC-17101-3', verdict: 'skipped', severity: 'warn', detail: 'skipped-by-pre-check:AC-17101-0' }
+            ]
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: browserVerification without probePacks still validates (additive, optional)', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-016-2',
+        fbsId: 'FBS-016',
+        createdAt: '2026-09-05T09:05:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: probePacks check with unknown property rejected (additionalProperties:false on item)', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-040-3',
+        fbsId: 'FBS-040',
+        createdAt: '2026-09-05T09:10:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-1', verdict: 'pass', severity: 'block', unexpectedField: 'x' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: probePacks check verdict enum accepts skipped', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-040-4',
+        fbsId: 'FBS-040',
+        createdAt: '2026-09-05T09:12:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-1', verdict: 'skipped', severity: 'advisory' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: probePacks check verdict enum rejects unknown token', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-040-5',
+        fbsId: 'FBS-040',
+        createdAt: '2026-09-05T09:14:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-1', verdict: 'green', severity: 'block' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: probePacks check severity enum rejects unknown token', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-040-6',
+        fbsId: 'FBS-040',
+        createdAt: '2026-09-05T09:16:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-1', verdict: 'pass', severity: 'critical' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: probePacks item requires packName, packVersion, blueprintSlug, applicable, checks', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-040-7',
+        fbsId: 'FBS-040',
+        createdAt: '2026-09-05T09:18:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          { packName: 'application-datatable-grid-shell', packVersion: '1.0.0', blueprintSlug: 'application-datatable', applicable: true }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
