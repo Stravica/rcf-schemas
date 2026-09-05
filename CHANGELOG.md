@@ -4,6 +4,31 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.6.1 - 2026-09-05
+
+Patch bump for the T-0 visual-round Playwright-first ship-gate seam (`projects/blueprint-library/specs/visual-round-spec-2026-09-04.md`, section 3.4). Adds an additive, optional `probePacks[]` carrier on `browserVerificationRecord` so the record shape that rcf-lite's `packages/rcf-lite/src/browser-verify/pack-runner.js` already emits (per pack `packName`, `packVersion`, `blueprintSlug`, `applicable`, `checks[]`, optional `preChecks[]`, optional pack-level `detail` string) can persist without tripping `additionalProperties: false`.
+
+Patch semver convention: URLs pinned at `v0.6.0`. No breaking change; every 0.6.0-valid manifest keeps validating.
+
+### Added
+
+- **`manifest.schema.json`**: new optional `probePacks` array on `$defs.browserVerificationRecord`. Items are the new `$defs.browserVerificationProbePack` def: required `packName` (min-length-1 string), `packVersion` (min-length-1 string), `blueprintSlug` (min-length-1 string), `applicable` (boolean), `checks` (array, empty allowed when `applicable` is false); optional `detail` (string, carries the appliesTo skip reason for a not-applicable pack), and optional `preChecks` (array of the same check-item shape). `additionalProperties: false` on the pack item.
+- **`manifest.schema.json`**: new `$defs.browserVerificationProbePackCheck` def used for both `checks[]` and `preChecks[]`. Required `id` (min-length-1 string, equals an AC id contributed by the same blueprint for browser checks per pack-loader), `verdict` (enum `pass | warn | fail | skipped`, where the `skipped` token is emitted by the pack-runner when a browser check's `dependsOn` pre-check failed), `severity` (enum `block | warn | advisory`); optional `detail` (string). `additionalProperties: false` on the check item.
+- **Fixtures (valid)**: `fixtures/valid/manifest/manifest-014-browser-verify-probe-packs.json` (two packs, one `applicable: false` with a skip detail and an empty `checks`, one `applicable: true` with a `preChecks` entry and three checks covering `pass`, `fail` with detail, and `skipped` with a `skipped-by-pre-check:<id>` detail).
+- **Fixtures (invalid)**: `fixtures/invalid/manifest/manifest-023-browser-verify-probe-pack-unknown-field.json` (a check item with an unknown field, refused by `additionalProperties: false`).
+- **Tests**: `test/manifest.test.js` gains 7 cases (two-pack positive shape, back-compat absent-probePacks, unknown-field-on-check rejection, `skipped` verdict acceptance, unknown-verdict rejection, unknown-severity rejection, missing-required-`checks` rejection). Total suite grows from 323 to 330.
+
+### Migration
+
+- **Existing chains on 0.6.0**: bump `@stravica-ai/rcf-schemas` to `0.6.1`. Every existing document keeps validating; `probePacks` is optional and unknown to pre-T-0 callers.
+- **rcf-lite consumer bump**: `rcf-lite` pins `@stravica-ai/rcf-schemas` exactly. Its own release bumps the pin (rides the admin-console train or a separate one-line PR); this repo does not touch rcf-lite.
+
+### Notes
+
+- Traces to work item `w-2026-09-05-dave-001` and the T-4 integration gate (`d-2026-09-05-001`) that found `rcf verify browser --probe-pack <name>` composing a `probePacks[]` record and exiting `3` with `validation /browserVerification/0 must NOT have additional properties` before this schema could accept it. Every earlier T-N gate ran with `--dry-run` and did not exercise the persist path.
+- Sub-defs sit alongside the existing `browserVerificationInvariantCheck` and `browserVerificationAuthSmokeCheck` peers. Reuses the file's per-check-item pattern.
+- Aggregate-verdict semantics live in `packages/rcf-lite/src/browser-verify/manifest-writer.js:aggregateVerdict` per spec section 3.4; the schema does not encode the cross-field rule.
+
 ## 0.6.0 - 2026-09-04
 
 Minor bump for commit track S1 of the ratified eval-node spec (Baz ratified 2026-09-04, "eval-node - agree spec is right shape, schema route is correct"). Adds a new `eval.schema.json` document type as the graded-output peer of a Test Suite, adds an optional `determinism` marker on the inline acceptance criterion, and adds an optional `tags` array on the User Story so a consumer authoring rule (rcf-lite blueprint-authoring checklist s6) becomes satisfiable. Every change is additive at the document layer: every 0.5.1-valid document remains valid.

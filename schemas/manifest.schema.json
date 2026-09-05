@@ -451,7 +451,73 @@
           "type": "string",
           "minLength": 1,
           "description": "Operator's reason for shipping despite a block verdict. Written by --accept-block on --mark complete."
+        },
+        "probePacks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/browserVerificationProbePack" },
+          "description": "Playwright-first probe-pack results per the visual-round spec (2026-09-04) section 3.4. Additive and optional: pre-T-0 callers omit the field; a T-0 run emits one entry per pack composed by packages/rcf-lite/src/browser-verify/pack-runner.js. The aggregate verdict extends per spec section 3.4 (block on any severity:block pack check failing, warn on any severity:warn pack check failing)."
         }
+      }
+    },
+    "browserVerificationProbePack": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["packName", "packVersion", "blueprintSlug", "applicable", "checks"],
+      "properties": {
+        "packName": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Pack identifier, kebab-slug. Prefixed by the blueprint slug per pack-schema.js."
+        },
+        "packVersion": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Pack version at emission time, copied from the pack's declared version field."
+        },
+        "blueprintSlug": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Slug of the blueprint that contributes the pack."
+        },
+        "applicable": {
+          "type": "boolean",
+          "description": "Whether the pack's appliesTo predicate returned true for this FBS. When false, checks[] is emitted empty and a detail string explains the skip."
+        },
+        "detail": {
+          "type": "string",
+          "description": "Free-text explanation attached to the pack record, typically the appliesTo skip reason or an error message from the pack-runner."
+        },
+        "checks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/browserVerificationProbePackCheck" },
+          "description": "One entry per pack check; empty when applicable is false."
+        },
+        "preChecks": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/browserVerificationProbePackCheck" },
+          "description": "Optional fast-fail source-scan pre-checks per spec section 3.5. Any pre-check that fails may skip browser checks that declare dependsOn on it, recorded as verdict:skipped on the browser check."
+        }
+      }
+    },
+    "browserVerificationProbePackCheck": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "verdict", "severity"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Check id. For a browser check the id equals an AC id contributed by the same blueprint (loader cross-checks this at pack load time)."
+        },
+        "verdict": {
+          "enum": ["pass", "warn", "fail", "skipped"],
+          "description": "Check verdict. skipped is emitted by the pack-runner when a browser check's dependsOn pre-check failed."
+        },
+        "severity": {
+          "enum": ["block", "warn", "advisory"],
+          "description": "Check severity, copied from the pack declaration. Feeds the aggregate verdict rule per spec section 3.4."
+        },
+        "detail": { "type": "string" }
       }
     },
     "browserVerificationRoute": {
