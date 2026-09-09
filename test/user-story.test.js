@@ -281,3 +281,212 @@ test('user-story: US with non-string tag entry rejected', () => {
   const doc = { ...base, tags: ['ok', 42] };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.6.2 additions (AC ownership, disposition, and vendor citation) ---
+
+test('user-story: AC with ownerRef pointing at a TAC field validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'response matches the owning TAC interface',
+        testable: true,
+        ownerRef: {
+          tacId: 'TAC-401-durable-objects-namespace',
+          field: 'interfaces.migration.keyword'
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with ownerRef pointing at an ADR validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'retry policy matches the owning ADR decision',
+        testable: true,
+        ownerRef: { adrId: 'ADR-011-retry-policy' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with ownerRef as a bare string is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        ownerRef: 'TAC-401'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC with ownerRef carrying an unknown property is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        ownerRef: { tacId: 'TAC-401-turnstile', section: 'headers' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC with disposition=fixed validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, disposition: 'fixed' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with disposition=template validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, disposition: 'template' }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with disposition outside the enum is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'x', testable: true, disposition: 'invariant' }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC with a full vendorCitation validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        disposition: 'fixed',
+        vendorCitation: {
+          url: 'https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/',
+          verifiedOn: '2026-09-08'
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: vendorCitation without verifiedOn is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        vendorCitation: { url: 'https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: vendorCitation without url is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        vendorCitation: { verifiedOn: '2026-09-08' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: vendorCitation with a bad verifiedOn date is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        vendorCitation: {
+          url: 'https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/',
+          verifiedOn: '08/09/2026'
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: vendorCitation with an unknown property is rejected', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'x',
+        testable: true,
+        vendorCitation: {
+          url: 'https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/',
+          verifiedOn: '2026-09-08',
+          checkedBy: 'reviewer'
+        }
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: AC combining ownerRef, disposition, vendorCitation with earlier optional fields validates', () => {
+  const doc = {
+    ...base,
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'combined shape',
+        given: 'a Worker configuration',
+        when: 'the deploy runs',
+        then: 'the migration keyword matches the owning TAC field',
+        testable: true,
+        scope: 'deployed',
+        ownerRef: {
+          tacId: 'TAC-401-durable-objects-namespace',
+          field: 'interfaces.migration.keyword'
+        },
+        disposition: 'fixed',
+        vendorCitation: {
+          url: 'https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/',
+          verifiedOn: '2026-09-08'
+        },
+        provenance: { authoredBy: 'operator' }
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

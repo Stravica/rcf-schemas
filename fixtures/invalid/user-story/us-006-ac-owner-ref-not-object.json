@@ -1,0 +1,21 @@
+{
+  "usId": "US-201",
+  "prdId": "PRD-100",
+  "reqId": "REQ-201",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Owner-ref must be an object, not a string",
+  "asA": "author",
+  "iWant": "the AC's ownerRef to be the {tacId?, adrId?, field?} object shape",
+  "soThat": "the reference is machine-checkable rather than free text",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-201-1",
+      "description": "Owner ref is a string instead of an object.",
+      "testable": true,
+      "ownerRef": "TAC-401"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

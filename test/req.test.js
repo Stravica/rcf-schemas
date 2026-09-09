@@ -118,3 +118,53 @@ test('req: numeric-only reqId still validates (back-compat)', () => {
   const doc = { ...base, reqId: 'REQ-999' };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.6.2 additions (deliveredBy back-reference on the REQ record) -----
+
+test('req: REQ without deliveredBy validates (field is optional, back-compat)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('req: REQ with deliveredBy pointing at a TAC field validates', () => {
+  const doc = {
+    ...base,
+    deliveredBy: {
+      tacId: 'TAC-401-cache-aside-store',
+      field: 'responsibilities.replicationCeiling'
+    }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('req: REQ with deliveredBy pointing at an ADR validates', () => {
+  const doc = {
+    ...base,
+    deliveredBy: {
+      adrId: 'ADR-012-choose-postgres'
+    }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('req: REQ with empty deliveredBy object validates (all sub-fields optional)', () => {
+  const doc = { ...base, deliveredBy: {} };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('req: deliveredBy as a bare string is rejected', () => {
+  const doc = { ...base, deliveredBy: 'TAC-401' };
+  assert.equal(validate(doc), false);
+});
+
+test('req: deliveredBy with an unknown property is rejected', () => {
+  const doc = {
+    ...base,
+    deliveredBy: { tacId: 'TAC-401-cache-aside-store', reason: 'note' }
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('req: deliveredBy with a bad tacId shape is rejected', () => {
+  const doc = { ...base, deliveredBy: { tacId: 'tac-401' } };
+  assert.equal(validate(doc), false);
+});

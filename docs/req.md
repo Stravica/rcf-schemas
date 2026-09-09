@@ -27,6 +27,7 @@ Individual Requirement within a PRD. One file per REQ. Recommended path: `rcf/re
 |---|---|---|
 | `rationale` | string | Why this REQ exists. |
 | `tags` | array of strings | Free-form tags for grouping or filtering. |
+| `deliveredBy` | object: `{tacId?, adrId?, field?}` | 0.6.2. Back-reference naming the TAC or ADR that delivers the requirement's externally promised property (a global staleness ceiling, an anti-enumeration guarantee, a forward-only migration invariant, a boot-event contract). `tacId` and `adrId` re-use the shared id patterns; `field` is an optional dotted path into the delivering record (for example, `responsibilities.replicationCeiling` or `decision.retryPolicy`). All sub-fields optional at schema level so the record composes additively; consumer rulesets may require at least one of `tacId` or `adrId` on a REQ that promises an externally observable property. `additionalProperties: false`. |
 
 ## Why REQ is its own file
 

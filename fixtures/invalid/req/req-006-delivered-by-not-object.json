@@ -1,0 +1,14 @@
+{
+  "reqId": "REQ-201",
+  "prdId": "PRD-100",
+  "title": "Delivered-by must be an object, not a string",
+  "description": "Rejects a REQ whose deliveredBy is a bare id string instead of the {tacId?, adrId?, field?} object.",
+  "category": "functional",
+  "domain": "cache",
+  "priority": "must",
+  "version": "1.0.0",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": "TAC-401"
+}

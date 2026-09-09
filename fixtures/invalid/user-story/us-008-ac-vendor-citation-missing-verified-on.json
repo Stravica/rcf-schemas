@@ -1,0 +1,23 @@
+{
+  "usId": "US-201",
+  "prdId": "PRD-100",
+  "reqId": "REQ-201",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Vendor citation without verifiedOn is rejected",
+  "asA": "author",
+  "iWant": "a vendor citation to carry both url and the ISO-8601 verified-on date",
+  "soThat": "a consumer can tell a fresh fact from a stale one",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-201-1",
+      "description": "Vendor citation without the required verifiedOn date.",
+      "testable": true,
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/"
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}
