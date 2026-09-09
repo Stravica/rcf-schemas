@@ -1,0 +1,47 @@
+{
+  "usId": "US-201",
+  "prdId": "PRD-100",
+  "reqId": "REQ-201",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Deploy a Durable Object namespace with a migration record",
+  "asA": "operator deploying a Worker that mints a Durable Object namespace",
+  "iWant": "the wrangler configuration and migration record to be consistent with the platform's minting rules",
+  "soThat": "the deploy succeeds and the namespace mints on the current backend",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-201-1",
+      "description": "The migration record carries the new_sqlite_classes keyword against every minted class name.",
+      "given": "a Worker configuration with a Durable Object binding block",
+      "when": "the deploy runs",
+      "then": "the migration record uses the vendor-current keyword and the deploy succeeds",
+      "testable": true,
+      "scope": "deployed",
+      "ownerRef": {
+        "tacId": "TAC-401-durable-objects-namespace",
+        "field": "interfaces.migration.keyword"
+      },
+      "disposition": "fixed",
+      "vendorCitation": {
+        "url": "https://developers.cloudflare.com/durable-objects/reference/durable-objects-migrations/",
+        "verifiedOn": "2026-09-08"
+      }
+    },
+    {
+      "id": "AC-201-2",
+      "description": "The wrangler binding names commit to the project's chosen class names on both binding blocks.",
+      "given": "a Worker configuration with a Durable Object binding block",
+      "when": "the applying agent has substituted the project's chosen class names",
+      "then": "each binding's class_name appears once in the migration record",
+      "testable": true,
+      "scope": "runtime",
+      "ownerRef": {
+        "tacId": "TAC-401-durable-objects-namespace",
+        "field": "interfaces.wrangler.bindings"
+      },
+      "disposition": "template"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

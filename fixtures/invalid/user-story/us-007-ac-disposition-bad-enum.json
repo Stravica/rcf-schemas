@@ -1,0 +1,21 @@
+{
+  "usId": "US-201",
+  "prdId": "PRD-100",
+  "reqId": "REQ-201",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Disposition outside the enum is rejected",
+  "asA": "author",
+  "iWant": "disposition to be one of fixed or template",
+  "soThat": "the marker is unambiguous for a consumer that gates on it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-201-1",
+      "description": "Disposition is neither fixed nor template.",
+      "testable": true,
+      "disposition": "invariant"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z"
+}

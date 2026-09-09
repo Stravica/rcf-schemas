@@ -35,9 +35,24 @@
     "status": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/authoringStatus" },
     "createdAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
     "updatedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
-    "shapeClassification": { "$ref": "#/$defs/reqShapeClassification" }
+    "shapeClassification": { "$ref": "#/$defs/reqShapeClassification" },
+    "deliveredBy": { "$ref": "#/$defs/deliveredBy" }
   },
   "$defs": {
+    "deliveredBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tacId" },
+        "adrId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/adrId" },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional dotted path into the owning TAC or ADR record (for example, 'principal.fields' or 'decision.retryPolicy') that pinpoints the delivering surface. Optional; presence is not enforced."
+        }
+      },
+      "description": "Optional back-reference on a REQ naming the TAC or ADR that delivers the requirement's externally promised property. All sub-fields are optional at schema level so the record composes additively; ruleset-enforcing consumers may require at least one of tacId or adrId when the REQ carries a delivery promise."
+    },
     "reqShapeClassification": {
       "type": "object",
       "additionalProperties": false,

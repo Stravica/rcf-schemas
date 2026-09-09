@@ -1,0 +1,19 @@
+{
+  "reqId": "REQ-201",
+  "prdId": "PRD-100",
+  "title": "Application cache stays fresh within a stated ceiling",
+  "description": "The application cache surfaces stale reads no older than the ceiling stated in the delivering TAC's replication guarantee.",
+  "category": "nonFunctional",
+  "domain": "cache",
+  "priority": "must",
+  "rationale": "Stale reads beyond the ceiling break invalidation-sensitive views.",
+  "tags": ["cache", "freshness"],
+  "version": "1.0.0",
+  "status": "approved",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-09-09T00:00:00Z",
+  "deliveredBy": {
+    "tacId": "TAC-401-cache-aside-store",
+    "field": "responsibilities.replicationCeiling"
+  }
+}

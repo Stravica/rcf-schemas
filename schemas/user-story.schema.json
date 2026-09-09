@@ -68,8 +68,48 @@
           "enum": ["deterministic", "nonDeterministic"],
           "description": "Whether the AC's observable output is deterministic (same inputs, same outputs) or non-deterministic (LLM-generated text, ranked results, generated code, judgement calls). Optional at schema level; absence is treated as 'deterministic' by every consumer. Governs whether an EVAL is required by rcf audit eval coverage --strict and whether the merge gate emits EVAL-MISSING or EVAL-BELOW-THRESHOLD per-AC verdicts."
         },
+        "ownerRef": { "$ref": "#/$defs/acOwnerRef" },
+        "disposition": { "$ref": "#/$defs/acDisposition" },
+        "vendorCitation": { "$ref": "#/$defs/acVendorCitation" },
         "provenance": { "$ref": "#/$defs/acProvenance" }
       }
+    },
+    "acOwnerRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "tacId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/tacId" },
+        "adrId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/adrId" },
+        "field": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional dotted path into the owning TAC or ADR record (for example, 'interfaces.principal.fields' or 'decision.retryPolicy') that pinpoints the referenced surface. Optional; presence is not enforced."
+        }
+      },
+      "description": "Optional back-reference on an acceptance criterion naming the owning TAC or ADR the criterion observes rather than restating. All sub-fields are optional at schema level so the record composes additively; ruleset-enforcing consumers may require at least one of tacId or adrId when the criterion references an owning artefact."
+    },
+    "acDisposition": {
+      "enum": ["fixed", "template"],
+      "description": "Marks whether an acceptance criterion is the blueprint's to fix (mechanism-invariant, inherited unchanged by every applying project) or the applying agent's to set (project-parameterised, shape-given and value-open). Optional at schema level; consumer rulesets that gate blueprint contributions may require it on every AC of a shipped blueprint. Absence carries no default: a consumer that requires the marker treats an unmarked AC as a defect, and a consumer that does not require it ignores the absence."
+    },
+    "acVendorCitation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "verifiedOn"],
+      "properties": {
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "minLength": 1,
+          "description": "Vendor documentation URL the third-party fact rests on. Consumers may fetch it at gate time so a dead link is a finding."
+        },
+        "verifiedOn": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO-8601 date (YYYY-MM-DD) the vendor fact was verified against the cited URL. Consumers compare against their own tolerance window and refuse or warn when the citation is beyond it."
+        }
+      },
+      "description": "Vendor citation for an acceptance criterion whose truth rests on a third-party platform fact. Optional at schema level; consumer rulesets may require it on any AC that asserts a vendor fact (for example, a platform migration keyword or a rate-limit value)."
     },
     "acProvenance": {
       "type": "object",

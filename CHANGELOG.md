@@ -4,6 +4,32 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.6.2 - 2026-09-09
+
+Patch bump for four additive, optional fields that let a blueprint's own layers point at their owning artefacts rather than restating shapes and promises inline. Adds `deliveredBy` on the requirement record (naming the TAC or ADR that delivers the requirement's externally promised property), and `ownerRef`, `disposition`, and `vendorCitation` on the acceptance criterion inline on a user story. Every change is additive: every 0.6.1-valid document remains valid.
+
+Patch semver convention: URLs pinned at `v0.6.0`. No breaking change; every 0.6.1-valid document keeps validating.
+
+### Added
+
+- **`req.schema.json`**: new optional `deliveredBy` on the requirement record, `$defs.deliveredBy`. Object with three optional sub-fields (`tacId` via the shared `common.$defs.tacId` pattern, `adrId` via `common.$defs.adrId`, and a min-length-1 `field` string carrying an optional dotted path into the delivering record). `additionalProperties: false` on the object. All sub-fields are optional at the schema surface so the record composes additively; consumer rulesets that gate the delivery link may require at least one of `tacId` or `adrId`.
+- **`user-story.schema.json`**: new optional `ownerRef` on the inline `$defs.acceptanceCriterion`, `$defs.acOwnerRef`. Same shape as `deliveredBy` (optional `tacId`, optional `adrId`, optional `field`), naming the owning TAC or ADR an acceptance criterion references instead of restating. `additionalProperties: false`.
+- **`user-story.schema.json`**: new optional `disposition` on the inline `$defs.acceptanceCriterion`, `$defs.acDisposition`. Enum `fixed | template`. Marks whether the criterion is the blueprint's to fix (mechanism-invariant, inherited unchanged by every applying project) or the applying agent's to set (project-parameterised, shape-given and value-open). Absence carries no default: a consumer that requires the marker treats an unmarked AC as a defect, and a consumer that does not require it ignores the absence.
+- **`user-story.schema.json`**: new optional `vendorCitation` on the inline `$defs.acceptanceCriterion`, `$defs.acVendorCitation`. Object with two required sub-fields (`url`, JSON Schema `format: uri`, min-length-1; `verifiedOn`, `format: date`, ISO-8601 `YYYY-MM-DD`) for any criterion whose truth rests on a third-party platform fact. `additionalProperties: false`. Consumers may fetch the URL at gate time so a dead link is a finding, and may compare `verifiedOn` against a tolerance window.
+- **Fixtures (valid)**: `fixtures/valid/req/req-004-delivered-by.json` (a REQ with `deliveredBy` pointing at a TAC field), `fixtures/valid/user-story/us-006-ac-ownership-and-disposition.json` (a US with two ACs exercising `ownerRef`, `disposition` at both enum values, and `vendorCitation`).
+- **Fixtures (invalid)**: `fixtures/invalid/req/req-006-delivered-by-not-object.json` (deliveredBy as a bare id string), `fixtures/invalid/user-story/us-006-ac-owner-ref-not-object.json` (ownerRef as a bare id string), `fixtures/invalid/user-story/us-007-ac-disposition-bad-enum.json` (disposition outside the `fixed | template` enum), `fixtures/invalid/user-story/us-008-ac-vendor-citation-missing-verified-on.json` (vendorCitation object missing its required `verifiedOn` date).
+- **Tests**: `test/req.test.js` gains 7 cases for `deliveredBy` (optional back-compat, TAC-pointing, ADR-pointing, empty object, string rejection, unknown-property rejection, bad-tacId-shape rejection). `test/user-story.test.js` gains 13 cases across `ownerRef`, `disposition`, and `vendorCitation` (both enum values, both id targets, missing required sub-fields, bad `verifiedOn` format, unknown property rejections, and a combined-shape case alongside `scope`, `determinism`-adjacent optional fields, and `provenance`). Total suite grows from 330 to 350.
+
+### Migration
+
+- **Existing chains on 0.6.1**: bump `@stravica-ai/rcf-schemas` to `0.6.2`. Every existing document keeps validating; all four fields are optional and unknown to pre-0.6.2 callers.
+- **Consumers that inline the AC record**: pre-0.6.2 code that used `additionalProperties: false` at the AC level via a local extension keeps refusing the new fields until the consumer's own schema pins are bumped. The shared record accepts the fields immediately.
+
+### Notes
+
+- Sub-defs sit alongside the existing `acProvenance` peer on the user story schema, and alongside `reqShapeClassification` on the requirement schema. Both `deliveredBy` and `acOwnerRef` are the same {`tacId?`, `adrId?`, `field?`} shape but defined per file rather than in `common.schema.json`, on the same grounds as `reqShapeClassification` and `acProvenance`: a small, record-local $def keeps the change surface additive on exactly the two files it lives on.
+- The lint mechanics that consume these fields (single-definition ownership, REQ delivery, disposition ledger, vendor-citation freshness) live in the consuming `rcf-lite` build, not in this schema. The schema surface stays validation-only.
+
 ## 0.6.1 - 2026-09-05
 
 Patch bump for the T-0 visual-round Playwright-first ship-gate seam (`projects/blueprint-library/specs/visual-round-spec-2026-09-04.md`, section 3.4). Adds an additive, optional `probePacks[]` carrier on `browserVerificationRecord` so the record shape that rcf-lite's `packages/rcf-lite/src/browser-verify/pack-runner.js` already emits (per pack `packName`, `packVersion`, `blueprintSlug`, `applicable`, `checks[]`, optional `preChecks[]`, optional pack-level `detail` string) can persist without tripping `additionalProperties: false`.
