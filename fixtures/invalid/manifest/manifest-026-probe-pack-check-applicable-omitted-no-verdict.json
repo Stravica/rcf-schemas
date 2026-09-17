@@ -1,0 +1,35 @@
+{
+  "version": "2.0.0",
+  "projectName": "Probe-pack check omits verdict without applicable:false",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "browserVerification": [
+    {
+      "id": "bv-FBS-042-3",
+      "fbsId": "FBS-042",
+      "createdAt": "2026-09-16T15:10:00Z",
+      "mode": "agentScreenshotCritique",
+      "runtimeProfile": "local-dev",
+      "runtimeUrl": "http://127.0.0.1:3000",
+      "routesChecked": [
+        { "path": "/", "screenshotPath": ".rcf/artefacts/x.png", "themeApplied": "light" }
+      ],
+      "invariantChecks": [
+        { "invariant": "sharedNavPresent", "verdict": "pass" }
+      ],
+      "probePacks": [
+        {
+          "packName": "application-datatable-grid-shell",
+          "packVersion": "1.0.0",
+          "blueprintSlug": "application-datatable",
+          "applicable": true,
+          "checks": [
+            { "id": "AC-17101-2" }
+          ]
+        }
+      ],
+      "verdict": "pass"
+    }
+  ]
+}

@@ -1819,3 +1819,351 @@ test('manifest: probePacks item requires packName, packVersion, blueprintSlug, a
   };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.6.3: shipWithoutEval (rcf finalise --ship-without-eval ack) --------
+// Sister of shipWithoutVerified. Additive optional array on the manifest
+// so rcf-lite's packages/rcf-lite/src/finalise/ship-without-eval.js writer
+// stops skipping schema validation on the manifest write (referee-
+// guarantee train, docs claim C-33).
+
+test('manifest: shipWithoutEval with an EVAL-MISSING ack validates', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'grading rubric still needs an operator pass',
+        declaredAcs: [
+          { acId: 'AC-1501-2', verdict: 'EVAL-MISSING', reason: 'no EVAL doc authored' }
+        ],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: shipWithoutEval accepts EVAL-BELOW-THRESHOLD and multiple ACs', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'shipping on shape review only',
+        declaredAcs: [
+          { acId: 'AC-1501-2', verdict: 'EVAL-MISSING' },
+          { acId: 'AC-1501-3', verdict: 'EVAL-BELOW-THRESHOLD' }
+        ],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: shipWithoutEval id accepts a slugged FBS id (swe-FBS-<slug>-<n>)', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-payments-flow-1',
+        fbsId: 'FBS-015-payments-flow',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'grading rubric still needs an operator pass',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: shipWithoutEval id pattern enforced (swe-FBS-<fbsId>-<n>)', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'not-a-swe-id',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'reason string',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutEval verdict enum restricted to EVAL-MISSING / EVAL-BELOW-THRESHOLD', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'reason string',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'MOCK-ONLY-DECLARED' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutEval reason is required (non-empty)', () => {
+  const missing = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(missing), false);
+
+  const empty = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: '',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(empty), false);
+});
+
+test('manifest: shipWithoutEval declaredAcs empty array rejected (minItems 1)', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'reason string',
+        declaredAcs: [],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutEval missing required fbsId rejected', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'reason string',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: '.rcf-verify-report.json'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutEval reportPath minLength 1 enforced', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'reason string',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: ''
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutEval unknown property rejected (additionalProperties:false on record)', () => {
+  const doc = {
+    ...base,
+    shipWithoutEval: [
+      {
+        id: 'swe-FBS-015-1',
+        fbsId: 'FBS-015',
+        ackedAt: '2026-09-16T14:20:00Z',
+        reason: 'reason string',
+        declaredAcs: [{ acId: 'AC-1501-2', verdict: 'EVAL-MISSING' }],
+        reportPath: '.rcf-verify-report.json',
+        unexpectedField: 'x'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: shipWithoutEval absent (base) still validates (additive, optional)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+// -- 0.6.3: browserVerificationProbePackCheck.applicable ------------------
+// Additive optional check-level boolean. Mirrors the pack-level
+// `applicable`; when false, `verdict` and `severity` are omitted and the
+// aggregate verdict treats the check as neither pass nor fail. Emitted by
+// packages/rcf-lite/src/browser-verify/pack-runner.js from rcf-lite 0.28
+// so a check whose own appliesTo predicate returned false no longer needs
+// to fake a `skipped` verdict (referee-guarantee train, docs claim C-38).
+
+test('manifest: probePacks check with applicable:false (no verdict / severity) validates', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-042-1',
+        fbsId: 'FBS-042',
+        createdAt: '2026-09-16T15:00:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-1', verdict: 'pass', severity: 'block' },
+              { id: 'AC-17101-2', applicable: false, detail: 'check-level appliesTo: capability not applied' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: probePacks check with applicable:true still requires verdict + severity', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-042-2',
+        fbsId: 'FBS-042',
+        createdAt: '2026-09-16T15:02:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-2', applicable: true }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: probePacks check without applicable still requires verdict + severity (back-compat)', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-042-3',
+        fbsId: 'FBS-042',
+        createdAt: '2026-09-16T15:04:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-2' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: probePacks check applicable field is boolean-typed (rejects string "false")', () => {
+  const doc = {
+    ...base,
+    browserVerification: [
+      {
+        id: 'bv-FBS-042-4',
+        fbsId: 'FBS-042',
+        createdAt: '2026-09-16T15:06:00Z',
+        mode: 'agentScreenshotCritique',
+        runtimeProfile: 'local-dev',
+        runtimeUrl: 'http://127.0.0.1:3000',
+        routesChecked: [
+          { path: '/', screenshotPath: '.rcf/artefacts/x.png', themeApplied: 'light' }
+        ],
+        invariantChecks: [
+          { invariant: 'sharedNavPresent', verdict: 'pass' }
+        ],
+        probePacks: [
+          {
+            packName: 'application-datatable-grid-shell',
+            packVersion: '1.0.0',
+            blueprintSlug: 'application-datatable',
+            applicable: true,
+            checks: [
+              { id: 'AC-17101-2', applicable: 'false' }
+            ]
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
