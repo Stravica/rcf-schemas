@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://schemas.stravica.io/rcf/v0.6.0/manifest.schema.json",
   "title": "RCF Project Manifest",
-  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. From 0.4.4 the manifest carries two optional additive sections that host the blueprint-library mechanism: blueprints[] (applied-blueprints registry written by rcf blueprint add / remove / upgrade) and standards[] (standards-pack registry written at rcf init and rcf standards add). From 0.4.5 the manifest additionally carries an optional resolutions[] section: one entry per operator-authored resolution of a cross-blueprint conflict, keyed at first by the globalAdrTopic conflict class (two applied blueprints each contributing a scope:global ADR on the same topic, resolved by a project-level ADR that supersedes both). Written by rcf blueprint supersede and by rcf blueprint add --resolve; read by the conflict detector so the resolved conflict is honoured and both blueprint ADRs may co-reside as superseded history. From 0.5.1 the appliedBlueprintRecord carries an optional libraryPrefix (blueprintSlug), stamped when an apply resolves through a registered external blueprint library so the library-registered ownership is durable on the record itself rather than derived by string-matching source; absent for shelf or path applies. Every added field is optional; pre-0.4.0 manifests remain valid.",
+  "description": "Project manifest. Roots-only shape: declares prd, tad, bs. Children are owned by their parents and discovered by walking from the roots. From 0.4.0 the manifest also carries optional records for pre-flight configuration, review audits, UI baselines, browser verification, baseline-AC opt-outs, intake classification, register-regression canaries, and the review-surface state. From 0.4.1 the manifest additionally carries optional shipWithoutVerified acknowledgements written by rcf finalise --ship-without-verified. From 0.4.2 the testTheatreFinding shape carries an optional anchorId and drops tsId from its required list when kind is uiBaselineDrift (the drift finding is not anchored on a test suite); every other kind still requires tsId, and any 0.4.0- or 0.4.1-valid record remains valid. From 0.4.4 the manifest carries two optional additive sections that host the blueprint-library mechanism: blueprints[] (applied-blueprints registry written by rcf blueprint add / remove / upgrade) and standards[] (standards-pack registry written at rcf init and rcf standards add). From 0.4.5 the manifest additionally carries an optional resolutions[] section: one entry per operator-authored resolution of a cross-blueprint conflict, keyed at first by the globalAdrTopic conflict class (two applied blueprints each contributing a scope:global ADR on the same topic, resolved by a project-level ADR that supersedes both). Written by rcf blueprint supersede and by rcf blueprint add --resolve; read by the conflict detector so the resolved conflict is honoured and both blueprint ADRs may co-reside as superseded history. From 0.5.1 the appliedBlueprintRecord carries an optional libraryPrefix (blueprintSlug), stamped when an apply resolves through a registered external blueprint library so the library-registered ownership is durable on the record itself rather than derived by string-matching source; absent for shelf or path applies. From 0.6.3 the manifest additionally carries an optional shipWithoutEval[] section written by rcf finalise --ship-without-eval (sister of shipWithoutVerified; acknowledges EVAL-MISSING or EVAL-BELOW-THRESHOLD per-AC verdicts on the verify report and carries the operator's reason string); and the browserVerificationProbePackCheck item accepts an optional applicable:boolean flag, letting a check-level appliesTo predicate record applicable:false without a verdict or severity (aggregate verdict treats such a check as neither pass nor fail). Every added field is optional; pre-0.4.0 manifests remain valid.",
   "type": "object",
   "additionalProperties": false,
   "required": ["version", "projectName", "prd", "tad", "bs"],
@@ -55,6 +55,11 @@
       "type": "array",
       "items": { "$ref": "#/$defs/shipWithoutVerifiedRecord" },
       "description": "Operator acknowledgements recorded when rcf finalise --ship-without-verified acknowledges a MOCK-ONLY-DECLARED or BLOCKED-BY-DECLARATION verdict on the verify report and ships the FBS at complete without promoting to verified. One entry per acknowledgement (verification-integrity-cluster-spec section 5.2). The ack is durable and greppable at ship time."
+    },
+    "shipWithoutEval": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/shipWithoutEvalRecord" },
+      "description": "Operator acknowledgements recorded when rcf finalise --ship-without-eval acknowledges an EVAL-MISSING or EVAL-BELOW-THRESHOLD per-AC verdict on the verify report and ships the FBS at complete without a passing EVAL. One entry per acknowledgement. Sister of shipWithoutVerified; carries the operator's --ship-without-eval reason string on the record (rcf-eval-node spec sections 5.2 and 8). The ack is durable and greppable at ship time."
     },
     "blueprints": {
       "type": "array",
@@ -502,23 +507,44 @@
     "browserVerificationProbePackCheck": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "verdict", "severity"],
+      "required": ["id"],
       "properties": {
         "id": {
           "type": "string",
           "minLength": 1,
           "description": "Check id. For a browser check the id equals an AC id contributed by the same blueprint (loader cross-checks this at pack load time)."
         },
+        "applicable": {
+          "type": "boolean",
+          "description": "Optional check-level applicability flag. When present and false, the check's own appliesTo predicate returned false (typically because the applied capability set does not include a capability the check depends on); verdict and severity are then omitted and the aggregate verdict treats the check as neither pass nor fail. When absent or true, verdict and severity are required as before. Mirrors the pack-level applicable boolean on browserVerificationProbePack. Emitted by packages/rcf-lite/src/browser-verify/pack-runner.js from rcf-lite 0.28.0."
+        },
         "verdict": {
           "enum": ["pass", "warn", "fail", "skipped"],
-          "description": "Check verdict. skipped is emitted by the pack-runner when a browser check's dependsOn pre-check failed."
+          "description": "Check verdict. skipped is emitted by the pack-runner when a browser check's dependsOn pre-check failed. Required when applicable is absent or true; omitted when applicable is false."
         },
         "severity": {
           "enum": ["block", "warn", "advisory"],
-          "description": "Check severity, copied from the pack declaration. Feeds the aggregate verdict rule per spec section 3.4."
+          "description": "Check severity, copied from the pack declaration. Feeds the aggregate verdict rule per spec section 3.4. Required when applicable is absent or true; omitted when applicable is false."
         },
         "detail": { "type": "string" }
-      }
+      },
+      "allOf": [
+        {
+          "if": {
+            "not": {
+              "properties": { "applicable": { "const": false } },
+              "required": ["applicable"]
+            }
+          },
+          "then": {
+            "properties": {
+              "verdict": true,
+              "severity": true
+            },
+            "required": ["verdict", "severity"]
+          }
+        }
+      ]
     },
     "browserVerificationRoute": {
       "type": "object",
@@ -839,6 +865,53 @@
         "verdict": {
           "enum": ["MOCK-ONLY-DECLARED", "BLOCKED-BY-DECLARATION"],
           "description": "The verify per-AC verdict class the operator acknowledged. Only these two verdict classes are legitimately acknowledgeable via --ship-without-verified."
+        },
+        "reason": {
+          "type": "string",
+          "description": "Optional verify-supplied reason string carried through from the report entry."
+        }
+      }
+    },
+    "shipWithoutEvalRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "fbsId", "ackedAt", "reason", "declaredAcs", "reportPath"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^swe-FBS-\\d{3,}(?:-[a-z0-9]+(?:-[a-z0-9]+)*)?-\\d+$",
+          "description": "Ship-without-eval acknowledgement id. Format: swe-<fbsId>-<n>; the trailing integer increments per acknowledgement of the same FBS. Accepts both numeric-only and kebab-slug FBS ids. Sister of the shipWithoutVerified swv- id family."
+        },
+        "fbsId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/fbsId" },
+        "ackedAt": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/timestamp" },
+        "reason": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Operator-supplied reason string passed on the finalise command (rcf finalise --ship-without-eval \"<reason>\"). Required and non-empty; the acknowledgement's purpose is to record why the operator shipped without a passing EVAL."
+        },
+        "declaredAcs": {
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/shipWithoutEvalDeclaredAc" },
+          "description": "The per-AC verdicts on the verify report that the operator acknowledged. At least one entry, otherwise there is nothing to acknowledge."
+        },
+        "reportPath": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Path (repo-relative or absolute as recorded by finalise) to the verify report file that carried the acknowledged verdicts."
+        }
+      },
+      "description": "Operator acknowledgement recorded on rcf finalise --ship-without-eval. Records the FBS, the operator's reason string, the verify verdicts acknowledged, and the report they came from, so the ack is durable and greppable at ship time. Written by packages/rcf-lite/src/finalise/ship-without-eval.js."
+    },
+    "shipWithoutEvalDeclaredAc": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["acId", "verdict"],
+      "properties": {
+        "acId": { "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/acId" },
+        "verdict": {
+          "enum": ["EVAL-MISSING", "EVAL-BELOW-THRESHOLD"],
+          "description": "The verify per-AC verdict class the operator acknowledged. Only these two verdict classes are legitimately acknowledgeable via --ship-without-eval."
         },
         "reason": {
           "type": "string",

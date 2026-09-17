@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "projectName": "Ship-without-eval bad id",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "shipWithoutEval": [
+    {
+      "id": "not-a-swe-id",
+      "fbsId": "FBS-015",
+      "ackedAt": "2026-09-16T14:20:00Z",
+      "reason": "reason string",
+      "declaredAcs": [
+        { "acId": "AC-1501-2", "verdict": "EVAL-MISSING" }
+      ],
+      "reportPath": ".rcf-verify-report.json"
+    }
+  ]
+}
