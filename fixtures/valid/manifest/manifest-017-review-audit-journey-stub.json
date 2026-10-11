@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "projectName": "journeyStub review-kind coverage",
+  "prd": { "id": "PRD-001", "path": "rcf/prd.json" },
+  "tad": { "id": "TAD-001", "path": "rcf/tad.json" },
+  "bs":  { "id": "BS-001",  "path": "rcf/build-sequence.json" },
+  "reviewAudit": [
+    {
+      "id": "ra-FBS-215-1",
+      "fbsId": "FBS-215",
+      "createdAt": "2026-10-11T15:30:00Z",
+      "testTheatreFindings": [
+        {
+          "anchorId": "FBS-215",
+          "kind": "journeyStub",
+          "detail": "FBS-215 is UI-bearing (uiBearing: true) but journeyStepIds[] is empty; the discovery journey record binds no step to this build.",
+          "severity": "block"
+        },
+        {
+          "anchorId": "JNY-001-003",
+          "kind": "journeyStub",
+          "detail": "Discovery step JNY-001-003 has no FBS binding; no FBS lists it in journeyStepIds[].",
+          "severity": "warn"
+        }
+      ],
+      "verdict": "block"
+    }
+  ]
+}

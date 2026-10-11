@@ -36,6 +36,7 @@ Structurally, each FBS carries the mandatory `bsId` back-reference plus `buildOr
 | `domain` | string | Free-form domain label. |
 | `notes` | string | FBS-specific gotchas. |
 | `noCodeNodes` | boolean | Declares this build spec produces no traceable code (docs-only or config-only). `rcf build --mark complete` records it via `--no-code-nodes` and the CodeNode gate skips the spec. Added in 0.3.1. |
+| `journeyStepIds` | array of non-empty strings, `uniqueItems: true` | Discovery journey step ids (shape `JNY-nnn-nnn`, owned by the discovery journey record at `rcf/discovery/journey.json`) that this build unit delivers. Written at Define; read by the build-review surface so a UI-bearing FBS that leaves a journey step unbound, or a discovery step with no FBS binding, raises a `journeyStub` review finding. Optional; pre-0.7.0 FBSes keep validating. Added in 0.7.0. |
 
 ## `contextRequirements` shape
 

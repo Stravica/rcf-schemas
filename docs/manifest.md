@@ -59,6 +59,20 @@ SSoT discipline. Every parent-child edge is encoded exactly once, on the child, 
 
 Enumerating children in the manifest as well would create two sources of truth; pick one. The child owns the reference. The manifest stays small (~8 properties) and a new US / TAC / ADR / FBS / REQ / TS never requires a manifest edit.
 
+## `reviewAudit[].testTheatreFindings[].kind` vocabulary
+
+Review findings on a `reviewAudit` record carry a `kind` from a fixed enum. The vocabulary grows additively; a consumer that switches on the enum should treat an unknown value as "unrecognised" rather than fail-closed.
+
+| Kind | Introduced | Anchor | Notes |
+|---|---|---|---|
+| `mockOnlyIntegrationClaim` | 0.4.0 | `tsId` required | Test suite claims an integration level but the runtime profile is mock. |
+| `testPointerBroken` | 0.4.0 | `tsId` required | The TS/TC pointer resolves to no code node. |
+| `assertionStrengthWeak` | 0.4.0 | `tsId` required | Assertion found too weak for the AC it attests. |
+| `acIdsCoverageDrift` | 0.4.0 | `tsId` required | AC coverage drifted between declared and attested. |
+| `uiBaselineDrift` | 0.4.2 | `anchorId` (FBS id or file path) | UI implementation contradicts a declared uiBaseline default. Exempt from the `tsId` requirement. |
+| `journeyStub` | 0.7.0 | `anchorId` (FBS id or discovery `JNY-nnn-nnn` step id) | Build-review surface flag: a UI-bearing FBS whose `journeyStepIds[]` is empty, or a discovery step with no FBS binding. Exempt from the `tsId` requirement; the sibling pattern of `uiBaselineDrift`. |
+| `otherDeclared` | 0.4.0 | `tsId` required; `kindDescription` required in practice | Catch-all; carries free-text `kindDescription`. |
+
 ## Example
 
 ```json

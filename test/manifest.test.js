@@ -2167,3 +2167,122 @@ test('manifest: probePacks check applicable field is boolean-typed (rejects stri
   };
   assert.equal(validate(doc), false);
 });
+
+// -- 0.7.0 additions (journeyStub review-finding kind) ---------------------
+
+test('manifest: reviewAudit with the journeyStub kind on an anchorId validates', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-215-1',
+        fbsId: 'FBS-215',
+        createdAt: '2026-10-11T15:10:00Z',
+        testTheatreFindings: [
+          {
+            anchorId: 'FBS-215',
+            kind: 'journeyStub',
+            detail: 'FBS-215 is UI-bearing but journeyStepIds[] is empty.',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: journeyStub finding anchored on a JNY step id validates', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-215-2',
+        fbsId: 'FBS-215',
+        createdAt: '2026-10-11T15:10:00Z',
+        testTheatreFindings: [
+          {
+            anchorId: 'JNY-001-003',
+            kind: 'journeyStub',
+            detail: 'JNY-001-003 is not bound to any FBS.',
+            severity: 'warn'
+          }
+        ],
+        verdict: 'warn'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: journeyStub finding WITHOUT tsId still validates (parallel to uiBaselineDrift)', () => {
+  // the journeyStub kind is exempt from the "tsId required" allOf clause,
+  // same way uiBaselineDrift is: it anchors on an FBS or JNY-step id, not a TS.
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-215-3',
+        fbsId: 'FBS-215',
+        createdAt: '2026-10-11T15:10:00Z',
+        testTheatreFindings: [
+          {
+            anchorId: 'FBS-215',
+            kind: 'journeyStub',
+            detail: 'no TS anchor needed',
+            severity: 'advisory'
+          }
+        ],
+        verdict: 'pass'
+      }
+    ]
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('manifest: journeyStub finding with a severity outside the enum is rejected', () => {
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-215-4',
+        fbsId: 'FBS-215',
+        createdAt: '2026-10-11T15:10:00Z',
+        testTheatreFindings: [
+          {
+            anchorId: 'FBS-215',
+            kind: 'journeyStub',
+            detail: 'bad severity',
+            severity: 'critical'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
+
+test('manifest: non-journeyStub, non-uiBaselineDrift finding still requires tsId (back-compat)', () => {
+  // mockOnlyIntegrationClaim is a test-theatre kind and must still carry tsId.
+  const doc = {
+    ...base,
+    reviewAudit: [
+      {
+        id: 'ra-FBS-016-5',
+        fbsId: 'FBS-016',
+        createdAt: '2026-10-11T15:10:00Z',
+        testTheatreFindings: [
+          {
+            kind: 'mockOnlyIntegrationClaim',
+            detail: 'no tsId',
+            severity: 'block'
+          }
+        ],
+        verdict: 'block'
+      }
+    ]
+  };
+  assert.equal(validate(doc), false);
+});
