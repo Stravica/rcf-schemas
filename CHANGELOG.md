@@ -4,6 +4,37 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.7.0 - 2026-10-11
+
+Minor bump for the discovery-UX gate: adds an optional `journeyStepIds[]` carrier on the FBS schema and a new `journeyStub` review-finding kind on `reviewAudit[].testTheatreFindings[].kind`. Both additions are additive at the shape level; every 0.6.3-valid document keeps validating. The bump is a minor (not a patch) because the review-kind enum is a shared vocabulary and the enum extension is a vocabulary change consumers may want to switch on, following the project's pre-1.0 convention. Canonical `$id` URLs are kept at `v0.6.0` on this release: no schema's `$id` or cross-file `$ref` changes, so every validator keyed to the `v0.6.0` URLs picks up the additions by file bytes alone. Rolling the URLs to `v0.7.0` is deferred to HQ at publish time if the convention calls for it.
+
+### Added
+
+- **`fbs.schema.json`**: new optional top-level `journeyStepIds` property. Shape: `array` with items `{ type: "string", minLength: 1 }` and `uniqueItems: true`. Carries discovery journey step ids (shape `JNY-nnn-nnn`, owned by the discovery journey record at `rcf/discovery/journey.json`, minted by the discovery binder as `JNY-nnn-nnn` under their parent `JNY-nnn` journey) that the build unit delivers. Written at Define; read by the build-review surface so a UI-bearing FBS that leaves a journey step unbound, or a discovery step with no FBS binding, raises the new `journeyStub` finding kind. Pre-0.7.0 FBSes stay valid: the field is optional and no existing property changes.
+- **`manifest.schema.json`**: `reviewAudit[].testTheatreFindings[].kind` enum gains `journeyStub` (appended between `uiBaselineDrift` and `otherDeclared`, nothing reordered). The `allOf` conditional that lets `uiBaselineDrift` findings omit `tsId` is widened via `anyOf` so `journeyStub` findings also omit `tsId`: they anchor on an FBS id or a `JNY-nnn-nnn` step id via `anchorId`, same pattern as `uiBaselineDrift`. Every other kind still requires `tsId`; the back-compat allOf arm is unchanged for them.
+- **`manifest.schema.json`**: top-level `description` extended to name the new `journeyStub` kind, following the "From 0.X.Y the manifest additionally carries..." precedent set at 0.4.1, 0.4.4, 0.4.5, 0.5.1 and 0.6.3.
+- **Fixtures (valid)**: `fixtures/valid/fbs/fbs-008-journey-step-ids.json` (FBS-215 carrying three `JNY-nnn-nnn` ids), `fixtures/valid/manifest/manifest-017-review-audit-journey-stub.json` (one `reviewAudit` with two `journeyStub` findings: one anchored on an FBS id, one anchored on a `JNY-nnn-nnn` step id).
+- **Fixtures (invalid)**: `fixtures/invalid/fbs/fbs-014-journey-step-ids-non-string.json` (numeric item), `fixtures/invalid/fbs/fbs-015-journey-step-ids-duplicate.json` (two identical entries, `uniqueItems`), `fixtures/invalid/fbs/fbs-016-journey-step-ids-empty-string.json` (empty-string item, items `minLength` 1).
+- **Tests**: `test/fbs.test.js` gains 9 cases for `journeyStepIds` (back-compat absent, populated, empty array, free-form ids, non-string rejected, empty-string rejected, duplicate rejected, non-array rejected, alongside `contextRequirements.standardIds`). `test/manifest.test.js` gains 5 cases for the `journeyStub` kind (anchor on FBS id, anchor on `JNY-nnn-nnn` step id, finding without `tsId` validates, bad severity rejected, non-exempt kind still requires `tsId`). Total suite grows from 365 to 379.
+
+### Changed
+
+- No `$id` URL roll on this minor bump: the schemas remain keyed to `https://schemas.stravica.io/rcf/v0.6.0/...`. Deviates from the 0.3.0 / 0.4.0 / 0.5.0 / 0.6.0 precedent of rolling the URL on a minor; retained here because the scope is strictly additive and rolling the URL is itself a consumer-visible change that would be larger than the schema delta. Final call on URL rolling at publish time; nothing on this PR precommits it.
+
+### Migration
+
+- **Existing chains on 0.6.3**: bump `@stravica-ai/rcf-schemas` to `0.7.0`. Every existing document keeps validating; both additions are optional and unknown to pre-0.7.0 callers.
+- **To adopt `journeyStepIds` on an FBS**: list the discovery journey step ids the build unit delivers; the discovery record is the source of truth for the ids. The field is optional and may be left absent until the FBS is bound.
+- **To emit a `journeyStub` finding from the review surface**: switch the current `otherDeclared` + `kindDescription: "journeyStub: ..."` path to `kind: "journeyStub"`, anchored on the relevant FBS id or `JNY-nnn-nnn` step id via `anchorId`.
+- **Consumers to bump**: `rcf-lite` (its `packages/rcf-lite/package.json` pins the schemas package exact; the discovery-UX-gate train bumps it to `0.7.0`).
+
+### Notes
+
+- Review-kind enum additive-safety was verified in-tree: `rcf-lite` carries only a JSDoc `TestTheatreFindingKind` typedef and non-exhaustive consumption of the `kind` string. No exhaustive `switch` on the enum surfaced in a repository walk at relay time.
+- The `allOf` widening uses the same `if`/`then` conditional pattern the schema already uses for `uiBaselineDrift` (0.4.2) and `applicable` (0.6.3), with the `if` moved into an `anyOf` so both exempt kinds share one arm. The `else` arm is byte-identical to the pre-0.7.0 clause; every pre-0.7.0 finding keeps hitting the same requiredness.
+- `back-compat-freeze.test.js` continues to pass: the frozen pre-0.4.4 manifest fixture is unaffected by the enum addition or the allOf widening.
+- Scripted back-compat pass at authoring time: every 0.6.3 fixture at main `990875b4` (63 valid + 87 invalid = 150 total) validates to the same outcome against the 0.7.0 schemas with zero drift.
+
 ## 0.6.3 - 2026-09-17
 
 Patch bump for the last two schema-shaped claims on the rcf-lite 0.28.0 referee-guarantees train (docs claims C-33 and C-38). Adds an additive, optional `shipWithoutEval[]` carrier on the manifest (sister of `shipWithoutVerified`, written by `rcf finalise --ship-without-eval`), and an additive, optional `applicable` boolean on `browserVerificationProbePackCheck` (mirrors the pack-level `applicable`, so a check whose own `appliesTo` predicate returned false records `applicable: false` at the check level without a stray verdict or severity). Every change is additive: every 0.6.2-valid manifest keeps validating.

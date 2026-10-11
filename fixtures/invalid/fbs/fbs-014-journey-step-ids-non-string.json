@@ -1,0 +1,14 @@
+{
+  "fbsId": "FBS-215",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 15,
+  "executionStatus": "notStarted",
+  "title": "journeyStepIds non-string item",
+  "summary": "journeyStepIds carries a numeric entry; the schema requires string items.",
+  "acIds": ["AC-001"],
+  "dependsOnFbsIds": [],
+  "journeyStepIds": ["JNY-001-001", 2],
+  "createdAt": "2026-10-11T00:00:00Z",
+  "updatedAt": "2026-10-11T00:00:00Z"
+}

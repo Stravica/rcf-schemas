@@ -1,0 +1,14 @@
+{
+  "fbsId": "FBS-215",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 15,
+  "executionStatus": "notStarted",
+  "title": "journeyStepIds duplicate items",
+  "summary": "journeyStepIds carries two identical entries; uniqueItems is enforced.",
+  "acIds": ["AC-001"],
+  "dependsOnFbsIds": [],
+  "journeyStepIds": ["JNY-001-001", "JNY-001-001"],
+  "createdAt": "2026-10-11T00:00:00Z",
+  "updatedAt": "2026-10-11T00:00:00Z"
+}

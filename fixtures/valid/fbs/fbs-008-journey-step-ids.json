@@ -1,0 +1,14 @@
+{
+  "fbsId": "FBS-215",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 15,
+  "executionStatus": "notStarted",
+  "title": "Discovery UX gate: journeyStub review-kind binding",
+  "summary": "Bind the FBS to the discovery journey steps it delivers so build review can detect unbound steps and unbound UI-bearing specs.",
+  "acIds": ["AC-215-1", "AC-215-2"],
+  "dependsOnFbsIds": ["FBS-210"],
+  "journeyStepIds": ["JNY-001-001", "JNY-001-002", "JNY-002-001"],
+  "createdAt": "2026-10-11T00:00:00Z",
+  "updatedAt": "2026-10-11T00:00:00Z"
+}

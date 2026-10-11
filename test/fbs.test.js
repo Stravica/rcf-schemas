@@ -309,3 +309,53 @@ test('fbs: empty standardIds array validates (agentic selection returned nothing
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.7.0 additions (optional journeyStepIds[] on the FBS) ------------------
+
+test('fbs: journeyStepIds absent still validates (back-compat)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: journeyStepIds populated with JNY step ids validates', () => {
+  const doc = { ...base, journeyStepIds: ['JNY-001-001', 'JNY-001-002', 'JNY-002-001'] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: journeyStepIds empty array validates (no binding yet)', () => {
+  const doc = { ...base, journeyStepIds: [] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: journeyStepIds with free-form (non-JNY) ids still validates (no pattern constraint)', () => {
+  const doc = { ...base, journeyStepIds: ['step-a', 'step-b'] };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('fbs: journeyStepIds with a non-string item rejected', () => {
+  const doc = { ...base, journeyStepIds: ['JNY-001-001', 2] };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: journeyStepIds with an empty-string item rejected (items minLength 1)', () => {
+  const doc = { ...base, journeyStepIds: ['JNY-001-001', ''] };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: journeyStepIds with duplicate items rejected (uniqueItems)', () => {
+  const doc = { ...base, journeyStepIds: ['JNY-001-001', 'JNY-001-001'] };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: journeyStepIds as a non-array rejected', () => {
+  const doc = { ...base, journeyStepIds: 'JNY-001-001' };
+  assert.equal(validate(doc), false);
+});
+
+test('fbs: journeyStepIds alongside contextRequirements.standardIds validates', () => {
+  const doc = {
+    ...base,
+    journeyStepIds: ['JNY-001-001'],
+    contextRequirements: { standardIds: ['wsd-naming'] }
+  };
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
