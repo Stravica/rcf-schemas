@@ -1,0 +1,24 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe expectStatus outside 100..599 is rejected",
+  "asA": "author",
+  "iWant": "expectStatus to be a real HTTP status code",
+  "soThat": "a typo in the expected status is caught at authoring time",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "expectStatus is 600.",
+      "testable": true,
+      "probe": {
+        "path": "/healthz",
+        "expectStatus": 600
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

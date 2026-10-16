@@ -1,0 +1,39 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Notes API returns JSON and the notes list renders",
+  "asA": "operator running deterministic verify",
+  "iWant": "an acceptance criterion to carry a probe exercising every field",
+  "soThat": "rcf verify run resolves status, header, body, selector and environment in one pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "Listing notes returns a JSON notes array, and the notes page renders its list.",
+      "testable": true,
+      "given": "a deployed notes service",
+      "when": "the client lists notes",
+      "then": "the response is JSON and the list renders",
+      "scope": "deployed",
+      "determinism": "deterministic",
+      "probe": {
+        "method": "GET",
+        "path": "/api/notes?limit=1",
+        "expectStatus": 200,
+        "expectHeader": {
+          "name": "content-type",
+          "match": "application/json"
+        },
+        "expectBody": {
+          "matches": "^\\{\"notes\":\\["
+        },
+        "selector": "[data-testid=\"notes-list\"]",
+        "parityEnv": "preview"
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

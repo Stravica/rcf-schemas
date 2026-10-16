@@ -1,0 +1,26 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe expectHeader without match is rejected",
+  "asA": "author",
+  "iWant": "a header assertion to name both the header and the value",
+  "soThat": "a header probe always asserts something",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "expectHeader names the header but omits match.",
+      "testable": true,
+      "probe": {
+        "path": "/healthz",
+        "expectHeader": {
+          "name": "content-type"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

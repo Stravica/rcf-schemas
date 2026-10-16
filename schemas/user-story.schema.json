@@ -71,6 +71,7 @@
         "ownerRef": { "$ref": "#/$defs/acOwnerRef" },
         "disposition": { "$ref": "#/$defs/acDisposition" },
         "vendorCitation": { "$ref": "#/$defs/acVendorCitation" },
+        "probe": { "$ref": "#/$defs/acProbe" },
         "provenance": { "$ref": "#/$defs/acProvenance" }
       }
     },
@@ -110,6 +111,79 @@
         }
       },
       "description": "Vendor citation for an acceptance criterion whose truth rests on a third-party platform fact. Optional at schema level; consumer rulesets may require it on any AC that asserts a vendor fact (for example, a platform migration keyword or a rate-limit value)."
+    },
+    "acProbe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path"],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": ["GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+          "description": "HTTP method of the probe request. Optional; absence means GET."
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "description": "URL path the probe requests, relative to the run's --url (for example /healthz or /api/notes?limit=1). The only required field."
+        },
+        "expectStatus": {
+          "type": "integer",
+          "minimum": 100,
+          "maximum": 599,
+          "description": "HTTP status code the response must carry."
+        },
+        "expectHeader": { "$ref": "#/$defs/acProbeExpectHeader" },
+        "expectBody": { "$ref": "#/$defs/acProbeExpectBody" },
+        "selector": {
+          "type": "string",
+          "minLength": 1,
+          "description": "DOM selector that must be present in the rendered response."
+        },
+        "parityEnv": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Target environment the probe is scoped to; the consuming resolver pairs it with rcf verify run --parity-env."
+        }
+      },
+      "description": "Deterministic per-AC probe resolved by rcf verify run (rcf-lite issue 349). Absent means the criterion stays critique-only. Shape follows the Probe record in rcf-lite TAC-4150; the schema constrains shape only and the resolution semantics belong to the consumer."
+    },
+    "acProbeExpectHeader": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "match"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Response header name."
+        },
+        "match": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Value the named header must match. Match semantics belong to the consuming resolver."
+        }
+      },
+      "description": "Response header assertion on an acceptance-criterion probe. Both name and match are required."
+    },
+    "acProbeExpectBody": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "contains": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Literal text the response body must contain."
+        },
+        "matches": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Regular expression source the response body must match."
+        }
+      },
+      "minProperties": 1,
+      "maxProperties": 1,
+      "description": "Response body assertion on an acceptance-criterion probe. Exactly one of contains or matches: the object is closed to those two properties and carries exactly one of them."
     },
     "acProvenance": {
       "type": "object",

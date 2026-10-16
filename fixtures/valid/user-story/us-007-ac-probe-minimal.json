@@ -1,0 +1,24 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Health endpoint answers on the deployed URL",
+  "asA": "operator running deterministic verify",
+  "iWant": "an acceptance criterion to carry the smallest possible probe",
+  "soThat": "rcf verify run resolves it without a critique pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "The health endpoint answers on the deployed URL.",
+      "testable": true,
+      "scope": "deployed",
+      "probe": {
+        "path": "/healthz"
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

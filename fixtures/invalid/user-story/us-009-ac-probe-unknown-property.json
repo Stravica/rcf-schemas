@@ -1,0 +1,24 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe with an unknown property is rejected",
+  "asA": "author",
+  "iWant": "the probe object to stay closed",
+  "soThat": "a typo in a probe field is a validation error, not a silent no-op",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "Probe carries an unknown timeoutMs field.",
+      "testable": true,
+      "probe": {
+        "path": "/healthz",
+        "timeoutMs": 500
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

@@ -1,0 +1,24 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe without path is rejected",
+  "asA": "author",
+  "iWant": "every probe to name the path it requests",
+  "soThat": "the resolver always knows what to fetch",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "Probe omits the required path.",
+      "testable": true,
+      "probe": {
+        "method": "GET",
+        "expectStatus": 200
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}
