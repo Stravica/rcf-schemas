@@ -4,6 +4,34 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.7.1 - 2026-10-16
+
+Patch bump for rcf-lite issue 349 (per-AC probe catalog resolved by deterministic verify, rcf-lite TAC-4150 and FBS-218). Adds an additive, optional `probe` object on the inline `$defs.acceptanceCriterion` of the user story, so an acceptance criterion can carry a structured, deterministic probe that `rcf verify run --mode deterministic` resolves to pass, fail or skipped with evidence. An AC without a probe stays critique-only. Every change is additive: every 0.7.0-valid document keeps validating.
+
+Patch semver convention: URLs pinned at `v0.6.0`. No breaking change; every 0.7.0-valid document keeps validating. rcf-lite TAC-4150 calls this change "the rcf-schemas minor"; under this repo's rule (`CONTRIBUTING.md` and the `README.md` Versioning section: additive changes are a patch bump, breaking changes a minor) an optional property on a closed object is additive, the same call 0.6.2 made for `ownerRef`, `disposition` and `vendorCitation` on the same record, so the release is `0.7.1`.
+
+### Added
+
+- **`user-story.schema.json`**: new optional `probe` on the inline `$defs.acceptanceCriterion`, `$defs.acProbe`. Object, `additionalProperties: false`, only `path` required. Fields: `method` (string enum `GET | HEAD | POST | PUT | PATCH | DELETE | OPTIONS`; absence means GET, documented in the `description` rather than a JSON Schema `default`, since no schema in this repo uses `default`), `path` (min-length-1 string, a URL path relative to the run's `--url`), `expectStatus` (integer, 100..599), `expectHeader` (`$defs.acProbeExpectHeader`), `expectBody` (`$defs.acProbeExpectBody`), `selector` (min-length-1 string, a DOM selector that must be present), `parityEnv` (min-length-1 string, paired by the resolver with `rcf verify run --parity-env`). Shape follows the Probe record in rcf-lite TAC-4150.
+- **`user-story.schema.json`**: new `$defs.acProbeExpectHeader`. Object with required `name` and `match` (both min-length-1 strings), `additionalProperties: false`. Match semantics belong to the consuming resolver; the schema constrains shape only.
+- **`user-story.schema.json`**: new `$defs.acProbeExpectBody`. Object with optional `contains` (min-length-1 string, literal text) and `matches` (min-length-1 string, a regular expression source), `additionalProperties: false`, `minProperties: 1` and `maxProperties: 1`, so exactly one of the two is present.
+- **Fixtures (valid)**: `fixtures/valid/user-story/us-007-ac-probe-minimal.json` (a probe with only `path`), `fixtures/valid/user-story/us-008-ac-probe-full.json` (a probe carrying every field, `expectBody.matches`).
+- **Fixtures (invalid)**: `fixtures/invalid/user-story/us-009-ac-probe-unknown-property.json` (unknown `timeoutMs` on the probe), `fixtures/invalid/user-story/us-010-ac-probe-expect-body-both.json` (`expectBody` with both `contains` and `matches`), `fixtures/invalid/user-story/us-011-ac-probe-expect-status-600.json` (`expectStatus` 600), `fixtures/invalid/user-story/us-012-ac-probe-expect-header-missing-match.json` (`expectHeader` without `match`), `fixtures/invalid/user-story/us-013-ac-probe-missing-path.json` (probe without the required `path`). Each fails on exactly one ajv error.
+- **Tests**: `test/user-story.test.js` gains 23 cases for `probe` (back-compat absent, minimal path-only, full shape, `expectBody.contains`, every method enum value, lowercase method rejected, missing and empty `path` rejected, unknown probe property rejected, bare-string probe rejected, `expectBody` with both, neither, an unknown property or an empty `contains` rejected, `expectStatus` 600, 99, 200.5 and "200" rejected, bounds 100 and 599 accepted, `expectHeader` missing `match`, missing `name` or carrying an unknown property rejected, empty `selector` and empty `parityEnv` rejected, probe alongside `scope`, `determinism`, `ownerRef`, `disposition` and `provenance`). Total suite grows from 379 to 402.
+
+### Migration
+
+- **Existing chains on 0.7.0**: bump `@stravica-ai/rcf-schemas` to `0.7.1`. Every existing document keeps validating; `probe` is optional and unknown to pre-0.7.1 callers.
+- **To adopt a probe on an AC**: add `probe: { path }` plus whichever expectations the criterion needs (`expectStatus`, `expectHeader`, `expectBody`, `selector`, `parityEnv`). An AC with no probe stays critique-only; the rcf-lite catalog file `rcf/verify-catalog.json` remains an alternative carrier, and an AC-level probe wins over a catalog entry (rcf-lite TAC-4150).
+- **Consumers to bump**: `rcf-lite` (its `packages/rcf-lite/package.json` pins the schemas package exact, at `0.7.0` on `main` at this release). The pin bump to `0.7.1` is FBS-218's job: the build spec cannot merge until the pin lands. This repo does not touch rcf-lite.
+
+### Notes
+
+- `expectBody` uses `minProperties` / `maxProperties` on a closed object rather than a `oneOf` of `required` arms: ajv strict mode (`strictRequired`, which this repo's test loader runs under) refuses a `required` keyword in an arm that does not declare the property locally, and the closed-object count expresses "exactly one of `contains` or `matches`" in one place with a direct error message.
+- Scripted back-compat pass at authoring time: every 0.7.0 fixture at main `e721930` (65 valid + 90 invalid = 155 total) validates to the same outcome against the 0.7.1 schemas with zero drift.
+- `docs/user-story.md` does not yet describe `probe`; this release was scoped to the schema, fixtures, tests, version and changelog, and the doc page catches up in a follow-up.
+- `back-compat-freeze.test.js` continues to pass.
+
 ## 0.7.0 - 2026-10-11
 
 Minor bump for the discovery-UX gate: adds an optional `journeyStepIds[]` carrier on the FBS schema and a new `journeyStub` review-finding kind on `reviewAudit[].testTheatreFindings[].kind`. Both additions are additive at the shape level; every 0.6.3-valid document keeps validating. The bump is a minor (not a patch) because the review-kind enum is a shared vocabulary and the enum extension is a vocabulary change consumers may want to switch on, following the project's pre-1.0 convention. Canonical `$id` URLs are kept at `v0.6.0` on this release: no schema's `$id` or cross-file `$ref` changes, so every validator keyed to the `v0.6.0` URLs picks up the additions by file bytes alone. Rolling the URLs to `v0.7.0` is deferred to HQ at publish time if the convention calls for it.

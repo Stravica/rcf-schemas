@@ -490,3 +490,130 @@ test('user-story: AC combining ownerRef, disposition, vendorCitation with earlie
   };
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.7.1 additions (per-AC probe, rcf-lite issue 349) -----------------
+
+function withProbe(probe, extra = {}) {
+  return {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'probe-bearing criterion', testable: true, ...extra, probe }
+    ]
+  };
+}
+
+const fullProbe = {
+  method: 'GET',
+  path: '/api/notes?limit=1',
+  expectStatus: 200,
+  expectHeader: { name: 'content-type', match: 'application/json' },
+  expectBody: { matches: '^\\{"notes":\\[' },
+  selector: '[data-testid="notes-list"]',
+  parityEnv: 'preview'
+};
+
+test('user-story: AC without probe still validates (back-compat, field is optional)', () => {
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with a minimal probe (path only) validates', () => {
+  assert.equal(validate(withProbe({ path: '/healthz' })), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with a full probe (every field, expectBody.matches) validates', () => {
+  assert.equal(validate(withProbe(fullProbe)), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: probe with expectBody.contains validates', () => {
+  const doc = withProbe({ path: '/', expectBody: { contains: 'Welcome' } });
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: probe accepts every method in the enum', () => {
+  for (const method of ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']) {
+    assert.equal(validate(withProbe({ method, path: '/healthz' })), true, `${method}: ${JSON.stringify(validate.errors)}`);
+  }
+});
+
+test('user-story: probe method outside the enum (lowercase get) is rejected', () => {
+  assert.equal(validate(withProbe({ method: 'get', path: '/healthz' })), false);
+});
+
+test('user-story: probe without path is rejected', () => {
+  assert.equal(validate(withProbe({ method: 'GET', expectStatus: 200 })), false);
+});
+
+test('user-story: probe with an empty path is rejected', () => {
+  assert.equal(validate(withProbe({ path: '' })), false);
+});
+
+test('user-story: probe with an unknown property is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', timeoutMs: 500 })), false);
+});
+
+test('user-story: probe as a bare string is rejected', () => {
+  assert.equal(validate(withProbe('/healthz')), false);
+});
+
+test('user-story: probe expectBody with both contains and matches is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/', expectBody: { contains: 'notes', matches: '^\\{' } })), false);
+});
+
+test('user-story: probe expectBody with neither contains nor matches is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/', expectBody: {} })), false);
+});
+
+test('user-story: probe expectBody with an unknown property is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/', expectBody: { contains: 'notes', equals: 'notes' } })), false);
+});
+
+test('user-story: probe expectBody.contains as an empty string is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/', expectBody: { contains: '' } })), false);
+});
+
+test('user-story: probe expectStatus 600 is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 600 })), false);
+});
+
+test('user-story: probe expectStatus 99 is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 99 })), false);
+});
+
+test('user-story: probe expectStatus bounds 100 and 599 validate', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 100 })), true, JSON.stringify(validate.errors));
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 599 })), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: probe expectStatus as a non-integer is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 200.5 })), false);
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: '200' })), false);
+});
+
+test('user-story: probe expectHeader missing match is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectHeader: { name: 'content-type' } })), false);
+});
+
+test('user-story: probe expectHeader missing name is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectHeader: { match: 'application/json' } })), false);
+});
+
+test('user-story: probe expectHeader with an unknown property is rejected', () => {
+  const doc = withProbe({ path: '/healthz', expectHeader: { name: 'content-type', match: 'json', mode: 'regex' } });
+  assert.equal(validate(doc), false);
+});
+
+test('user-story: probe with an empty selector or empty parityEnv is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/', selector: '' })), false);
+  assert.equal(validate(withProbe({ path: '/', parityEnv: '' })), false);
+});
+
+test('user-story: probe alongside scope, determinism, ownerRef, disposition and provenance validates', () => {
+  const doc = withProbe(fullProbe, {
+    scope: 'deployed',
+    determinism: 'deterministic',
+    ownerRef: { tacId: 'TAC-4150-ac-probe-catalog', field: 'interfaces.Probe' },
+    disposition: 'template',
+    provenance: { authoredBy: 'operator' }
+  });
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});

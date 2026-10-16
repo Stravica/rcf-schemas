@@ -1,0 +1,27 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe expectBody with both contains and matches is rejected",
+  "asA": "author",
+  "iWant": "expectBody to carry exactly one assertion",
+  "soThat": "the resolver never has to pick between two body checks",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "expectBody carries both contains and matches.",
+      "testable": true,
+      "probe": {
+        "path": "/api/notes",
+        "expectBody": {
+          "contains": "notes",
+          "matches": "^\\{"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}
