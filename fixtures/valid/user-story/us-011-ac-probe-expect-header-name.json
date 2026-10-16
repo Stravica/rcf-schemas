@@ -1,0 +1,27 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-100",
+  "reqId": "REQ-302",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Probe expectHeader.name carries a real header name",
+  "asA": "operator running deterministic verify",
+  "iWant": "a header assertion keyed on a named response header",
+  "soThat": "a real header name passes while a whitespace-only name is refused",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "The health endpoint carries a request id header.",
+      "testable": true,
+      "probe": {
+        "path": "/healthz",
+        "expectHeader": {
+          "name": "x-request-id",
+          "match": "^[0-9a-f-]{36}$"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

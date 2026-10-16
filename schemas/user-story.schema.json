@@ -138,7 +138,8 @@
         "selector": {
           "type": "string",
           "minLength": 1,
-          "description": "DOM selector that must be present in the rendered response."
+          "pattern": "\\S",
+          "description": "DOM selector that must be present in the rendered response. At least one non-whitespace character is required."
         },
         "parityEnv": {
           "type": "string",
@@ -156,12 +157,14 @@
         "name": {
           "type": "string",
           "minLength": 1,
-          "description": "Response header name."
+          "pattern": "\\S",
+          "description": "Response header name. At least one non-whitespace character is required."
         },
         "match": {
           "type": "string",
           "minLength": 1,
-          "description": "Value the named header must match. Match semantics belong to the consuming resolver."
+          "pattern": "\\S",
+          "description": "Value the named header must match. Match semantics belong to the consuming resolver. At least one non-whitespace character is required."
         }
       },
       "description": "Response header assertion on an acceptance-criterion probe. Both name and match are required."
@@ -173,12 +176,14 @@
         "contains": {
           "type": "string",
           "minLength": 1,
-          "description": "Literal text the response body must contain."
+          "pattern": "\\S",
+          "description": "Literal text the response body must contain. At least one non-whitespace character is required."
         },
         "matches": {
           "type": "string",
           "minLength": 1,
-          "description": "Regular expression source the response body must match."
+          "pattern": "\\S",
+          "description": "Regular expression source the response body must match. At least one non-whitespace character is required."
         }
       },
       "minProperties": 1,

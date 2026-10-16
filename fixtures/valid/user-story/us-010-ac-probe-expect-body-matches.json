@@ -1,0 +1,26 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-100",
+  "reqId": "REQ-302",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Probe expectBody.matches carries a real regular expression",
+  "asA": "operator running deterministic verify",
+  "iWant": "a body assertion on a pattern that includes a whitespace class",
+  "soThat": "a real pattern passes while a whitespace-only source is refused",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "The notes page renders its heading.",
+      "testable": true,
+      "probe": {
+        "path": "/notes",
+        "expectBody": {
+          "matches": "<h1>\\s*Notes\\s*</h1>"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}
