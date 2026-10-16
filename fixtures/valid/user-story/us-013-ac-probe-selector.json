@@ -1,0 +1,24 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-100",
+  "reqId": "REQ-302",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Probe selector carries a real descendant selector",
+  "asA": "operator running deterministic verify",
+  "iWant": "a DOM assertion with a descendant combinator",
+  "soThat": "a real selector passes while a whitespace-only selector is refused",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "The notes list renders inside the main landmark.",
+      "testable": true,
+      "probe": {
+        "path": "/notes",
+        "selector": "main [data-testid=\"notes-list\"]"
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

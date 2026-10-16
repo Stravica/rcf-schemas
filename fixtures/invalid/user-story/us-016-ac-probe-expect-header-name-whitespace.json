@@ -1,0 +1,27 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-100",
+  "reqId": "REQ-302",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe expectHeader.name as two spaces is rejected",
+  "asA": "author",
+  "iWant": "a header assertion keyed on a real header name",
+  "soThat": "a whitespace-only header name cannot resolve to a vacuous pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "expectHeader.name is two spaces.",
+      "testable": true,
+      "probe": {
+        "path": "/",
+        "expectHeader": {
+          "name": "  ",
+          "match": "application/json"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

@@ -1,0 +1,27 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-100",
+  "reqId": "REQ-302",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Probe expectHeader.match carries a real value with inner whitespace",
+  "asA": "operator running deterministic verify",
+  "iWant": "a header assertion whose expected value includes a space",
+  "soThat": "a real header value passes while a whitespace-only value is refused",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "The public page is cacheable for a minute.",
+      "testable": true,
+      "probe": {
+        "path": "/",
+        "expectHeader": {
+          "name": "cache-control",
+          "match": "public, max-age=60"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

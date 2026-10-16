@@ -4,6 +4,35 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.7.2 - 2026-10-16
+
+Patch release for rcf-lite FBS-218 (per-AC probe catalog, rcf-lite PR 370), review gate 3. A probe `{ "path": "/", "expectBody": { "contains": " " } }` validated under 0.7.1, because `minLength: 1` counts a single space, and a deterministic verify run resolved it to a vacuous pass. Every assertion string on the probe must now contain at least one non-whitespace character: `"pattern": "\\S"` alongside the existing `minLength: 1`.
+
+Semver: URLs pinned at `v0.6.0`. This is a narrowing, not an addition: a user story whose probe carries a whitespace-only assertion string validated under 0.7.1 and is rejected under 0.7.2. Under this repo's rule (`CONTRIBUTING.md` and the `README.md` Versioning section) a narrowing is minor-shaped, and 0.5.0 shipped the comparable `testPointer` `minLength: 1` tightening as a minor. It ships as `0.7.2` by deliberate exception: `probe` itself landed in 0.7.1 earlier the same day; the only documents rejected are ones whose assertion string asserts nothing, which is the defect this release closes; and rcf-lite, the consumer this changelog tracks, pins the package exact and is still on `0.7.0` on `main` at this release.
+
+### Added
+
+- **Fixtures (valid)**: `fixtures/valid/user-story/us-009-ac-probe-expect-body-contains.json` (`contains: "Welcome back"`), `fixtures/valid/user-story/us-010-ac-probe-expect-body-matches.json` (`matches` with a `\s*` class), `fixtures/valid/user-story/us-011-ac-probe-expect-header-name.json` (`name: "x-request-id"`), `fixtures/valid/user-story/us-012-ac-probe-expect-header-match.json` (`match: "public, max-age=60"`), `fixtures/valid/user-story/us-013-ac-probe-selector.json` (`selector` with a descendant combinator).
+- **Fixtures (invalid)**: `fixtures/invalid/user-story/us-014-ac-probe-expect-body-contains-whitespace.json` (a single space, the gate 3 case), `fixtures/invalid/user-story/us-015-ac-probe-expect-body-matches-whitespace.json` (a tab), `fixtures/invalid/user-story/us-016-ac-probe-expect-header-name-whitespace.json` (two spaces), `fixtures/invalid/user-story/us-017-ac-probe-expect-header-match-whitespace.json` (a newline), `fixtures/invalid/user-story/us-018-ac-probe-selector-whitespace.json` (space, tab, space). Each fails on exactly one ajv error (`pattern`), and each validates under 0.7.1, so it exercises the new constraint alone.
+- **Tests**: `test/user-story.test.js` gains 31 cases: the gate 3 regression probe; for each of the five fields, a whitespace-only value rejected on `pattern` across ten ASCII and Unicode whitespace strings, a real value accepted with inner, leading and trailing whitespace, a one-character value accepted (the `minLength: 1` boundary), and an empty string still rejected on `minLength`; and one case per new fixture, pinning its outcome and, for the invalid ones, the single `pattern` error at its instance path. Total suite grows from 402 to 433.
+
+### Changed
+
+- **`user-story.schema.json`**: `$defs.acProbeExpectBody.contains`, `$defs.acProbeExpectBody.matches`, `$defs.acProbeExpectHeader.name`, `$defs.acProbeExpectHeader.match` and `$defs.acProbe.selector` each gain `"pattern": "\\S"` next to `minLength: 1`, and each `description` says so. The pattern is unanchored, so a real value with leading, trailing or inner whitespace still validates. ajv compiles patterns with the `u` flag, so `\S` also treats Unicode whitespace (no-break space, em space, byte-order mark, line separator) as whitespace.
+- **Unchanged on purpose**: `$defs.acProbe.path` and `$defs.acProbe.parityEnv` keep `minLength: 1` only. They name the request target and the environment scope, not something the resolver checks the response against, so they sit outside this fix. `method` (enum), `expectStatus` (integer, 100..599), the `expectBody` exactly-one-of rule and every other def are untouched.
+
+### Migration
+
+- **Existing chains on 0.7.1**: bump `@stravica-ai/rcf-schemas` to `0.7.2`. A document is rejected only when a probe carries a whitespace-only `expectBody.contains`, `expectBody.matches`, `expectHeader.name`, `expectHeader.match` or `selector`. Replace the value with the text the criterion actually asserts, or remove that assertion.
+- **Consumers to bump**: `rcf-lite` (its `packages/rcf-lite/package.json` pins the schemas package exact, at `0.7.0` on `main` at this release). FBS-218 validates every probe against `$defs.acProbe`, so pinning `0.7.2` closes the whitespace-only case there without resolver-side trimming. This repo does not touch rcf-lite.
+
+### Notes
+
+- Scripted back-compat pass at authoring time: every 0.7.1 fixture at main `c34bf96` (67 valid + 95 invalid = 162 total) validates to the same outcome, with the same ajv error list, against the 0.7.2 schemas: zero drift.
+- Mutation check at authoring time: run against the 0.7.1 `user-story.schema.json`, the 11 new rejection cases fail, as does the existing invalid-fixture case for `user-story`; the 20 new acceptance and `minLength` cases pass on both.
+- `docs/user-story.md` still does not describe `probe` (deferred at 0.7.1); this release is scoped to the schema, fixtures, tests, version and changelog.
+- `back-compat-freeze.test.js` continues to pass.
+
 ## 0.7.1 - 2026-10-16
 
 Patch bump for rcf-lite issue 349 (per-AC probe catalog resolved by deterministic verify, rcf-lite TAC-4150 and FBS-218). Adds an additive, optional `probe` object on the inline `$defs.acceptanceCriterion` of the user story, so an acceptance criterion can carry a structured, deterministic probe that `rcf verify run --mode deterministic` resolves to pass, fail or skipped with evidence. An AC without a probe stays critique-only. Every change is additive: every 0.7.0-valid document keeps validating.

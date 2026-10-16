@@ -1,0 +1,26 @@
+{
+  "usId": "US-302",
+  "prdId": "PRD-100",
+  "reqId": "REQ-302",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Probe expectBody.matches as a tab is rejected",
+  "asA": "author",
+  "iWant": "a body pattern that asserts something",
+  "soThat": "a whitespace-only regular expression source cannot resolve to a vacuous pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-302-1",
+      "description": "expectBody.matches is a single tab.",
+      "testable": true,
+      "probe": {
+        "path": "/",
+        "expectBody": {
+          "matches": "\t"
+        }
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-16T00:00:00Z"
+}

@@ -3,8 +3,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 
-import { buildAjv, getSchemaByName } from './loadSchemas.js';
+import { buildAjv, getSchemaByName, REPO_ROOT } from './loadSchemas.js';
 
 const { ajv } = await buildAjv();
 const validate = getSchemaByName(ajv, 'user-story.schema.json');
@@ -617,3 +619,103 @@ test('user-story: probe alongside scope, determinism, ownerRef, disposition and 
   });
   assert.equal(validate(doc), true, JSON.stringify(validate.errors));
 });
+
+// -- 0.7.2 additions (acProbe assertion strings must carry a non-whitespace character) --
+//
+// rcf-lite FBS-218 review gate 3: a probe { path: '/', expectBody: { contains: ' ' } }
+// passed the 0.7.1 schema (minLength 1, no trim) and resolved to a vacuous pass.
+// Every assertion string on the probe now carries pattern \S alongside minLength 1.
+
+const assertionFields = [
+  {
+    field: 'expectBody.contains',
+    errorPath: '/acceptanceCriteria/0/probe/expectBody/contains',
+    probe: (v) => ({ path: '/', expectBody: { contains: v } }),
+    real: 'Welcome back'
+  },
+  {
+    field: 'expectBody.matches',
+    errorPath: '/acceptanceCriteria/0/probe/expectBody/matches',
+    probe: (v) => ({ path: '/', expectBody: { matches: v } }),
+    real: 'Hello, \\w+'
+  },
+  {
+    field: 'expectHeader.name',
+    errorPath: '/acceptanceCriteria/0/probe/expectHeader/name',
+    probe: (v) => ({ path: '/', expectHeader: { name: v, match: 'application/json' } }),
+    real: 'x-request-id'
+  },
+  {
+    field: 'expectHeader.match',
+    errorPath: '/acceptanceCriteria/0/probe/expectHeader/match',
+    probe: (v) => ({ path: '/', expectHeader: { name: 'cache-control', match: v } }),
+    real: 'public, max-age=60'
+  },
+  {
+    field: 'selector',
+    errorPath: '/acceptanceCriteria/0/probe/selector',
+    probe: (v) => ({ path: '/', selector: v }),
+    real: 'main [data-testid="notes-list"]'
+  }
+];
+
+// ASCII and Unicode whitespace the JavaScript \s class covers (ajv compiles patterns with the u flag).
+const whitespaceOnly = [' ', '   ', '\t', '\n', '\r\n', ' \t\n ', ' ', ' ', '﻿', ' '];
+
+test('user-story: FBS-218 gate 3 regression, probe expectBody.contains of a single space is rejected', () => {
+  assert.equal(validate(withProbe({ path: '/', expectBody: { contains: ' ' } })), false);
+});
+
+for (const { field, errorPath, probe, real } of assertionFields) {
+  test(`user-story: probe ${field} whitespace-only is rejected on pattern`, () => {
+    for (const value of whitespaceOnly) {
+      assert.equal(validate(withProbe(probe(value))), false, `${JSON.stringify(value)} passed`);
+      assert.deepEqual(
+        validate.errors.map((e) => [e.instancePath, e.keyword]),
+        [[errorPath, 'pattern']],
+        `${JSON.stringify(value)}: ${JSON.stringify(validate.errors)}`
+      );
+    }
+  });
+
+  test(`user-story: probe ${field} with a real value validates, inner and outer whitespace allowed`, () => {
+    for (const value of [real, ` ${real} `, `\t${real}\n`]) {
+      assert.equal(validate(withProbe(probe(value))), true, `${JSON.stringify(value)}: ${JSON.stringify(validate.errors)}`);
+    }
+  });
+
+  test(`user-story: probe ${field} of a single non-whitespace character validates (minLength 1 boundary kept)`, () => {
+    assert.equal(validate(withProbe(probe('x'))), true, JSON.stringify(validate.errors));
+  });
+
+  test(`user-story: probe ${field} as an empty string is still rejected on minLength`, () => {
+    assert.equal(validate(withProbe(probe(''))), false);
+    assert.ok(
+      validate.errors.some((e) => e.instancePath === errorPath && e.keyword === 'minLength'),
+      JSON.stringify(validate.errors)
+    );
+  });
+}
+
+const fixtureCases = [
+  ['us-009-ac-probe-expect-body-contains.json', 'us-014-ac-probe-expect-body-contains-whitespace.json', '/acceptanceCriteria/0/probe/expectBody/contains'],
+  ['us-010-ac-probe-expect-body-matches.json', 'us-015-ac-probe-expect-body-matches-whitespace.json', '/acceptanceCriteria/0/probe/expectBody/matches'],
+  ['us-011-ac-probe-expect-header-name.json', 'us-016-ac-probe-expect-header-name-whitespace.json', '/acceptanceCriteria/0/probe/expectHeader/name'],
+  ['us-012-ac-probe-expect-header-match.json', 'us-017-ac-probe-expect-header-match-whitespace.json', '/acceptanceCriteria/0/probe/expectHeader/match'],
+  ['us-013-ac-probe-selector.json', 'us-018-ac-probe-selector-whitespace.json', '/acceptanceCriteria/0/probe/selector']
+];
+
+function readFixture(kind, name) {
+  return JSON.parse(readFileSync(join(REPO_ROOT, 'fixtures', kind, 'user-story', name), 'utf8'));
+}
+
+for (const [validName, invalidName, errorPath] of fixtureCases) {
+  test(`user-story: fixture valid/${validName} validates`, () => {
+    assert.equal(validate(readFixture('valid', validName)), true, JSON.stringify(validate.errors));
+  });
+
+  test(`user-story: fixture invalid/${invalidName} fails on exactly one pattern error`, () => {
+    assert.equal(validate(readFixture('invalid', invalidName)), false);
+    assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), [[errorPath, 'pattern']]);
+  });
+}
