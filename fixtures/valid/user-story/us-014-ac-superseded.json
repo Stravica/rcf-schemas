@@ -1,0 +1,31 @@
+{
+  "usId": "US-303",
+  "prdId": "PRD-100",
+  "reqId": "REQ-303",
+  "version": "1.1.0",
+  "status": "approved",
+  "title": "Notes list paginates",
+  "asA": "author retiring a criterion",
+  "iWant": "a retired criterion to keep a durable record of its successor",
+  "soThat": "coverage stops asking for a test on it and the history stays auditable",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-303-1",
+      "description": "The notes list renders every note.",
+      "testable": true,
+      "scope": "deployed",
+      "disposition": "fixed",
+      "supersededBy": "AC-303-2",
+      "supersededOn": "2026-10-17",
+      "supersessionNote": "A pagination ruling caps the list at 25; AC-303-2 carries the bound."
+    },
+    {
+      "id": "AC-303-2",
+      "description": "The notes list renders the 25 most recent notes.",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-19T00:00:00Z"
+}

@@ -1,0 +1,28 @@
+{
+  "usId": "US-303",
+  "prdId": "PRD-100",
+  "reqId": "REQ-303",
+  "version": "1.1.0",
+  "status": "draft",
+  "title": "A supersession note without a successor is rejected",
+  "asA": "author retiring a criterion",
+  "iWant": "a supersession record that validates",
+  "soThat": "a retired criterion cannot lose its successor, date or reason",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-303-1",
+      "description": "supersessionNote without supersededBy.",
+      "testable": true,
+      "scope": "deployed",
+      "supersessionNote": "A pagination ruling caps the list at 25; AC-303-2 carries the bound."
+    },
+    {
+      "id": "AC-303-2",
+      "description": "The notes list renders the 25 most recent notes.",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-19T00:00:00Z"
+}

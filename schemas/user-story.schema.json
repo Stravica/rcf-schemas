@@ -72,7 +72,27 @@
         "disposition": { "$ref": "#/$defs/acDisposition" },
         "vendorCitation": { "$ref": "#/$defs/acVendorCitation" },
         "probe": { "$ref": "#/$defs/acProbe" },
-        "provenance": { "$ref": "#/$defs/acProvenance" }
+        "provenance": { "$ref": "#/$defs/acProvenance" },
+        "supersededBy": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/acId",
+          "description": "Id of the acceptance criterion that replaces this one. Presence marks the criterion as retired: it stays in the record as history and consumers stop treating it as live (a coverage audit does not require a bound test for it). Requires supersededOn and supersessionNote. Optional at schema level; that the successor exists, is not this criterion, and forms no cycle are cross-record rules for the consumer."
+        },
+        "supersededOn": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO-8601 date (YYYY-MM-DD) the criterion was superseded. Required with supersededBy, and valid only alongside it."
+        },
+        "supersessionNote": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Why the criterion was retired and how its successor covers it (for example the decision id that ruled the change). Required with supersededBy, and valid only alongside it. At least one non-whitespace character is required."
+        }
+      },
+      "dependentRequired": {
+        "supersededBy": ["supersededOn", "supersessionNote"],
+        "supersededOn": ["supersededBy"],
+        "supersessionNote": ["supersededBy"]
       }
     },
     "acOwnerRef": {
@@ -125,7 +145,7 @@
         "path": {
           "type": "string",
           "minLength": 1,
-          "description": "URL path the probe requests, relative to the run's --url (for example /healthz or /api/notes?limit=1). The only required field."
+          "description": "URL path the probe requests, relative to the run's --url (for example /healthz or /api/notes?limit=1). Required. The request target, not an assertion: a probe also needs at least one of expectStatus, expectHeader, expectBody or selector."
         },
         "expectStatus": {
           "type": "integer",
@@ -144,10 +164,16 @@
         "parityEnv": {
           "type": "string",
           "minLength": 1,
-          "description": "Target environment the probe is scoped to; the consuming resolver pairs it with rcf verify run --parity-env."
+          "description": "Target environment the probe is scoped to; the consuming resolver pairs it with rcf verify run --parity-env. Scopes the probe and is not an assertion."
         }
       },
-      "description": "Deterministic per-AC probe resolved by rcf verify run (rcf-lite issue 349). Absent means the criterion stays critique-only. Shape follows the Probe record in rcf-lite TAC-4150; the schema constrains shape only and the resolution semantics belong to the consumer."
+      "anyOf": [
+        { "properties": { "expectStatus": true }, "required": ["expectStatus"] },
+        { "properties": { "expectHeader": true }, "required": ["expectHeader"] },
+        { "properties": { "expectBody": true }, "required": ["expectBody"] },
+        { "properties": { "selector": true }, "required": ["selector"] }
+      ],
+      "description": "Deterministic per-AC probe resolved by rcf verify run (rcf-lite issue 349). Absent means the criterion stays critique-only. Shape follows the Probe record in rcf-lite TAC-4150; the schema constrains shape only and the resolution semantics belong to the consumer. From 0.9.0 a probe carries at least one response assertion (anyOf: expectStatus, expectHeader, expectBody or selector): a probe with only path, method or parityEnv asserts nothing and is rejected. Each anyOf arm declares its property locally so ajv strictRequired accepts it."
     },
     "acProbeExpectHeader": {
       "type": "object",

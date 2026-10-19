@@ -6,19 +6,20 @@
   "status": "approved",
   "title": "Health endpoint answers on the deployed URL",
   "asA": "operator running deterministic verify",
-  "iWant": "an acceptance criterion to carry the smallest possible probe",
+  "iWant": "an acceptance criterion to carry the smallest probe that still asserts something",
   "soThat": "rcf verify run resolves it without a critique pass",
   "acceptanceCriteria": [
     {
       "id": "AC-301-1",
-      "description": "The health endpoint answers on the deployed URL.",
+      "description": "The health endpoint answers 200 on the deployed URL.",
       "testable": true,
       "scope": "deployed",
       "probe": {
-        "path": "/healthz"
+        "path": "/healthz",
+        "expectStatus": 200
       }
     }
   ],
   "createdAt": "2026-01-01T00:00:00Z",
-  "updatedAt": "2026-10-16T00:00:00Z"
+  "updatedAt": "2026-10-19T00:00:00Z"
 }
