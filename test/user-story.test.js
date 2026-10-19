@@ -504,6 +504,20 @@ function withProbe(probe, extra = {}) {
   };
 }
 
+function probeErrorShape(errors) {
+  return errors.map((e) => [e.instancePath, e.keyword]);
+}
+
+// 0.9.0: the error set a probe with no assertion field produces (one required error per
+// anyOf arm, then the anyOf itself).
+const noAssertionErrors = [
+  ['/acceptanceCriteria/0/probe', 'required'],
+  ['/acceptanceCriteria/0/probe', 'required'],
+  ['/acceptanceCriteria/0/probe', 'required'],
+  ['/acceptanceCriteria/0/probe', 'required'],
+  ['/acceptanceCriteria/0/probe', 'anyOf']
+];
+
 const fullProbe = {
   method: 'GET',
   path: '/api/notes?limit=1',
@@ -518,8 +532,14 @@ test('user-story: AC without probe still validates (back-compat, field is option
   assert.equal(validate(base), true, JSON.stringify(validate.errors));
 });
 
-test('user-story: AC with a minimal probe (path only) validates', () => {
-  assert.equal(validate(withProbe({ path: '/healthz' })), true, JSON.stringify(validate.errors));
+// 0.9.0: a path-only probe asserts nothing and is rejected (validated from 0.7.1 to 0.8.0).
+test('user-story: AC with a path-only probe is rejected on anyOf (a probe requires at least one assertion)', () => {
+  assert.equal(validate(withProbe({ path: '/healthz' })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), noAssertionErrors);
+});
+
+test('user-story: AC with a minimal probe (path and expectStatus) validates', () => {
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 200 })), true, JSON.stringify(validate.errors));
 });
 
 test('user-story: AC with a full probe (every field, expectBody.matches) validates', () => {
@@ -533,12 +553,13 @@ test('user-story: probe with expectBody.contains validates', () => {
 
 test('user-story: probe accepts every method in the enum', () => {
   for (const method of ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']) {
-    assert.equal(validate(withProbe({ method, path: '/healthz' })), true, `${method}: ${JSON.stringify(validate.errors)}`);
+    assert.equal(validate(withProbe({ method, path: '/healthz', expectStatus: 200 })), true, `${method}: ${JSON.stringify(validate.errors)}`);
   }
 });
 
 test('user-story: probe method outside the enum (lowercase get) is rejected', () => {
-  assert.equal(validate(withProbe({ method: 'get', path: '/healthz' })), false);
+  assert.equal(validate(withProbe({ method: 'get', path: '/healthz', expectStatus: 200 })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), [['/acceptanceCriteria/0/probe/method', 'enum']]);
 });
 
 test('user-story: probe without path is rejected', () => {
@@ -546,11 +567,13 @@ test('user-story: probe without path is rejected', () => {
 });
 
 test('user-story: probe with an empty path is rejected', () => {
-  assert.equal(validate(withProbe({ path: '' })), false);
+  assert.equal(validate(withProbe({ path: '', expectStatus: 200 })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), [['/acceptanceCriteria/0/probe/path', 'minLength']]);
 });
 
 test('user-story: probe with an unknown property is rejected', () => {
-  assert.equal(validate(withProbe({ path: '/healthz', timeoutMs: 500 })), false);
+  assert.equal(validate(withProbe({ path: '/healthz', expectStatus: 200, timeoutMs: 500 })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), [['/acceptanceCriteria/0/probe', 'additionalProperties']]);
 });
 
 test('user-story: probe as a bare string is rejected', () => {
@@ -606,7 +629,8 @@ test('user-story: probe expectHeader with an unknown property is rejected', () =
 
 test('user-story: probe with an empty selector or empty parityEnv is rejected', () => {
   assert.equal(validate(withProbe({ path: '/', selector: '' })), false);
-  assert.equal(validate(withProbe({ path: '/', parityEnv: '' })), false);
+  assert.equal(validate(withProbe({ path: '/', expectStatus: 200, parityEnv: '' })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), [['/acceptanceCriteria/0/probe/parityEnv', 'minLength']]);
 });
 
 test('user-story: probe alongside scope, determinism, ownerRef, disposition and provenance validates', () => {
@@ -720,7 +744,7 @@ for (const [validName, invalidName, errorPath] of fixtureCases) {
   });
 }
 
-// -- 0.8.1 additions (criterion-level supersession) ----------------------
+// -- 0.9.0 additions (criterion-level supersession; drafted as 0.8.1, never published) --
 //
 // rcf-lite FBS-220 supersession round: `rcf define update <AC> --set supersededBy=...`
 // failed validate because an acceptance criterion had no supersededBy, status or note
@@ -857,3 +881,58 @@ for (const [invalidName, errorPath, keyword, missingProperty] of supersessionFix
     assert.deepEqual(errorShape(validate.errors), [[errorPath, keyword, missingProperty]]);
   });
 }
+
+// -- 0.9.0 additions (a probe requires at least one response assertion) --
+//
+// rcf-lite FBS-218 finding BH-1: a probe carrying only path (optionally method or
+// parityEnv) asserts nothing about the response, and rcf-lite's verify engine already
+// refuses one at runtime (PROBE_ASSERTION_FIELDS in catalog.js). The schema now states
+// the same contract: acProbe carries an anyOf over expectStatus, expectHeader,
+// expectBody and selector. path, method and parityEnv are not assertions.
+
+const assertionOnly = {
+  expectStatus: 204,
+  expectHeader: { name: 'content-type', match: 'application/json' },
+  expectBody: { contains: 'ok' },
+  selector: 'main h1'
+};
+
+for (const [field, value] of Object.entries(assertionOnly)) {
+  test(`user-story: probe with path and only ${field} as its assertion validates`, () => {
+    assert.equal(validate(withProbe({ path: '/healthz', [field]: value })), true, JSON.stringify(validate.errors));
+  });
+}
+
+test('user-story: probe with path, method and parityEnv but no assertion is rejected on anyOf', () => {
+  assert.equal(validate(withProbe({ method: 'HEAD', path: '/healthz', parityEnv: 'preview' })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), noAssertionErrors);
+});
+
+test('user-story: path-only probe is rejected for every method in the enum', () => {
+  for (const method of ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']) {
+    assert.equal(validate(withProbe({ method, path: '/healthz' })), false, method);
+    assert.deepEqual(probeErrorShape(validate.errors), noAssertionErrors, method);
+  }
+});
+
+test('user-story: an assertion that is present but malformed fails on its own constraint, not on anyOf', () => {
+  assert.equal(validate(withProbe({ path: '/', expectBody: {} })), false);
+  assert.deepEqual(probeErrorShape(validate.errors), [['/acceptanceCriteria/0/probe/expectBody', 'minProperties']]);
+});
+
+test('user-story: fixture valid/us-007-ac-probe-minimal.json (path and expectStatus) validates', () => {
+  assert.equal(validate(readFixture('valid', 'us-007-ac-probe-minimal.json')), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: fixture invalid/us-025-ac-probe-path-only.json fails on the anyOf assertion rule alone', () => {
+  assert.equal(validate(readFixture('invalid', 'us-025-ac-probe-path-only.json')), false);
+  assert.deepEqual(probeErrorShape(validate.errors), noAssertionErrors);
+});
+
+test('user-story: fixture invalid/us-009-ac-probe-unknown-property.json (path-only, unknown timeoutMs) fails on anyOf and additionalProperties', () => {
+  assert.equal(validate(readFixture('invalid', 'us-009-ac-probe-unknown-property.json')), false);
+  assert.deepEqual(probeErrorShape(validate.errors), [
+    ...noAssertionErrors,
+    ['/acceptanceCriteria/0/probe', 'additionalProperties']
+  ]);
+});

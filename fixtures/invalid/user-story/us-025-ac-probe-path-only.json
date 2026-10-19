@@ -1,0 +1,24 @@
+{
+  "usId": "US-301",
+  "prdId": "PRD-100",
+  "reqId": "REQ-301",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Path-only probe is rejected: a probe requires at least one assertion (acProbe anyOf, 0.9.0)",
+  "asA": "operator running deterministic verify",
+  "iWant": "a probe to carry at least one of expectStatus, expectHeader, expectBody or selector",
+  "soThat": "a probe that only names a path cannot resolve to a vacuous pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-301-1",
+      "description": "Probe names a path and asserts nothing about the response (the 0.7.1 to 0.8.0 us-007 shape, rcf-lite FBS-218 finding BH-1).",
+      "testable": true,
+      "scope": "deployed",
+      "probe": {
+        "path": "/healthz"
+      }
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-19T00:00:00Z"
+}

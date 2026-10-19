@@ -145,7 +145,7 @@
         "path": {
           "type": "string",
           "minLength": 1,
-          "description": "URL path the probe requests, relative to the run's --url (for example /healthz or /api/notes?limit=1). The only required field."
+          "description": "URL path the probe requests, relative to the run's --url (for example /healthz or /api/notes?limit=1). Required. The request target, not an assertion: a probe also needs at least one of expectStatus, expectHeader, expectBody or selector."
         },
         "expectStatus": {
           "type": "integer",
@@ -164,10 +164,16 @@
         "parityEnv": {
           "type": "string",
           "minLength": 1,
-          "description": "Target environment the probe is scoped to; the consuming resolver pairs it with rcf verify run --parity-env."
+          "description": "Target environment the probe is scoped to; the consuming resolver pairs it with rcf verify run --parity-env. Scopes the probe and is not an assertion."
         }
       },
-      "description": "Deterministic per-AC probe resolved by rcf verify run (rcf-lite issue 349). Absent means the criterion stays critique-only. Shape follows the Probe record in rcf-lite TAC-4150; the schema constrains shape only and the resolution semantics belong to the consumer."
+      "anyOf": [
+        { "properties": { "expectStatus": true }, "required": ["expectStatus"] },
+        { "properties": { "expectHeader": true }, "required": ["expectHeader"] },
+        { "properties": { "expectBody": true }, "required": ["expectBody"] },
+        { "properties": { "selector": true }, "required": ["selector"] }
+      ],
+      "description": "Deterministic per-AC probe resolved by rcf verify run (rcf-lite issue 349). Absent means the criterion stays critique-only. Shape follows the Probe record in rcf-lite TAC-4150; the schema constrains shape only and the resolution semantics belong to the consumer. From 0.9.0 a probe carries at least one response assertion (anyOf: expectStatus, expectHeader, expectBody or selector): a probe with only path, method or parityEnv asserts nothing and is rejected. Each anyOf arm declares its property locally so ajv strictRequired accepts it."
     },
     "acProbeExpectHeader": {
       "type": "object",
