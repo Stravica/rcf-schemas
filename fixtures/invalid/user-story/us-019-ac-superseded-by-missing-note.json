@@ -1,0 +1,29 @@
+{
+  "usId": "US-303",
+  "prdId": "PRD-100",
+  "reqId": "REQ-303",
+  "version": "1.1.0",
+  "status": "draft",
+  "title": "Supersession without a note is rejected",
+  "asA": "author retiring a criterion",
+  "iWant": "a supersession record that validates",
+  "soThat": "a retired criterion cannot lose its successor, date or reason",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-303-1",
+      "description": "supersededBy and supersededOn without supersessionNote.",
+      "testable": true,
+      "scope": "deployed",
+      "supersededBy": "AC-303-2",
+      "supersededOn": "2026-10-17"
+    },
+    {
+      "id": "AC-303-2",
+      "description": "The notes list renders the 25 most recent notes.",
+      "testable": true,
+      "scope": "deployed"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-19T00:00:00Z"
+}

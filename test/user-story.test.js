@@ -719,3 +719,141 @@ for (const [validName, invalidName, errorPath] of fixtureCases) {
     assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), [[errorPath, 'pattern']]);
   });
 }
+
+// -- 0.8.1 additions (criterion-level supersession) ----------------------
+//
+// rcf-lite FBS-220 supersession round: `rcf define update <AC> --set supersededBy=...`
+// failed validate because an acceptance criterion had no supersededBy, status or note
+// field. A retired criterion now carries supersededBy (an AC id), supersededOn (a date)
+// and supersessionNote (why), and the three travel together (dependentRequired).
+
+const supersession = {
+  supersededBy: 'AC-101-2',
+  supersededOn: '2026-10-17',
+  supersessionNote: 'A pagination ruling caps the list at 25; AC-101-2 carries the bound.'
+};
+
+const successor = { id: 'AC-101-2', description: 'The list renders the 25 most recent notes.', testable: true };
+
+function withRetiredAc(fields, extra = {}) {
+  return {
+    ...base,
+    acceptanceCriteria: [
+      { id: 'AC-101-1', description: 'retired criterion', testable: true, ...extra, ...fields },
+      successor
+    ]
+  };
+}
+
+function errorShape(errors) {
+  return errors.map((e) => [e.instancePath, e.keyword, e.params.missingProperty ?? null]);
+}
+
+test('user-story: AC without supersession fields still validates (back-compat, fields are optional)', () => {
+  assert.equal(validate({ ...base, acceptanceCriteria: [base.acceptanceCriteria[0], successor] }), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: superseded AC with supersededBy, supersededOn and supersessionNote validates', () => {
+  assert.equal(validate(withRetiredAc(supersession)), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: supersededBy accepts the flat AC id form', () => {
+  assert.equal(validate(withRetiredAc({ ...supersession, supersededBy: 'AC-201' })), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: superseded AC alongside scope, determinism, ownerRef, disposition, vendorCitation, probe and provenance validates', () => {
+  const doc = withRetiredAc(supersession, {
+    scope: 'deployed',
+    determinism: 'deterministic',
+    ownerRef: { tacId: 'TAC-001' },
+    disposition: 'fixed',
+    vendorCitation: { url: 'https://example.com/docs', verifiedOn: '2026-10-01' },
+    probe: { path: '/notes', expectStatus: 200 },
+    provenance: { authoredBy: 'operator' }
+  });
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: supersededBy without supersessionNote is rejected on dependentRequired', () => {
+  const { supersessionNote, ...rest } = supersession;
+  assert.equal(validate(withRetiredAc(rest)), false);
+  assert.deepEqual(errorShape(validate.errors), [['/acceptanceCriteria/0', 'dependentRequired', 'supersessionNote']]);
+});
+
+test('user-story: supersededBy without supersededOn is rejected on dependentRequired', () => {
+  const { supersededOn, ...rest } = supersession;
+  assert.equal(validate(withRetiredAc(rest)), false);
+  assert.deepEqual(errorShape(validate.errors), [['/acceptanceCriteria/0', 'dependentRequired', 'supersededOn']]);
+});
+
+test('user-story: FBS-220 regression, supersededBy set alone is rejected naming both missing fields', () => {
+  assert.equal(validate(withRetiredAc({ supersededBy: 'AC-101-2' })), false);
+  assert.deepEqual(errorShape(validate.errors), [
+    ['/acceptanceCriteria/0', 'dependentRequired', 'supersededOn'],
+    ['/acceptanceCriteria/0', 'dependentRequired', 'supersessionNote']
+  ]);
+});
+
+test('user-story: supersededOn or supersessionNote without supersededBy is rejected on dependentRequired', () => {
+  for (const fields of [{ supersededOn: '2026-10-17' }, { supersessionNote: 'retired' }]) {
+    assert.equal(validate(withRetiredAc(fields)), false, JSON.stringify(fields));
+    assert.deepEqual(errorShape(validate.errors), [['/acceptanceCriteria/0', 'dependentRequired', 'supersededBy']], JSON.stringify(fields));
+  }
+});
+
+test('user-story: supersededBy that is not an AC id is rejected on pattern', () => {
+  for (const value of ['REQ-101', 'ac-101-2', 'AC-1', 'AC-101-', '']) {
+    assert.equal(validate(withRetiredAc({ ...supersession, supersededBy: value })), false, value);
+    assert.deepEqual(errorShape(validate.errors), [['/acceptanceCriteria/0/supersededBy', 'pattern', null]], value);
+  }
+});
+
+test('user-story: supersededOn that is not an ISO-8601 date is rejected on format', () => {
+  for (const value of ['17/10/2026', '2026-10-17T00:00:00Z', '2026-13-01', '']) {
+    assert.equal(validate(withRetiredAc({ ...supersession, supersededOn: value })), false, value);
+    assert.deepEqual(errorShape(validate.errors), [['/acceptanceCriteria/0/supersededOn', 'format', null]], value);
+  }
+});
+
+test('user-story: supersessionNote whitespace-only is rejected on pattern, empty on minLength', () => {
+  for (const value of whitespaceOnly) {
+    assert.equal(validate(withRetiredAc({ ...supersession, supersessionNote: value })), false, JSON.stringify(value));
+    assert.deepEqual(errorShape(validate.errors), [['/acceptanceCriteria/0/supersessionNote', 'pattern', null]], JSON.stringify(value));
+  }
+  assert.equal(validate(withRetiredAc({ ...supersession, supersessionNote: '' })), false);
+  assert.ok(validate.errors.some((e) => e.instancePath === '/acceptanceCriteria/0/supersessionNote' && e.keyword === 'minLength'));
+});
+
+test('user-story: disposition superseded is still rejected (supersession is its own field, not a disposition)', () => {
+  assert.equal(validate(withRetiredAc(supersession, { disposition: 'superseded' })), false);
+  assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), [['/acceptanceCriteria/0/disposition', 'enum']]);
+});
+
+test('user-story: a status field on an AC is still rejected (the criterion carries no lifecycle status)', () => {
+  assert.equal(validate(withRetiredAc(supersession, { status: 'superseded' })), false);
+  assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), [['/acceptanceCriteria/0', 'additionalProperties']]);
+});
+
+test('user-story: self-supersession validates at schema level (successor existence and cycles are consumer rules)', () => {
+  assert.equal(validate(withRetiredAc({ ...supersession, supersededBy: 'AC-101-1' })), true, JSON.stringify(validate.errors));
+});
+
+const supersessionFixtureCases = [
+  ['us-019-ac-superseded-by-missing-note.json', '/acceptanceCriteria/0', 'dependentRequired', 'supersessionNote'],
+  ['us-020-ac-superseded-by-missing-date.json', '/acceptanceCriteria/0', 'dependentRequired', 'supersededOn'],
+  ['us-021-ac-supersession-note-without-superseded-by.json', '/acceptanceCriteria/0', 'dependentRequired', 'supersededBy'],
+  ['us-022-ac-superseded-by-not-an-ac-id.json', '/acceptanceCriteria/0/supersededBy', 'pattern', null],
+  ['us-023-ac-superseded-on-bad-date.json', '/acceptanceCriteria/0/supersededOn', 'format', null],
+  ['us-024-ac-supersession-note-whitespace.json', '/acceptanceCriteria/0/supersessionNote', 'pattern', null]
+];
+
+test('user-story: fixture valid/us-014-ac-superseded.json validates', () => {
+  assert.equal(validate(readFixture('valid', 'us-014-ac-superseded.json')), true, JSON.stringify(validate.errors));
+});
+
+for (const [invalidName, errorPath, keyword, missingProperty] of supersessionFixtureCases) {
+  test(`user-story: fixture invalid/${invalidName} fails on exactly one ${keyword} error`, () => {
+    assert.equal(validate(readFixture('invalid', invalidName)), false);
+    assert.deepEqual(errorShape(validate.errors), [[errorPath, keyword, missingProperty]]);
+  });
+}

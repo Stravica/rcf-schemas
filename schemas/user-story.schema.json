@@ -72,7 +72,27 @@
         "disposition": { "$ref": "#/$defs/acDisposition" },
         "vendorCitation": { "$ref": "#/$defs/acVendorCitation" },
         "probe": { "$ref": "#/$defs/acProbe" },
-        "provenance": { "$ref": "#/$defs/acProvenance" }
+        "provenance": { "$ref": "#/$defs/acProvenance" },
+        "supersededBy": {
+          "$ref": "https://schemas.stravica.io/rcf/v0.6.0/common.schema.json#/$defs/acId",
+          "description": "Id of the acceptance criterion that replaces this one. Presence marks the criterion as retired: it stays in the record as history and consumers stop treating it as live (a coverage audit does not require a bound test for it). Requires supersededOn and supersessionNote. Optional at schema level; that the successor exists, is not this criterion, and forms no cycle are cross-record rules for the consumer."
+        },
+        "supersededOn": {
+          "type": "string",
+          "format": "date",
+          "description": "ISO-8601 date (YYYY-MM-DD) the criterion was superseded. Required with supersededBy, and valid only alongside it."
+        },
+        "supersessionNote": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "\\S",
+          "description": "Why the criterion was retired and how its successor covers it (for example the decision id that ruled the change). Required with supersededBy, and valid only alongside it. At least one non-whitespace character is required."
+        }
+      },
+      "dependentRequired": {
+        "supersededBy": ["supersededOn", "supersessionNote"],
+        "supersededOn": ["supersededBy"],
+        "supersessionNote": ["supersededBy"]
       }
     },
     "acOwnerRef": {

@@ -4,6 +4,61 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.8.1 - 2026-10-19
+
+Patch release for the rcf-lite FBS-220 supersession round and the FBS-218 gate 4 schema findings. A retired acceptance criterion can now carry a durable, validating record of what replaced it: `supersededBy` (an AC id), `supersededOn` (a date) and `supersessionNote` (why), which travel together. In the FBS-220 round `rcf define update AC-16505-2 --set supersededBy=...` failed validate because the criterion had no such field and `disposition` accepts only `fixed | template`. Three further findings were analysed in the same pass and are recorded below under Decisions; none of them changes a schema in this release.
+
+Semver: URLs pinned at `v0.6.0`. Every change is additive: three optional properties on the closed `$defs.acceptanceCriterion`, bound to each other by `dependentRequired`, so every 0.8.0-valid document keeps validating and a document is rejected only if it carries one of the new fields without the other two. Under this repo's rule (`CONTRIBUTING.md` and the `README.md` Versioning section: additive changes are a patch bump, breaking changes a minor) this ships as `0.8.1`, the same call 0.6.2 and 0.7.1 made for optional properties on this record. The narrowing considered for decision 1 below would have made this `0.9.0`; it is held, so the release stays a patch.
+
+### Added
+
+- **`user-story.schema.json`**: new optional `supersededBy` on `$defs.acceptanceCriterion` (`$ref` to the shared `acId`, so `AC-101-1` and `AC-201` both validate and a REQ or lowercase id does not). Presence marks the criterion as retired: it stays in the record as history and consumers stop treating it as live.
+- **`user-story.schema.json`**: new optional `supersededOn` (string, `format: date`, `YYYY-MM-DD`, the `vendorCitation.verifiedOn` shape) and `supersessionNote` (min-length-1 string with `"pattern": "\\S"`, the 0.8.0 non-whitespace rule) on the same def.
+- **`user-story.schema.json`**: `dependentRequired` on `$defs.acceptanceCriterion`: `supersededBy` requires `supersededOn` and `supersessionNote`, and each of those requires `supersededBy`. All three or none; a partial set fails with one `dependentRequired` error per missing field, naming it in `params.missingProperty`.
+- **Fixtures (valid)**: `fixtures/valid/user-story/us-014-ac-superseded.json` (a `fixed`-disposition criterion superseded by its live sibling, which keeps its `disposition`).
+- **Fixtures (invalid)**: `fixtures/invalid/user-story/us-019-ac-superseded-by-missing-note.json`, `us-020-ac-superseded-by-missing-date.json`, `us-021-ac-supersession-note-without-superseded-by.json` (each one `dependentRequired` error), `us-022-ac-superseded-by-not-an-ac-id.json` (`REQ-303`, one `pattern` error), `us-023-ac-superseded-on-bad-date.json` (`17/10/2026`, one `format` error), `us-024-ac-supersession-note-whitespace.json` (two spaces and a newline, one `pattern` error). Each is also invalid under 0.8.0 (unknown property), so the cases pin the new error shape.
+- **Tests**: `test/user-story.test.js` gains 21 cases: back-compat without the fields; the full record; the flat AC id form; the record alongside every other optional AC field; missing note, missing date, and the FBS-220 regression (`supersededBy` alone, both missing fields named); date or note without `supersededBy`; five non-AC ids rejected on `pattern`; four non-dates rejected on `format`; ten whitespace-only notes rejected on `pattern` and an empty note on `minLength`; `disposition: "superseded"` still rejected on `enum`; a `status` field on a criterion still rejected on `additionalProperties`; self-supersession validating at schema level (a consumer rule, pinned so the limit is visible); and one case per new fixture. Total suite grows from 433 to 454.
+- **`docs/user-story.md`**: the AC field table gains the three fields and a paragraph on why supersession is not a `disposition` value.
+
+### Decisions
+
+1. **Probe requires at least one response assertion: held, not shipped.** The rule is right: a probe with only `path` asserts nothing, and rcf-lite already refuses one at runtime (`PROBE_ASSERTION_FIELDS` in `packages/rcf-lite/src/verify/engine/catalog.js`, gate finding BH-1, which resolves it to a fail with `missing assertion`). The schema form is an `anyOf` of four arms, `{ "properties": { "<field>": true }, "required": ["<field>"] }` for `expectStatus`, `expectHeader`, `expectBody` and `selector` (each arm declares its property locally because the test loader runs ajv `strictRequired`; `parityEnv` scopes a probe and is not an assertion). It cannot ship with zero fixture drift: `fixtures/valid/user-story/us-007-ac-probe-minimal.json` is exactly a path-only probe and flips to invalid, and `fixtures/invalid/user-story/us-009-ac-probe-unknown-property.json` stays invalid but gains five errors, breaking its one-error convention. Two 0.7.1 test cases (the path-only minimal probe and the every-method loop) flip with it. The release-holder decides between adopting the narrowing with those named drifts (a minor, `0.9.0`) and keeping the runtime check as the only enforcement.
+2. **Match-anything regexes: runtime, not schema.** Nothing is added to the schema. Whether a pattern matches every body is a property of the regex, not of its spelling: a denylist of `.*`, `^.*# Changelog
+
+All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
+
+The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
+
+, `[\s\S]*`, `.+`, `^`, `# Changelog
+
+All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
+
+The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
+
+ and `(?:)` is evaded by `.*?`, `(.*)`, `.{0,}`, `\S*`, `x?`, `a|`, `[^]*` and `.`, so a schema `pattern` or `not.enum` would advertise a guarantee it cannot give. It also could not apply to `expectHeader.match`, which rcf-lite resolves as a substring (`value.includes(match)`), not a regex, so `.*` there is a literal and not vacuous. **Rule for rcf-lite's verify engine:** before resolving `expectBody.matches`, compile the source and test it against two fixed canary strings from disjoint character classes, one of word characters only (for example `qzvxjk0729`) and one of non-word, non-space punctuation only (for example `~!@#%^&*()`). A pattern that matches both asserts nothing about the body: resolve the criterion as a fail with `failedExpectation: "expectBody.matches"` and an expected value naming the vacuity, never a pass; a source that does not compile is also a fail. Every spelling above, named or evasive, matches both canaries; `^\{"notes":\[`, `<h1>\s*Notes\s*</h1>`, `Hello, \w+`, `\w+`, `[0-9a-f]{8}`, `^# Changelog
+
+All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
+
+The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
+
+ and plain text match neither or one and pass the check. Fixed canaries keep the deterministic mode deterministic. If `expectHeader.match` ever becomes a regex, the same rule applies to it.
+3. **Criterion-level supersession: `supersededBy` plus a required dated note (option a).** Extending `disposition` with `superseded` (option b) was rejected because `disposition` records who owns the criterion (blueprint or applying agent), a separate axis from whether it is live: a `fixed` criterion that is superseded would lose its owner marker. Both (option c) would give two sources of truth that can disagree. `supersededBy` matches the field the FBS-220 round already reached for and the ADR record's own `supersededBy`. A single successor id is carried; a criterion split in two names its primary successor and the note names the other, and widening to a list later is additive.
+4. **Packed-artefact profile on VerifyReport v1: not in this repo.** The VerifyReport v1 shape (`schemaVersion: '1'`, `profile`) is defined in rcf-lite (`packages/rcf-lite/src/verify/report/index.js` and `src/verify/profile/index.js`); rcf-schemas carries no verify-report schema. Nothing is added here; the rcf-lite suite-as-probe DEFINE picks up the `packagedArtefact` profile and the `artefact` object.
+
+### Migration
+
+- **Existing chains on 0.8.0**: bump `@stravica-ai/rcf-schemas` to `0.8.1`. Every existing document keeps validating; the three fields are optional and unknown to pre-0.8.1 callers.
+- **To retire a criterion**: set all three in one write, for example `rcf define update AC-16505-2 --set supersededBy=AC-16505-4 --set supersededOn=2026-10-17 --set supersessionNote="..."`. Setting `supersededBy` alone fails validate by design and names both missing fields.
+- **Consumers to bump**: `rcf-lite` (pins the schemas package exact). What rcf-lite must do, none of which this repo touches: (1) `rcf audit coverage --strict` treats a criterion carrying `supersededBy` as retired: it requires no bound test and leaves the coverage denominator, and a test still bound to it is reported, not counted; (2) the cross-record rules the schema cannot express: the successor exists in the same chain and is not the criterion itself, and following `supersededBy` from any retired criterion ends at a live one (no cycle); (3) deterministic verify skips a retired criterion's probe rather than resolving it; (4) the decision 2 canary rule in the verify engine; (5) decision 1's runtime refusal stays in place while the schema narrowing is held.
+
+### Notes
+
+- Scripted back-compat pass at authoring time: every 0.8.0 fixture at main `2341f24` (72 valid + 100 invalid = 172 total) validates to the same outcome, with the same ajv error list, against the 0.8.1 schemas: zero drift.
+- Mutation check at authoring time: the 0.8.1 tests and fixtures run against the 0.8.0 schemas fail 21 of 454. Twenty are new cases (every case that depends on the new fields or pins their error shape); the twenty-first is the existing `valid fixtures: user-story` runner, which fails only because the new `us-014` is rejected by 0.8.0. The new back-compat case and every other pre-existing case pass on both.
+- Decision 1 measured at authoring time (prototype, not committed): the `anyOf` narrowing fails 3 of 454 against the 0.8.1 tree, the two 0.7.1 path-only cases named above and the `valid fixtures: user-story` runner on `us-007`; `us-009` changes its error list without failing a test.
+- `docs/user-story.md` still does not describe `probe` (deferred at 0.7.1).
+- `back-compat-freeze.test.js` continues to pass.
+
 ## 0.8.0 - 2026-10-16
 
 Minor release for rcf-lite FBS-218 (per-AC probe catalog, rcf-lite PR 370), review gate 3. A probe `{ "path": "/", "expectBody": { "contains": " " } }` validated under 0.7.1, because `minLength: 1` counts a single space, and a deterministic verify run resolved it to a vacuous pass. Every assertion string on the probe must now contain at least one non-whitespace character: `"pattern": "\\S"` alongside the existing `minLength: 1`.
