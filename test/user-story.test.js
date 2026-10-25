@@ -936,3 +936,105 @@ test('user-story: fixture invalid/us-009-ac-probe-unknown-property.json (path-on
     ['/acceptanceCriteria/0/probe', 'additionalProperties']
   ]);
 });
+
+// -- 0.10.0 additions (optional AC verification flag, rcf-lite FBS-232) --
+//
+// rcf-lite ADR-4152: every criterion carries a verification flag, external or testOnly,
+// set at DEFINE and read by review, coverage and verify. Until this release the closed
+// $defs.acceptanceCriterion refused the field. It is now an optional enum of exactly those
+// two values (rcf-lite AC-19501-4 and AC-19501-6); whether a consumer requires it, and what
+// each value means, are the consumer's rules.
+
+function withVerification(extra) {
+  return {
+    ...base,
+    acceptanceCriteria: [{ id: 'AC-101-1', description: 'flagged criterion', testable: true, ...extra }]
+  };
+}
+
+const verificationEnumError = [['/acceptanceCriteria/0/verification', 'enum']];
+
+const outsideVerificationEnum = [
+  'External',
+  'TESTONLY',
+  'testonly',
+  'test-only',
+  'internal',
+  'manual',
+  'deployed',
+  '',
+  null,
+  true,
+  1,
+  ['external'],
+  {}
+];
+
+test('user-story: AC with verification=external validates', () => {
+  assert.equal(validate(withVerification({ verification: 'external' })), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with verification=testOnly validates', () => {
+  assert.equal(validate(withVerification({ verification: 'testOnly' })), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC without verification validates (field is optional at schema level, AC-19501-4)', () => {
+  assert.equal('verification' in base.acceptanceCriteria[0], false);
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with verification outside the enum is rejected on enum alone', () => {
+  for (const value of outsideVerificationEnum) {
+    assert.equal(validate(withVerification({ verification: value })), false, JSON.stringify(value));
+    assert.deepEqual(
+      validate.errors.map((e) => [e.instancePath, e.keyword]),
+      verificationEnumError,
+      `${JSON.stringify(value)}: ${JSON.stringify(validate.errors)}`
+    );
+  }
+});
+
+test('user-story: an undeclared verificationMode on an AC is still rejected on additionalProperties', () => {
+  assert.equal(validate(withVerification({ verificationMode: 'external' })), false);
+  assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), [['/acceptanceCriteria/0', 'additionalProperties']]);
+});
+
+test('user-story: an undeclared verificationMode beside a valid verification is still rejected on additionalProperties alone', () => {
+  assert.equal(validate(withVerification({ verification: 'testOnly', verificationMode: 'external' })), false);
+  assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), [['/acceptanceCriteria/0', 'additionalProperties']]);
+  assert.equal(validate.errors[0].params.additionalProperty, 'verificationMode');
+});
+
+test('user-story: verification alongside given, when, then, scope, determinism, ownerRef, disposition, vendorCitation, probe, provenance and supersession validates', () => {
+  const doc = withRetiredAc(supersession, {
+    given: 'a fixture project',
+    when: 'the packed artefact runs against it',
+    then: 'the notes list renders',
+    scope: 'deployed',
+    determinism: 'deterministic',
+    ownerRef: { tacId: 'TAC-001' },
+    disposition: 'fixed',
+    vendorCitation: { url: 'https://example.com/docs', verifiedOn: '2026-10-01' },
+    probe: { path: '/notes', expectStatus: 200 },
+    provenance: { authoredBy: 'operator' },
+    verification: 'external'
+  });
+  assert.equal(validate(doc), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: schema file declares verification as an enum of exactly external, testOnly, not required, object still closed (AC-19501-6)', () => {
+  const schema = JSON.parse(readFileSync(join(REPO_ROOT, 'schemas', 'user-story.schema.json'), 'utf8'));
+  const criterion = schema.$defs.acceptanceCriterion;
+  assert.deepEqual(criterion.properties.verification.enum, ['external', 'testOnly']);
+  assert.deepEqual(criterion.required, ['id', 'description', 'testable']);
+  assert.equal(criterion.additionalProperties, false);
+});
+
+test('user-story: fixture valid/us-015-ac-verification.json (one external, one testOnly criterion) validates', () => {
+  assert.equal(validate(readFixture('valid', 'us-015-ac-verification.json')), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: fixture invalid/us-026-ac-verification-bad-value.json fails on exactly one enum error', () => {
+  assert.equal(validate(readFixture('invalid', 'us-026-ac-verification-bad-value.json')), false);
+  assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), verificationEnumError);
+});

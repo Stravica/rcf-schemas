@@ -87,6 +87,10 @@
           "minLength": 1,
           "pattern": "\\S",
           "description": "Why the criterion was retired and how its successor covers it (for example the decision id that ruled the change). Required with supersededBy, and valid only alongside it. At least one non-whitespace character is required."
+        },
+        "verification": {
+          "enum": ["external", "testOnly"],
+          "description": "How the acceptance criterion is verified. external: an operator can observe the behaviour by running the packed artefact, installed cold, against a fixture project. testOnly: the behaviour lives only in the repository's own tree, CI configuration or chain state. Optional at schema level. Absence carries no default at schema level: whether a consumer requires the flag, and what each value means for a criterion's end state, are the consumer's rules. Written by rcf-lite, which sets it at DEFINE (rcf-lite ADR-4152)."
         }
       },
       "dependentRequired": {

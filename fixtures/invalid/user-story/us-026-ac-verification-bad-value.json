@@ -1,0 +1,21 @@
+{
+  "usId": "US-202",
+  "prdId": "PRD-100",
+  "reqId": "REQ-202",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Verification outside the enum is rejected",
+  "asA": "author",
+  "iWant": "verification to be one of external or testOnly",
+  "soThat": "the flag is unambiguous for a consumer that gates on it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-202-1",
+      "description": "Verification is neither external nor testOnly.",
+      "testable": true,
+      "verification": "manual"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-25T00:00:00Z"
+}
