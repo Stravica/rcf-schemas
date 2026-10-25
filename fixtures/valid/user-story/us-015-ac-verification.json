@@ -1,0 +1,28 @@
+{
+  "usId": "US-304",
+  "prdId": "PRD-100",
+  "reqId": "REQ-304",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "Criteria carry their verification flag",
+  "asA": "test-author writing criteria at DEFINE",
+  "iWant": "each criterion to say whether it is verified from the packed artefact or by the repository's own tests",
+  "soThat": "review, coverage and verify read a validated field, not a convention in prose",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-304-1",
+      "description": "The notes list renders the 25 most recent notes.",
+      "testable": true,
+      "scope": "deployed",
+      "verification": "external"
+    },
+    {
+      "id": "AC-304-2",
+      "description": "The notes repository's CI runs the full suite on every pull request.",
+      "testable": true,
+      "verification": "testOnly"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-25T00:00:00Z"
+}

@@ -4,6 +4,31 @@ All notable changes to `@stravica-ai/rcf-schemas` are documented in this file.
 
 The format roughly follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and the project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html). Pre-1.0 breaking changes are signalled by a minor bump per semver 0.x convention.
 
+## 0.10.0 - 2026-10-25
+
+Minor release for rcf-lite FBS-232, the rcf-schemas slice of rcf-lite's verification flag (rcf-lite ADR-4152). rcf-lite gives every acceptance criterion a verification flag, `external` or `testOnly`, set at DEFINE and read by review, coverage and verify: `external` when an operator can observe the behaviour by running the packed artefact, installed cold, against a fixture project, and `testOnly` when the behaviour lives only in the repository's own tree, CI configuration or chain state. Under 0.9.0 the closed `$defs.acceptanceCriterion` refuses the field, so rcf-lite records the flag as an interim user-story tag until its pin moves. This release gives the flag a validated place on the criterion itself.
+
+Semver: URLs pinned at `v0.6.0`. The change is additive: one optional property on the closed `$defs.acceptanceCriterion`, and every 0.9.0-valid document keeps validating. Under `CONTRIBUTING.md` an additive change is a patch bump; the release-holder set this release at `0.10.0`.
+
+### Added
+
+- **`user-story.schema.json`**: new optional `verification` on `$defs.acceptanceCriterion`, `"enum": ["external", "testOnly"]` with a `description` and no `type` or `default` (the `determinism` shape). Any other value, including another spelling or case, `null`, a boolean, a number, an array or an object, fails on one `enum` error at the criterion's `verification`. `required` stays `["id", "description", "testable"]` and `additionalProperties` stays `false`, so an undeclared property beside the flag is still rejected. As with `disposition` and `scope`, the description leaves to the consumer whether the flag is required and what each value means for a criterion's end state.
+- **Fixtures (valid)**: `fixtures/valid/user-story/us-015-ac-verification.json` (two criteria, one `external` and one `testOnly`).
+- **Fixtures (invalid)**: `fixtures/invalid/user-story/us-026-ac-verification-bad-value.json` (`"verification": "manual"`, one `enum` error). It is also invalid under 0.9.0 (unknown property), so its case pins the new error shape.
+- **Tests**: `test/user-story.test.js` gains 10 cases: each of `external` and `testOnly` validates; a criterion without the field validates (rcf-lite AC-19501-4); thirteen values outside the enum (`External`, `TESTONLY`, `testonly`, `test-only`, `internal`, `manual`, `deployed`, the empty string, `null`, `true`, `1`, `["external"]` and `{}`) are each rejected on `enum` alone; an undeclared `verificationMode` is rejected on `additionalProperties`, alone and beside a valid `verification`; the flag alongside every other optional criterion field, supersession included, validates; the schema file read directly declares the enum as exactly `["external", "testOnly"]`, keeps `required` unchanged and keeps `additionalProperties: false` (rcf-lite AC-19501-6); and one case per new fixture. Total suite grows from 465 to 475.
+- **`docs/user-story.md`**: the AC field table gains the `verification` row.
+
+### Migration
+
+- **Existing chains on 0.9.0**: nothing changes. The field is optional, and no existing document gains or loses validity (see Notes). A criterion may now carry `"verification": "external"` or `"verification": "testOnly"`.
+- **Consumers to bump**: `rcf-lite` (pins the schemas package exact; bump the pin to `0.10.0`). Requiring the flag on new or amended criteria, and what each value means for a criterion's end state, are rcf-lite rules this repo does not touch. Once a criterion carries the field, a consumer still pinned to 0.9.0 rejects the document on `additionalProperties`.
+
+### Notes
+
+- Scripted drift report at authoring time: every fixture at main `906b668` (0.9.0: 73 valid + 107 invalid = 180), in its original bytes, validated against the 0.10.0 schemas keeps its outcome and its exact ajv error list: zero drift.
+- Mutation check at authoring time: the 0.10.0 tests and fixtures run against the 0.9.0 `user-story.schema.json` fail 9 of 475: both value cases, the out-of-enum case (each value fails on `additionalProperties` instead of `enum`), the undeclared property beside a valid `verification` (two `additionalProperties` errors instead of one), the alongside case, the schema-file case, both fixture cases, and the existing `valid fixtures: user-story` runner, which fails only because `us-015` is invalid there. The absent-field case and the undeclared-property case pass on both.
+- `back-compat-freeze.test.js` continues to pass.
+
 ## 0.9.0 - 2026-10-19
 
 Minor release for the rcf-lite FBS-220 supersession round and the FBS-218 gate 4 schema findings. It folds in the 0.8.1 draft, which was never published, and adopts decision 1 from that draft. A retired acceptance criterion can now carry a durable, validating record of what replaced it: `supersededBy` (an AC id), `supersededOn` (a date) and `supersessionNote` (why), which travel together. In the FBS-220 round `rcf define update AC-16505-2 --set supersededBy=...` failed validate because the criterion had no such field and `disposition` accepts only `fixed | template`. A probe must now carry at least one response assertion: a probe with only `path` (optionally `method` or `parityEnv`) asserts nothing, rcf-lite already refuses one at runtime (finding BH-1 on FBS-218), and the schema now states the same contract for every consumer. Three further findings were analysed in the same pass and are recorded under Decisions; none of them changes a schema.
