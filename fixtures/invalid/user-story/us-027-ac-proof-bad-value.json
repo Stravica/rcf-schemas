@@ -1,0 +1,21 @@
+{
+  "usId": "US-204",
+  "prdId": "PRD-100",
+  "reqId": "REQ-204",
+  "version": "1.0.0",
+  "status": "draft",
+  "title": "Proof outside the enum is rejected",
+  "asA": "author",
+  "iWant": "proof to be one of full, journey or external",
+  "soThat": "the level is unambiguous for a consumer that gates on it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-204-1",
+      "description": "Proof is neither full, journey nor external.",
+      "testable": true,
+      "proof": "light"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-11-05T00:00:00Z"
+}

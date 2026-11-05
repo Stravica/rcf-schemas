@@ -1,0 +1,22 @@
+{
+  "usId": "US-305",
+  "prdId": "PRD-100",
+  "reqId": "REQ-305",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A money criterion is proved at the full level",
+  "asA": "test-author writing criteria at DEFINE",
+  "iWant": "a criterion on a charge to declare that its proof is the full mutation proof",
+  "soThat": "the audit runs the mutants over the Code Node that takes the money",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-305-1",
+      "description": "A checkout charges the card exactly once for the order total.",
+      "testable": true,
+      "verification": "testOnly",
+      "proof": "full"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-11-05T00:00:00Z"
+}

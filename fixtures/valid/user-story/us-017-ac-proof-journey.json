@@ -1,0 +1,22 @@
+{
+  "usId": "US-306",
+  "prdId": "PRD-100",
+  "reqId": "REQ-306",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A core journey criterion is proved at the journey level",
+  "asA": "test-author writing criteria at DEFINE",
+  "iWant": "a criterion on a core journey to declare that its proof is an end-to-end test of the journey",
+  "soThat": "the audit checks its e2e-level bound tests and runs no mutants",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-306-1",
+      "description": "A new user signs up, confirms the email and lands on the dashboard.",
+      "testable": true,
+      "verification": "external",
+      "proof": "journey"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-11-05T00:00:00Z"
+}
