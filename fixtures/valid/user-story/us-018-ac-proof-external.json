@@ -1,0 +1,23 @@
+{
+  "usId": "US-307",
+  "prdId": "PRD-100",
+  "reqId": "REQ-307",
+  "version": "1.0.0",
+  "status": "approved",
+  "title": "A deployed criterion is proved by the release Verify",
+  "asA": "test-author writing criteria at DEFINE",
+  "iWant": "a criterion that only a deployed site can show to declare that the release Verify proves it",
+  "soThat": "the audit reports it notApplicable and the release Verify carries the proof",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-307-1",
+      "description": "The production site serves the pricing page over HTTPS.",
+      "testable": true,
+      "scope": "deployed",
+      "verification": "external",
+      "proof": "external"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-11-05T00:00:00Z"
+}
