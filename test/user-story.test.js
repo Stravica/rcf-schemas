@@ -1038,3 +1038,36 @@ test('user-story: fixture invalid/us-026-ac-verification-bad-value.json fails on
   assert.equal(validate(readFixture('invalid', 'us-026-ac-verification-bad-value.json')), false);
   assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), verificationEnumError);
 });
+
+// -- 0.11.0 additions (optional AC proof level, round G, the stage-keeper's ruling 5) --
+//
+// The closed $defs.acceptanceCriterion refused a proof field until this release. It is now
+// an optional enum of exactly full, journey and external, in that order, with no schema
+// default; absent meaning full is the consumer's rule.
+
+const proofEnumError = [['/acceptanceCriteria/0/proof', 'enum']];
+
+for (const proof of ['full', 'journey', 'external']) {
+  test(`user-story: AC with proof=${proof} validates`, () => {
+    assert.equal(validate(withVerification({ proof })), true, JSON.stringify(validate.errors));
+  });
+}
+
+test('user-story: AC without proof validates (field is optional at schema level)', () => {
+  assert.equal('proof' in base.acceptanceCriteria[0], false);
+  assert.equal(validate(base), true, JSON.stringify(validate.errors));
+});
+
+test('user-story: AC with proof=light is rejected on enum alone', () => {
+  assert.equal(validate(withVerification({ proof: 'light' })), false);
+  assert.deepEqual(validate.errors.map((e) => [e.instancePath, e.keyword]), proofEnumError);
+});
+
+test('user-story: schema file declares proof as an enum of exactly full, journey, external, not required, no default, object still closed', () => {
+  const schema = JSON.parse(readFileSync(join(REPO_ROOT, 'schemas', 'user-story.schema.json'), 'utf8'));
+  const criterion = schema.$defs.acceptanceCriterion;
+  assert.deepEqual(criterion.properties.proof.enum, ['full', 'journey', 'external']);
+  assert.equal('default' in criterion.properties.proof, false);
+  assert.deepEqual(criterion.required, ['id', 'description', 'testable']);
+  assert.equal(criterion.additionalProperties, false);
+});
